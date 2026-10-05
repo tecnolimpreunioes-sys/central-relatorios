@@ -5,7 +5,7 @@ Cada usuário vê só as áreas/relatórios liberados pelo administrador; a perm
 
 ## Funcionalidades
 - Tela inicial por áreas, busca global (atalho `/`) e acessados recentemente
-- Login, troca de senha obrigatória no 1º acesso (senha padrão única definida pelo admin)
+- Login por usuário de rede (ex.: `ygor.adm`), troca de senha obrigatória no 1º acesso (senha padrão única definida pelo admin)
 - Página de área: busca, filtro por categoria, grade/lista, selo "Novo"
 - Administração: usuários, permissões (área inteira ou relatório), áreas, relatórios, senha padrão
 - Relatório **Relação de Eventos — Folha Demitidos** em `site/relatorios/eventos/`
@@ -14,7 +14,7 @@ Cada usuário vê só as áreas/relatórios liberados pelo administrador; a perm
 | Pasta | Conteúdo |
 |---|---|
 | `site/` | Frontend estático (HTML/CSS/JS, sem build). `assets/config.js` = único ponto com URL/chave do Supabase |
-| `migrations/` | SQL do schema `central` (001), proteção do Painel de Eventos (002) e carga inicial da produção (003) |
+| `migrations/` | SQL do schema `central` (001), proteção do Painel de Eventos (002) e carga inicial da produção (003) e login por usuário de rede (004) |
 | `supabase/functions/central-admin-usuarios/` | Edge Function: criar usuário e redefinir senha |
 | `painel-redirect/` | Página que redireciona o endereço antigo do painel para a Central |
 

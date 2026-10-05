@@ -24,8 +24,8 @@ on conflict (slug) do nothing;
 
 -- primeiro administrador: usuário que JÁ existe no Auth da VM (ex.: o do Painel).
 -- Entra com a senha que já tem (must_change_password = false).
-insert into central.perfis(id, email, nome, is_admin, must_change_password)
-select id, email, 'Ygor', true, false from auth.users
+insert into central.perfis(id, email, login, nome, is_admin, must_change_password)
+select id, email, lower(split_part(email, '@', 1)), 'Ygor', true, false from auth.users
 where lower(email) = lower('ygor.adm@tecnolimp.com.br')
 on conflict (id) do update set is_admin = true, ativo = true;
 

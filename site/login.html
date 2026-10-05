@@ -72,12 +72,12 @@
     <div class="form-card">
       <div class="mobile-logo"><img src="assets/tecnolimplogo.png" alt="Tecnolimp"></div>
       <h2>Entrar</h2>
-      <p class="sub" id="sub">Use seu e-mail corporativo e sua senha.</p>
+      <p class="sub" id="sub">Use seu usuário de rede e sua senha.</p>
       <form id="form" novalidate>
         <div id="msg" role="alert"></div>
         <div class="field">
-          <label for="email">E-mail</label>
-          <input class="input" id="email" type="email" autocomplete="username" inputmode="email" required placeholder="nome@tecnolimp.com.br">
+          <label for="email">Usuário de rede</label>
+          <input class="input" id="email" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="ex.: ygor.adm">
         </div>
         <div class="field">
           <label for="senha">Senha</label>
@@ -133,7 +133,7 @@
   document.getElementById("form").addEventListener("submit", function(e){
     e.preventDefault();
     msg.innerHTML = "";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) return erro("Informe um e-mail válido.", email);
+    if (email.value.trim().length < 2) return erro("Informe seu usuário de rede.", email);
     if (!senha.value) return erro("Informe a senha.", senha);
     btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Entrando…';
     TC.login(email.value, senha.value).then(function(p){

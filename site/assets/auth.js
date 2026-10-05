@@ -94,11 +94,18 @@
   }
 
   // ---------- login / perfil ----------
-  function login(email, senha) {
-    return authPost("token?grant_type=password", { email: String(email).trim().toLowerCase(), password: senha }).then(function (res) {
+  // usuario = login de rede (ex.: ygor.adm). Se vier com "@", é tratado como e-mail.
+  function login(usuario, senha) {
+    var u = String(usuario || "").trim().toLowerCase();
+    var resolver = u.indexOf("@") !== -1 ? Promise.resolve(u)
+      : chamar(CFG.SB_URL + "/rest/v1/rpc/email_para_login", { method: "POST", body: { p_login: u } }, CFG.SB_SCHEMA);
+    return resolver.then(function (email) {
+      if (!email) throw new Error("Usuário ou senha incorretos.");
+      return authPost("token?grant_type=password", { email: email, password: senha });
+    }).then(function (res) {
       if (!res.ok) {
         var m = (res.body && (res.body.error_description || res.body.msg)) || "";
-        throw new Error(/invalid/i.test(m) ? "E-mail ou senha incorretos." : (m || "Não foi possível entrar."));
+        throw new Error(/invalid/i.test(m) ? "Usuário ou senha incorretos." : (m || "Não foi possível entrar."));
       }
       guardarToken(res.body);
       return perfil(true).then(function (p) {
@@ -115,7 +122,7 @@
     if (cachePerfil && !forcar) return Promise.resolve(cachePerfil);
     var s = ler();
     if (!s) return Promise.resolve(null);
-    return db("perfis?select=id,email,nome,is_admin,must_change_password,ativo&id=eq." + s.user.id).then(function (rows) {
+    return db("perfis?select=id,email,login,nome,is_admin,must_change_password,ativo&id=eq." + s.user.id).then(function (rows) {
       cachePerfil = rows && rows[0] ? rows[0] : null;
       return cachePerfil;
     });
@@ -212,16 +219,16 @@
 
   // Menu do usuário (avatar + nome + atalhos). el = elemento container.
   function montarMenuUsuario(el, p) {
-    var primeiroNome = (p.nome || p.email).split(" ")[0];
+    var primeiroNome = (p.nome || p.login).split(" ")[0];
     el.innerHTML =
       '<div class="tc-user">' +
       '<button type="button" class="tc-user-btn" aria-haspopup="menu" aria-expanded="false">' +
-      '<span class="tc-avatar" aria-hidden="true">' + esc(iniciais(p.nome, p.email)) + '</span>' +
+      '<span class="tc-avatar" aria-hidden="true">' + esc(iniciais(p.nome, p.login)) + '</span>' +
       '<span class="tc-user-nome">' + esc(primeiroNome) + '</span>' +
       '<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
       '</button>' +
       '<div class="tc-menu" role="menu" hidden>' +
-      '<div class="tc-menu-head"><strong>' + esc(p.nome || p.email) + '</strong><span>' + esc(p.email) + '</span></div>' +
+      '<div class="tc-menu-head"><strong>' + esc(p.nome || p.login) + '</strong><span>' + esc(p.login) + '</span></div>' +
       '<a role="menuitem" href="' + ROOT + 'index.html">Início</a>' +
       (p.is_admin ? '<a role="menuitem" href="' + ROOT + 'admin.html">Administração</a>' : '') +
       '<a role="menuitem" href="' + ROOT + 'trocar-senha.html?voluntario=1">Alterar senha</a>' +

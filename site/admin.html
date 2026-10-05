@@ -96,7 +96,7 @@
 
   <section data-painel="usuarios">
     <div class="tb">
-      <div class="tc-search"><span class="ic-b"></span><input class="input" id="u-busca" type="search" placeholder="Buscar por nome ou e-mail…" aria-label="Buscar usuário"></div>
+      <div class="tc-search"><span class="ic-b"></span><input class="input" id="u-busca" type="search" placeholder="Buscar por nome ou usuário…" aria-label="Buscar usuário"></div>
       <select class="input" id="u-filtro" aria-label="Filtrar usuários">
         <option value="">Todos os usuários</option><option value="admin">Administradores</option>
         <option value="pendente">Aguardando 1º acesso</option><option value="inativo">Inativos</option>
@@ -208,14 +208,14 @@
   function renderUsuarios(){
     var t = (document.getElementById("u-busca").value || "").toLowerCase(), f = document.getElementById("u-filtro").value;
     var l = D.perfis.filter(function(p){
-      if (t && (p.nome + " " + p.email).toLowerCase().indexOf(t) === -1) return false;
+      if (t && (p.nome + " " + p.login + " " + p.email).toLowerCase().indexOf(t) === -1) return false;
       if (f === "admin") return p.is_admin;
       if (f === "pendente") return p.ativo && p.must_change_password;
       if (f === "inativo") return !p.ativo;
       return true;
     });
     document.getElementById("u-tb").innerHTML = l.map(function(p){
-      return '<tr><td><div class="pess"><span class="tc-avatar">' + esc(TC.iniciais(p.nome, p.email)) + '</span><div><b>' + esc(p.nome || "—") + (p.id === D.eu.id ? ' <span class="muted">(você)</span>' : '') + '</b><span>' + esc(p.email) + '</span></div></div></td>' +
+      return '<tr><td><div class="pess"><span class="tc-avatar">' + esc(TC.iniciais(p.nome, p.login)) + '</span><div><b>' + esc(p.nome || "—") + (p.id === D.eu.id ? ' <span class="muted">(você)</span>' : '') + '</b><span>' + esc(p.login) + (/@usuarios\.tecnolimp\.local$/.test(p.email) ? '' : ' · ' + esc(p.email)) + '</span></div></div></td>' +
         '<td>' + (p.is_admin ? '<span class="tag tag-admin">Administrador</span>' : '<span class="muted">Usuário</span>') + '</td>' +
         '<td class="hide-sm">' + resumoAcessos(p.id) + '</td><td>' + statusUsuario(p) + '</td>' +
         '<td class="hide-sm muted">' + (p.ultimo_acesso_em ? fmtDH.format(new Date(p.ultimo_acesso_em)) : "Nunca") + '</td>' +
@@ -292,11 +292,12 @@
   }
 
   function modalUsuario(uid){
-    var p = uid ? D.perfis.find(function(x){ return x.id === uid; }) : { nome: "", email: "", is_admin: false, ativo: true };
+    var p = uid ? D.perfis.find(function(x){ return x.id === uid; }) : { nome: "", login: "", email: "", is_admin: false, ativo: true };
     var novo = !uid, eu = uid === D.eu.id;
     var corpo = '<div data-msg></div>' +
       '<div class="grid-2"><div class="field"><label for="m-nome">Nome</label><input class="input" id="m-nome" maxlength="80" value="' + esc(p.nome) + '"></div>' +
-      '<div class="field"><label for="m-email">E-mail</label><input class="input" id="m-email" type="email" value="' + esc(p.email) + '"' + (novo ? '' : ' disabled') + '></div></div>' +
+      '<div class="field"><label for="m-login">Usuário de rede</label><input class="input" id="m-login" autocapitalize="none" spellcheck="false" maxlength="40" placeholder="ex.: joao.silva" value="' + esc(p.login) + '"><span class="hint">É o que a pessoa digita para entrar.</span></div></div>' +
+      '<div class="field"><label for="m-email">E-mail <span class="muted" style="font-weight:400">(opcional)</span></label><input class="input" id="m-email" type="email" value="' + esc(/@usuarios\.tecnolimp\.local$/.test(p.email || "") ? "" : p.email) + '"' + (novo ? '' : ' disabled') + '></div>' +
       '<div style="display:flex;gap:24px;flex-wrap:wrap">' +
       '<label class="switch"><input type="checkbox" id="m-admin"' + (p.is_admin ? " checked" : "") + (eu ? " disabled" : "") + '><span class="tr"></span>Administrador</label>' +
       (novo ? '' : '<label class="switch"><input type="checkbox" id="m-ativo"' + (p.ativo ? " checked" : "") + (eu ? " disabled" : "") + '><span class="tr"></span>Acesso ativo</label>') + '</div>' +
@@ -312,7 +313,7 @@
 
     var reset = m.el.querySelector("[data-reset]");
     if (reset) reset.addEventListener("click", function(){
-      if (!confirm("Redefinir a senha de " + (p.nome || p.email) + " para a senha padrão? No próximo acesso a pessoa terá de criar uma nova.")) return;
+      if (!confirm("Redefinir a senha de " + (p.nome || p.login) + " para a senha padrão? No próximo acesso a pessoa terá de criar uma nova.")) return;
       reset.disabled = true;
       TC.fn("central-admin-usuarios", { acao: "resetar_senha", usuario_id: uid }).then(function(){
         TC.toast("Senha redefinida para a padrão."); m.fechar(); carregar();
@@ -320,17 +321,18 @@
     });
 
     m.el.querySelector("[data-salvar]").addEventListener("click", function(){
-      var bt = this, nome = m.el.querySelector("#m-nome").value.trim(), email = m.el.querySelector("#m-email").value.trim();
+      var bt = this, nome = m.el.querySelector("#m-nome").value.trim(), email = m.el.querySelector("#m-email").value.trim(), login = m.el.querySelector("#m-login").value.trim().toLowerCase();
       if (nome.length < 2) return msgModal(m, "Informe o nome.");
-      if (novo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return msgModal(m, "Informe um e-mail válido.");
+      if (!/^[a-z0-9._-]{2,40}$/.test(login)) return msgModal(m, "Usuário de rede: use letras minúsculas, números, ponto, hífen ou _ (ex.: joao.silva).");
+      if (novo && email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return msgModal(m, "E-mail inválido (ou deixe em branco).");
       var perm = lerPermissoes(m.el);
       bt.disabled = true; bt.textContent = "Salvando…";
       var passo = novo
-        ? TC.fn("central-admin-usuarios", { acao: "criar", email: email, nome: nome, is_admin: adm.checked }).then(function(r){ uid = r.id; if (r.ja_existia) TC.toast("E-mail já existia em outro sistema interno: a pessoa entra com a senha que já usa."); })
-        : TC.db("perfis?id=eq." + uid, { method: "PATCH", prefer: "return=minimal", body: eu ? { nome: nome } : { nome: nome, is_admin: adm.checked, ativo: m.el.querySelector("#m-ativo").checked } });
+        ? TC.fn("central-admin-usuarios", { acao: "criar", login: login, email: email, nome: nome, is_admin: adm.checked }).then(function(r){ uid = r.id; if (r.ja_existia) TC.toast("E-mail já existia em outro sistema interno: a pessoa entra com a senha que já usa."); })
+        : TC.db("perfis?id=eq." + uid, { method: "PATCH", prefer: "return=minimal", body: eu ? { nome: nome, login: login } : { nome: nome, login: login, is_admin: adm.checked, ativo: m.el.querySelector("#m-ativo").checked } });
       passo.then(function(){ return salvarPermissoes(uid, perm); }).then(function(){
         TC.toast(novo ? "Usuário criado." : "Alterações salvas."); m.fechar(); carregar();
-      }).catch(function(e){ msgModal(m, e.message); bt.disabled = false; bt.textContent = novo ? "Criar usuário" : "Salvar"; });
+      }).catch(function(e){ msgModal(m, /perfis_login_uk|duplicate/i.test(e.message) ? "Esse usuário de rede já está em uso." : e.message); bt.disabled = false; bt.textContent = novo ? "Criar usuário" : "Salvar"; });
     });
   }
 

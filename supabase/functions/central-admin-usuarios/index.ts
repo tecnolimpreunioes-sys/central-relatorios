@@ -46,11 +46,17 @@ Deno.serve(async (req) => {
 
   // 2) criar usuário
   if (body.acao === "criar") {
-    const email = String(body.email || "").trim().toLowerCase();
+    const login = String(body.login || "").trim().toLowerCase();
     const nome = String(body.nome || "").trim().slice(0, 80);
     const isAdmin = body.is_admin === true;
-    if (!EMAIL_RE.test(email)) return resp(400, { error: "Informe um e-mail válido." });
+    if (!/^[a-z0-9._-]{2,40}$/.test(login)) return resp(400, { error: "Usuário de rede inválido (ex.: joao.silva)." });
+    // e-mail é opcional: sem e-mail corporativo, o Auth usa um endereço técnico interno
+    const emailInformado = String(body.email || "").trim().toLowerCase();
+    if (emailInformado && !EMAIL_RE.test(emailInformado)) return resp(400, { error: "E-mail inválido." });
+    const email = emailInformado || `${login}@usuarios.tecnolimp.local`;
     if (nome.length < 2) return resp(400, { error: "Informe o nome." });
+    const { data: loginUsado } = await db.from("perfis").select("id").eq("login", login).maybeSingle();
+    if (loginUsado) return resp(409, { error: "Este usuário de rede já está cadastrado na Central." });
 
     let userId: string | null = null;
     let jaExistia = false;
@@ -72,10 +78,10 @@ Deno.serve(async (req) => {
     if (!userId) return resp(400, { error: criarErr?.message || "Não foi possível criar o usuário." });
 
     const { data: existente } = await db.from("perfis").select("id").eq("id", userId).maybeSingle();
-    if (existente) return resp(409, { error: "Este e-mail já está cadastrado na Central." });
+    if (existente) return resp(409, { error: "Este e-mail já está vinculado a outro usuário da Central." });
 
     const { error: perfilErr } = await db.from("perfis").insert({
-      id: userId, email, nome, is_admin: isAdmin,
+      id: userId, email, login, nome, is_admin: isAdmin,
       must_change_password: !jaExistia,
     });
     if (perfilErr) return resp(500, { error: "Usuário criado, mas falhou ao gravar o perfil." });

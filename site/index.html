@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Central de Relatórios Gerenciais — Tecnolimp</title>
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/central.css">
+<script src="assets/config.js"></script>
+<script src="assets/auth.js"></script>
+<script src="assets/icones.js"></script>
+<style>
+  .hero{position:relative;overflow:hidden;border-radius:20px;padding:34px 36px 30px;color:#fff;
+    background:radial-gradient(1200px 300px at 100% 0%,rgba(255,255,255,.10),transparent 60%),
+               linear-gradient(120deg,var(--brand-800) 0%,var(--brand) 55%,#0b5d8f 100%);
+    box-shadow:var(--shadow-2);}
+  .hero::after{content:"";position:absolute;right:-60px;top:-60px;width:320px;height:320px;border-radius:50%;
+    border:46px solid rgba(255,255,255,.05);pointer-events:none;}
+  .hero::before{content:"";position:absolute;left:0;bottom:0;height:4px;width:120px;background:var(--accent);border-radius:0 4px 0 0;}
+  .hero-k{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#bcd3e3;margin:0 0 6px;}
+  .hero h1{font-family:var(--font-display);font-weight:800;font-size:30px;line-height:1.15;margin:0 0 8px;}
+  .hero p{margin:0;color:#d6e4ee;max-width:620px;font-size:15px;}
+  .hero-row{display:flex;gap:24px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;position:relative;z-index:1;}
+  .hero-stats{display:flex;gap:10px;}
+  .hstat{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:10px 14px;min-width:104px;}
+  .hstat b{display:block;font-family:var(--font-display);font-size:22px;line-height:1.1;}
+  .hstat span{font-size:12px;color:#bcd3e3;}
+  .hero-search{margin-top:22px;max-width:640px;position:relative;z-index:2;}
+  .hero-search .input{height:48px;border:0;border-radius:12px;font-size:15px;box-shadow:0 6px 20px rgba(0,0,0,.18);}
+  .hero-cta{margin-top:22px;display:flex;gap:10px;flex-wrap:wrap;position:relative;z-index:1;}
+  .hero-cta .btn-primary{background:#fff;color:var(--brand);}
+  .hero-cta .btn-primary:hover{background:#eaf1f6;}
+  .resultados{position:absolute;left:0;right:0;top:calc(100% + 6px);background:var(--surface);color:var(--ink);border:1px solid var(--line);
+    border-radius:12px;box-shadow:var(--shadow-2);max-height:360px;overflow:auto;padding:6px;}
+  .res-item{display:flex;gap:12px;align-items:center;padding:10px 12px;border-radius:8px;text-decoration:none;color:inherit;}
+  .res-item:hover,.res-item.ativo{background:var(--brand-050);}
+  .res-ico{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none;color:var(--c);background:#eef3f7;background:color-mix(in srgb,var(--c) 12%,#fff);}
+  .res-t{font-weight:600;}
+  .res-s{font-size:12.5px;color:var(--muted);}
+  .res-vazio{padding:14px;color:var(--muted);font-size:13.5px;}
+  mark{background:#fff1b8;color:inherit;border-radius:3px;padding:0 1px;}
+
+  .sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:34px 0 14px;}
+  .sec-h h2{font-family:var(--font-display);font-size:19px;margin:0;color:var(--ink);}
+  .sec-h span{font-size:13px;color:var(--muted);}
+
+  .areas{display:grid;grid-template-columns:repeat(auto-fill,minmax(214px,1fr));gap:16px;}
+  .area{--c:var(--brand);position:relative;display:flex;flex-direction:column;gap:10px;padding:20px 20px 16px;text-decoration:none;color:inherit;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-1);
+    transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;overflow:hidden;min-height:196px;}
+  .area::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--c);opacity:.9;}
+  a.area:hover{transform:translateY(-3px);box-shadow:var(--shadow-2);border-color:#cfd8e2;}
+  a.area:hover .area-go{color:var(--c);gap:10px;}
+  .area-top{display:flex;align-items:center;justify-content:space-between;}
+  .area-ico{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;color:var(--c);background:#eef3f7;background:color-mix(in srgb,var(--c) 11%,#fff);}
+  .area h3{font-family:var(--font-display);font-size:18px;margin:4px 0 0;color:var(--ink);}
+  .area p{margin:0;color:var(--muted);font-size:13.5px;flex:1;}
+  .area-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px dashed var(--line);padding-top:12px;margin-top:4px;font-size:13px;}
+  .area-n{color:var(--ink-2);font-weight:600;white-space:nowrap;}
+  .area-go{white-space:nowrap;display:inline-flex;align-items:center;gap:6px;font-weight:600;color:var(--brand);transition:gap .18s,color .18s;}
+  .area-lock{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--muted);background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px 9px;}
+  .area.bloq{background:var(--surface-2);}
+  .area.bloq .area-ico{filter:grayscale(.6);opacity:.75;}
+  .area.bloq h3{color:var(--ink-2);}
+  .area.bloq .area-go{color:var(--muted);}
+  .area-badge{font-size:12px;font-weight:700;color:var(--c);background:#eef3f7;background:color-mix(in srgb,var(--c) 10%,#fff);border-radius:999px;padding:3px 10px;}
+
+  .recentes{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;}
+  .rec{--c:var(--brand);display:flex;gap:12px;align-items:center;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;text-decoration:none;color:inherit;transition:border-color .15s,box-shadow .15s;}
+  .rec:hover{border-color:#cfd8e2;box-shadow:var(--shadow-1);}
+  .rec .res-t{font-size:13.5px;line-height:1.3;}
+
+  @media (max-width:720px){
+    .hero{padding:24px 20px 22px;border-radius:16px;}
+    .hero h1{font-size:23px;}
+    .hero-stats{width:100%;}
+    .hstat{flex:1;min-width:0;}
+  }
+</style>
+</head>
+<body>
+<header class="tc-top">
+  <div class="tc-top-in">
+    <a class="tc-brand" href="index.html" aria-label="Central de Relatórios — início">
+      <img src="assets/tecnolimplogo.png" alt="Tecnolimp">
+      <span class="tc-brand-sep" aria-hidden="true"></span>
+      <span class="tc-brand-nome">Central de Relatórios</span>
+    </a>
+    <div class="tc-top-sp"></div>
+    <div id="user-slot"><a class="btn btn-primary btn-sm" id="btn-entrar" href="login.html">Entrar</a></div>
+  </div>
+</header>
+
+<main class="tc-main">
+  <div id="aviso"></div>
+
+  <section class="hero" aria-labelledby="hero-t">
+    <div class="hero-row">
+      <div>
+        <p class="hero-k" id="hero-k">Tecnolimp · Inteligência gerencial</p>
+        <h1 id="hero-t">Central de Relatórios Gerenciais</h1>
+        <p id="hero-p">Relatórios internos por área, atualizados automaticamente a partir do Sapiens. Entre com seu e-mail corporativo para ver os relatórios liberados para você.</p>
+      </div>
+      <div class="hero-stats" id="hero-stats" hidden></div>
+    </div>
+    <div class="hero-cta" id="hero-cta">
+      <a class="btn btn-primary" href="login.html">Entrar na Central</a>
+    </div>
+    <div class="hero-search" id="hero-search" hidden>
+      <div class="tc-search">
+        <span id="ico-busca"></span>
+        <label class="sr-only" for="busca">Buscar relatório</label>
+        <input class="input" id="busca" type="search" autocomplete="off" placeholder="Buscar relatório por nome, área ou categoria…" role="combobox" aria-expanded="false" aria-controls="resultados">
+        <span class="tc-kbd" aria-hidden="true">/</span>
+      </div>
+      <div class="resultados" id="resultados" role="listbox" hidden></div>
+    </div>
+  </section>
+
+  <section id="sec-recentes" hidden>
+    <div class="sec-h"><h2>Acessados recentemente</h2><span>neste computador</span></div>
+    <div class="recentes" id="recentes"></div>
+  </section>
+
+  <section aria-labelledby="areas-t">
+    <div class="sec-h"><h2 id="areas-t">Áreas</h2><span id="areas-sub"></span></div>
+    <div class="areas" id="areas">
+      <div class="area sk" style="border:0"></div><div class="area sk" style="border:0"></div><div class="area sk" style="border:0"></div><div class="area sk" style="border:0"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="tc-foot"><div class="tc-foot-in"><span>© Tecnolimp — uso interno</span><span>Acesso restrito à rede interna. Dúvidas de acesso: fale com o administrador da Central.</span></div></footer>
+
+<script>
+(function(){
+  "use strict";
+  var esc = TC.esc;
+  document.getElementById("ico-busca").outerHTML = TCIcone("busca", 18);
+  var params = new URLSearchParams(location.search);
+  if (params.get("sem_acesso")) {
+    document.getElementById("aviso").innerHTML = '<div class="alert alert-err" style="margin-bottom:16px">Você não tem acesso a esse relatório. Se precisar dele, peça a liberação ao administrador da Central.</div>';
+  }
+
+  var estado = { vitrine: [], perfil: null, areas: [], relatorios: [] };
+
+  function saudacao(){
+    var h = new Date().getHours();
+    return h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
+  }
+
+  function hrefArea(slug){ return "area.html?a=" + encodeURIComponent(slug); }
+
+  function renderAreas(){
+    var el = document.getElementById("areas");
+    var logado = !!estado.perfil;
+    var porArea = {};
+    estado.relatorios.forEach(function(r){ porArea[r.area_id] = (porArea[r.area_id] || 0) + 1; });
+    var idPorSlug = {};
+    estado.areas.forEach(function(a){ idPorSlug[a.slug] = a.id; });
+
+    var liberadas = 0;
+    el.innerHTML = estado.vitrine.map(function(a){
+      var total = a.qtd_relatorios;
+      var meus = logado ? (porArea[idPorSlug[a.slug]] || 0) : 0;
+      var podeAbrir = logado && (meus > 0 || estado.perfil.is_admin);
+      if (podeAbrir) liberadas++;
+      var rel = function(n){ return n + (n === 1 ? " relatório" : " relatórios"); };
+      var topo = '<div class="area-top"><span class="area-ico">' + TCIcone(a.icone, 24) + '</span>' +
+        (podeAbrir ? '<span class="area-badge">' + (estado.perfil.is_admin ? rel(total) : rel(meus)) + '</span>'
+                   : '<span class="area-lock">' + TCIcone("cadeado", 13) + (logado ? "Sem acesso" : "Restrito") + '</span>') + '</div>';
+      var corpo = '<h3>' + esc(a.nome) + '</h3><p>' + esc(a.descricao) + '</p>';
+      if (!logado) {
+        return '<a class="area" style="--c:' + esc(a.cor) + '" href="login.html?next=' + encodeURIComponent(hrefArea(a.slug)) + '">' + topo + corpo +
+          '<div class="area-foot"><span class="area-n">' + (total ? rel(total) : "Em breve") + '</span><span class="area-go">Entrar ' + TCIcone("seta", 16) + '</span></div></a>';
+      }
+      if (podeAbrir) {
+        return '<a class="area" style="--c:' + esc(a.cor) + '" href="' + hrefArea(a.slug) + '">' + topo + corpo +
+          '<div class="area-foot"><span class="area-n">' + (total ? "Acesso liberado" : "Sem relatórios ainda") + '</span><span class="area-go">Abrir ' + TCIcone("seta", 16) + '</span></div></a>';
+      }
+      return '<div class="area bloq" style="--c:' + esc(a.cor) + '" aria-disabled="true">' + topo + corpo +
+        '<div class="area-foot"><span class="area-n">' + (total ? rel(total) : "Em breve") + '</span><span class="area-go" title="Peça a liberação ao administrador da Central">Peça acesso</span></div></div>';
+    }).join("") || '<div class="empty card" style="grid-column:1/-1"><strong>Nenhuma área cadastrada</strong>O administrador ainda não publicou áreas na Central.</div>';
+
+    document.getElementById("areas-sub").textContent = logado
+      ? (estado.perfil.is_admin ? "Administrador: acesso a todas as áreas" : liberadas + " de " + estado.vitrine.length + " áreas liberadas para você")
+      : estado.vitrine.length + " áreas";
+  }
+
+  function renderHeroLogado(){
+    var p = estado.perfil;
+    document.getElementById("hero-k").textContent = saudacao() + ", " + (p.nome || p.email).split(" ")[0];
+    document.getElementById("hero-t").textContent = "O que você quer consultar hoje?";
+    document.getElementById("hero-p").textContent = "Busque um relatório ou escolha uma área abaixo. Você vê apenas o que foi liberado para o seu usuário.";
+    document.getElementById("hero-cta").hidden = true;
+    document.getElementById("hero-search").hidden = false;
+    var nAreas = estado.vitrine.filter(function(a){
+      return p.is_admin || estado.relatorios.some(function(r){ var ar = estado.areas.find(function(x){ return x.slug === a.slug; }); return ar && r.area_id === ar.id; });
+    }).length;
+    var st = document.getElementById("hero-stats");
+    st.innerHTML = '<div class="hstat"><b>' + estado.relatorios.length + '</b><span>relatórios para você</span></div>' +
+                   '<div class="hstat"><b>' + nAreas + '</b><span>' + (nAreas === 1 ? "área liberada" : "áreas liberadas") + '</span></div>';
+    st.hidden = false;
+  }
+
+  // ---------- busca global ----------
+  function normalizar(s){ return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
+  function destacar(texto, termo){
+    if (!termo) return esc(texto);
+    var n = normalizar(texto), i = n.indexOf(termo);
+    if (i < 0) return esc(texto);
+    return esc(texto.slice(0, i)) + "<mark>" + esc(texto.slice(i, i + termo.length)) + "</mark>" + esc(texto.slice(i + termo.length));
+  }
+  var inp = document.getElementById("busca"), box = document.getElementById("resultados"), sel = -1;
+  function areaDe(r){ return estado.areas.find(function(a){ return a.id === r.area_id; }) || {}; }
+  function buscar(){
+    var t = normalizar(inp.value.trim());
+    if (!t) { box.hidden = true; inp.setAttribute("aria-expanded", "false"); return; }
+    var achados = estado.relatorios.filter(function(r){
+      var a = areaDe(r);
+      return normalizar(r.nome + " " + r.descricao + " " + r.categoria + " " + a.nome).indexOf(t) !== -1;
+    }).slice(0, 12);
+    sel = achados.length ? 0 : -1;
+    box.innerHTML = achados.map(function(r, i){
+      var a = areaDe(r);
+      return '<a class="res-item' + (i === 0 ? " ativo" : "") + '" role="option" style="--c:' + esc(a.cor) + '" href="' + esc(r.url) + '" data-slug="' + esc(r.slug) + '">' +
+        '<span class="res-ico">' + TCIcone(a.icone, 18) + '</span><span><div class="res-t">' + destacar(r.nome, t) + '</div>' +
+        '<div class="res-s">' + esc(a.nome) + ' · ' + esc(r.categoria) + '</div></span></a>';
+    }).join("") || '<div class="res-vazio">Nenhum relatório encontrado para “' + esc(inp.value.trim()) + '”.</div>';
+    box.hidden = false; inp.setAttribute("aria-expanded", "true");
+  }
+  inp.addEventListener("input", buscar);
+  inp.addEventListener("keydown", function(e){
+    var itens = box.querySelectorAll(".res-item");
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      if (!itens.length) return;
+      e.preventDefault();
+      sel = (sel + (e.key === "ArrowDown" ? 1 : -1) + itens.length) % itens.length;
+      itens.forEach(function(x, i){ x.classList.toggle("ativo", i === sel); });
+      itens[sel].scrollIntoView({block:"nearest"});
+    } else if (e.key === "Enter" && sel >= 0 && itens[sel]) {
+      e.preventDefault(); itens[sel].click();
+    } else if (e.key === "Escape") { inp.value = ""; buscar(); }
+  });
+  document.addEventListener("click", function(e){ if (!document.getElementById("hero-search").contains(e.target)) box.hidden = true; });
+  document.addEventListener("keydown", function(e){
+    if (e.key === "/" && document.activeElement !== inp && !document.getElementById("hero-search").hidden && !/input|textarea|select/i.test(document.activeElement.tagName)) { e.preventDefault(); inp.focus(); }
+  });
+  box.addEventListener("click", function(e){ var a = e.target.closest("[data-slug]"); if (a) registrarRecente(a.dataset.slug); });
+
+  // ---------- recentes (só neste navegador) ----------
+  var CH_REC = "tl_central_recentes";
+  function lerRecentes(){ try { return JSON.parse(localStorage.getItem(CH_REC) || "[]"); } catch(e){ return []; } }
+  function registrarRecente(slug){
+    try {
+      var l = lerRecentes().filter(function(s){ return s !== slug; });
+      l.unshift(slug); localStorage.setItem(CH_REC, JSON.stringify(l.slice(0, 6)));
+    } catch(e){}
+  }
+  function renderRecentes(){
+    var porSlug = {}; estado.relatorios.forEach(function(r){ porSlug[r.slug] = r; });
+    var l = lerRecentes().map(function(s){ return porSlug[s]; }).filter(Boolean).slice(0, 4);
+    if (!l.length) return;
+    document.getElementById("recentes").innerHTML = l.map(function(r){
+      var a = areaDe(r);
+      return '<a class="rec" style="--c:' + esc(a.cor) + '" href="' + esc(r.url) + '" data-slug="' + esc(r.slug) + '"><span class="res-ico">' + TCIcone(a.icone, 18) + '</span>' +
+        '<span><div class="res-t">' + esc(r.nome) + '</div><div class="res-s">' + esc(a.nome) + '</div></span></a>';
+    }).join("");
+    document.getElementById("recentes").addEventListener("click", function(e){ var a = e.target.closest("[data-slug]"); if (a) registrarRecente(a.dataset.slug); });
+    document.getElementById("sec-recentes").hidden = false;
+  }
+
+  // ---------- carga ----------
+  var vitrine = TC.rpc("vitrine_areas").then(function(v){ estado.vitrine = v || []; });
+  var usuario = TC.sessaoValida().then(function(s){
+    if (!s) return null;
+    return TC.perfil().catch(function(){ return null; });
+  }).then(function(p){
+    if (!p || !p.ativo) return null;
+    if (p.must_change_password) { location.href = "trocar-senha.html"; return new Promise(function(){}); }
+    estado.perfil = p;
+    TC.montarMenuUsuario(document.getElementById("user-slot"), p);
+    return Promise.all([
+      TC.db("areas?select=id,slug,nome,icone,cor&ativo=eq.true"),
+      TC.db("relatorios?select=id,area_id,slug,nome,descricao,categoria,url&ativo=eq.true&order=ordem.asc,nome.asc")
+    ]).then(function(r){ estado.areas = r[0] || []; estado.relatorios = r[1] || []; });
+  });
+  Promise.all([vitrine, usuario]).then(function(){
+    renderAreas();
+    if (estado.perfil) { renderHeroLogado(); renderRecentes(); }
+  }).catch(function(){
+    document.getElementById("areas").innerHTML = '<div class="empty card" style="grid-column:1/-1"><strong>Não foi possível carregar a Central</strong>Verifique sua conexão com a rede interna e tente novamente.</div>';
+  });
+})();
+</script>
+</body>
+</html>

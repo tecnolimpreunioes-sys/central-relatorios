@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entrar — Central de Relatórios Tecnolimp</title>
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/central.css">
+<script src="assets/config.js"></script>
+<script src="assets/auth.js"></script>
+<script src="assets/icones.js"></script>
+<style>
+  body{background:var(--surface);}
+  .auth{flex:1;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);min-height:100vh;}
+  .auth-side{position:relative;overflow:hidden;color:#fff;padding:44px 52px;display:flex;flex-direction:column;justify-content:space-between;
+    background:radial-gradient(900px 400px at 0% 100%,rgba(255,255,255,.08),transparent 60%),linear-gradient(150deg,var(--brand-800),var(--brand) 60%,#0b5d8f);}
+  .auth-side::after{content:"";position:absolute;right:-120px;bottom:-120px;width:420px;height:420px;border-radius:50%;border:60px solid rgba(255,255,255,.05);}
+  .logo-chip{display:inline-flex;background:#fff;border-radius:12px;padding:10px 14px;box-shadow:0 8px 24px rgba(0,0,0,.18);}
+  .logo-chip img{height:30px;display:block;}
+  .auth-side h1{font-family:var(--font-display);font-size:34px;line-height:1.15;margin:0 0 12px;max-width:440px;}
+  .auth-side p{color:#d6e4ee;max-width:430px;font-size:15px;margin:0;}
+  .feat{list-style:none;padding:0;margin:26px 0 0;display:flex;flex-direction:column;gap:12px;}
+  .feat li{display:flex;gap:12px;align-items:center;color:#e3edf4;font-size:14px;}
+  .feat .tc-ico{width:34px;height:34px;padding:8px;border-radius:10px;background:rgba(255,255,255,.10);}
+  .auth-side small{color:#a9c3d6;font-size:12px;position:relative;z-index:1;}
+  .auth-form{display:flex;align-items:center;justify-content:center;padding:40px 24px;background:var(--bg);}
+  .form-card{width:100%;max-width:400px;}
+  .form-card h2{font-family:var(--font-display);font-size:24px;margin:0 0 6px;color:var(--ink);}
+  .form-card .sub{color:var(--muted);margin:0 0 24px;}
+  .form-card form{display:flex;flex-direction:column;gap:16px;}
+  .pw{position:relative;}
+  .pw .input{padding-right:44px;}
+  .pw button{position:absolute;right:4px;top:4px;width:34px;height:34px;border:0;background:none;color:var(--muted);border-radius:8px;cursor:pointer;display:grid;place-items:center;}
+  .pw button:hover{background:var(--surface-2);color:var(--ink);}
+  .caps{font-size:12px;color:var(--warn);}
+  .btn-full{width:100%;height:46px;font-size:15px;}
+  .voltar{display:inline-flex;align-items:center;gap:6px;color:var(--muted);text-decoration:none;font-size:13px;margin-top:22px;}
+  .voltar:hover{color:var(--brand);}
+  .mobile-logo{display:none;margin-bottom:24px;}
+  .mobile-logo img{height:28px;}
+  .spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:gira .7s linear infinite;}
+  @keyframes gira{to{transform:rotate(360deg)}}
+  @media (max-width:860px){
+    .auth{grid-template-columns:1fr;}
+    .auth-side{display:none;}
+    .mobile-logo{display:block;}
+    .auth-form{align-items:flex-start;padding-top:56px;}
+  }
+</style>
+</head>
+<body>
+<div class="auth">
+  <aside class="auth-side">
+    <div style="position:relative;z-index:1">
+      <span class="logo-chip"><img src="assets/tecnolimplogo.png" alt="Tecnolimp"></span>
+    </div>
+    <div style="position:relative;z-index:1">
+      <h1>Central de Relatórios Gerenciais</h1>
+      <p>Um único acesso para os relatórios de todas as áreas da Tecnolimp, com dados atualizados automaticamente do Sapiens.</p>
+      <ul class="feat">
+        <li><span id="f1"></span>Login único para todas as áreas e relatórios</li>
+        <li><span id="f2"></span>Você vê só o que foi liberado para o seu usuário</li>
+        <li><span id="f3"></span>Indicadores prontos para consulta e impressão</li>
+      </ul>
+    </div>
+    <small>Uso interno · Tecnolimp</small>
+  </aside>
+
+  <main class="auth-form">
+    <div class="form-card">
+      <div class="mobile-logo"><img src="assets/tecnolimplogo.png" alt="Tecnolimp"></div>
+      <h2>Entrar</h2>
+      <p class="sub" id="sub">Use seu e-mail corporativo e sua senha.</p>
+      <form id="form" novalidate>
+        <div id="msg" role="alert"></div>
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input class="input" id="email" type="email" autocomplete="username" inputmode="email" required placeholder="nome@tecnolimp.com.br">
+        </div>
+        <div class="field">
+          <label for="senha">Senha</label>
+          <div class="pw">
+            <input class="input" id="senha" type="password" autocomplete="current-password" required>
+            <button type="button" id="ver" aria-label="Mostrar senha"></button>
+          </div>
+          <span class="caps" id="caps" hidden>Caps Lock está ativado</span>
+          <span class="hint">Primeiro acesso? Use a senha padrão informada pelo administrador — você vai criar a sua em seguida.</span>
+        </div>
+        <button class="btn btn-primary btn-full" id="btn" type="submit">Entrar</button>
+      </form>
+      <a class="voltar" href="index.html"><span id="ic-voltar"></span>Voltar para a Central</a>
+    </div>
+  </main>
+</div>
+<script>
+(function(){
+  "use strict";
+  document.getElementById("f1").outerHTML = TCIcone("escudo", 18);
+  document.getElementById("f2").outerHTML = TCIcone("cadeado", 18);
+  document.getElementById("f3").outerHTML = TCIcone("grafico", 18);
+  document.getElementById("ic-voltar").outerHTML = TCIcone("voltar", 15);
+  var next = TC.destinoSeguro(new URLSearchParams(location.search).get("next"));
+  if (/^area\.html/.test(next) || /^relatorios\//.test(next)) {
+    document.getElementById("sub").textContent = "Entre para abrir a área ou o relatório solicitado.";
+  }
+
+  // já logado? segue direto
+  TC.sessaoValida().then(function(s){
+    if (!s) return;
+    return TC.perfil().then(function(p){ if (p && p.ativo) location.replace(p.must_change_password ? "trocar-senha.html?next=" + encodeURIComponent(next) : next); });
+  }).catch(function(){});
+
+  var olho = document.getElementById("ver"), senha = document.getElementById("senha");
+  olho.innerHTML = TCIcone("olho", 18);
+  olho.addEventListener("click", function(){
+    var mostrar = senha.type === "password";
+    senha.type = mostrar ? "text" : "password";
+    olho.innerHTML = TCIcone(mostrar ? "olhoOff" : "olho", 18);
+    olho.setAttribute("aria-label", mostrar ? "Ocultar senha" : "Mostrar senha");
+  });
+  senha.addEventListener("keyup", function(e){
+    document.getElementById("caps").hidden = !(e.getModifierState && e.getModifierState("CapsLock"));
+  });
+
+  var msg = document.getElementById("msg"), btn = document.getElementById("btn"), email = document.getElementById("email");
+  function erro(t, campo){
+    msg.innerHTML = '<div class="alert alert-err">' + TC.esc(t) + '</div>';
+    [email, senha].forEach(function(c){ c.removeAttribute("aria-invalid"); });
+    if (campo) { campo.setAttribute("aria-invalid", "true"); campo.focus(); }
+  }
+  document.getElementById("form").addEventListener("submit", function(e){
+    e.preventDefault();
+    msg.innerHTML = "";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) return erro("Informe um e-mail válido.", email);
+    if (!senha.value) return erro("Informe a senha.", senha);
+    btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Entrando…';
+    TC.login(email.value, senha.value).then(function(p){
+      location.replace(p.must_change_password ? "trocar-senha.html?next=" + encodeURIComponent(next) : next);
+    }).catch(function(err){
+      erro(err.message || "Não foi possível entrar.", senha);
+      senha.select();
+      btn.disabled = false; btn.textContent = "Entrar";
+    });
+  });
+  email.focus();
+})();
+</script>
+</body>
+</html>

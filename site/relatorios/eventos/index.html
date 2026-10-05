@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel de Rescisões</title>
+<link rel="icon" href="../../assets/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
+<script src="../../assets/config.js"></script>
+<script src="../../assets/auth.js"></script>
+<style>
+  /* barra da Central (login único) */
+  .cbar{max-width:1100px;margin:0 auto 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-family:'Inter',system-ui,sans-serif;}
+  .cbar a.cb-link{display:inline-flex;align-items:center;gap:6px;color:#66707f;text-decoration:none;font-weight:500;}
+  .cbar a.cb-link:hover{color:#004773;text-decoration:underline;}
+  .cbar .cb-sep{color:#cbd2dc;}
+  .cbar .cb-sp{flex:1;}
+  .tc-user{position:relative;}
+  .tc-user-btn{display:flex;align-items:center;gap:8px;border:1px solid #e4e7ec;background:#fff;border-radius:999px;padding:3px 10px 3px 3px;font:inherit;font-weight:600;color:#161c2d;cursor:pointer;}
+  .tc-avatar{width:28px;height:28px;border-radius:50%;background:#004773;color:#fff;display:grid;place-items:center;font-size:11.5px;font-weight:700;}
+  .tc-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:230px;background:#fff;border:1px solid #e4e7ec;border-radius:12px;box-shadow:0 10px 28px -10px rgba(0,42,69,.25);padding:6px;z-index:30;}
+  .tc-menu-head{padding:8px 12px;border-bottom:1px solid #e4e7ec;margin-bottom:4px;display:flex;flex-direction:column;}
+  .tc-menu-head span{color:#66707f;font-size:12px;}
+  .tc-menu a,.tc-menu button{display:block;width:100%;text-align:left;padding:8px 12px;border-radius:8px;color:#161c2d;text-decoration:none;font:inherit;background:none;border:0;cursor:pointer;}
+  .tc-menu a:hover,.tc-menu button:hover{background:#eaf1f6;}
+  .tc-menu .tc-sair{color:#c4261d;}
+  [hidden]{display:none !important;}
+  @media (max-width:560px){ .tc-user-nome,.cb-area{display:none;} }
+  @media print{ .cbar{display:none !important;} }
+
+  :root{
+    --brand:#004773;
+    --brand-600:#00385c;
+    --brand-050:#e6eef3;
+    --critical:#c4261d;
+    --critical-050:#fbeae9;
+    --text-primary:#161c2d;
+    --text-secondary:#3c4858;
+    --text-muted:#66707f;
+    --surface:#f7f8fa;
+    --surface-raised:#ffffff;
+    --border:#e4e7ec;
+    --border-strong:#cbd2dc;
+    --ramp-1:#e6eef3;
+    --ramp-2:#c3d7e3;
+    --ramp-3:#8fb3cb;
+    --ramp-4:#4a87ae;
+    --ramp-5:#1f6690;
+    --ramp-6:#004773;
+    --focus:#1f6690;
+    color-scheme: light;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--surface);
+    color:var(--text-primary);
+    font-family:'Inter',system-ui,sans-serif;
+    padding-inline:20px;
+    padding-block:24px;
+    font-variant-numeric:tabular-nums;
+  }
+  h1,h2,h3,.brand-mark{font-family:'Nunito',system-ui,sans-serif;}
+
+  .wrap{max-width:1100px;margin-inline:auto;display:flex;flex-direction:column;gap:20px;}
+
+  /* header */
+  .topbar{
+    display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:nowrap;gap:16px;
+    padding-bottom:16px;border-bottom:1px solid var(--border);
+  }
+  .topbar-title{min-width:0;flex:1 1 auto;}
+  .topbar-actions-col{flex:none;}
+  .brand-row{display:flex;align-items:center;gap:10px;}
+  .brand-logo{height:26px;width:auto;display:block;}
+  h1{font-size:19px;font-weight:800;margin:4px 0 2px;color:var(--text-primary);text-wrap:balance;line-height:1.25;}
+  .subtitle{font-size:13px;color:var(--text-secondary);}
+  .status-row{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text-secondary);}
+  .dot{width:7px;height:7px;border-radius:50%;background:#2E8B57;flex:none;}
+  .dot.stale{background:var(--text-muted);}
+  .dot.pulse{animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+  .gear-btn{
+    border:1px solid var(--border-strong);background:var(--surface-raised);color:var(--text-secondary);
+    font:inherit;font-size:12.5px;padding:6px 12px;border-radius:7px;cursor:pointer;
+    text-decoration:none;display:inline-block;
+  }
+  .gear-btn:hover{border-color:var(--brand);color:var(--brand);}
+  .gear-btn:focus-visible{outline:2px solid var(--focus);outline-offset:2px;}
+
+  /* filters */
+  .filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  select{
+    font:inherit;font-size:13.5px;color:var(--text-primary);background:var(--surface-raised);
+    border:1px solid var(--border-strong);border-radius:8px;padding:8px 12px;min-width:200px;
+  }
+  select:focus-visible{outline:2px solid var(--focus);outline-offset:1px;}
+  label.f-label{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);display:block;margin-bottom:4px;}
+  .filter-group{display:flex;flex-direction:column;}
+
+  /* stat tiles */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  @media (max-width:700px){.stats{grid-template-columns:repeat(2,1fr);}}
+  .tile{
+    background:var(--surface-raised);border:1px solid var(--border);border-radius:10px;
+    padding:16px 16px 14px;display:flex;flex-direction:column;gap:6px;
+  }
+  .tile-label{font-size:12px;color:var(--text-secondary);}
+  .tile-value{font-size:24px;font-weight:800;font-family:'Nunito',sans-serif;letter-spacing:-.01em;}
+  .tile.critical{border-color:color-mix(in srgb, var(--critical) 35%, var(--border));background:var(--critical-050);}
+  .tile.critical .tile-value{color:var(--critical);}
+  .tile-sub{font-size:11.5px;color:var(--text-muted);}
+
+  /* content grid */
+  .content{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:16px;align-items:start;}
+  @media (max-width:820px){.content{grid-template-columns:1fr;}}
+  .card{background:var(--surface-raised);border:1px solid var(--border);border-radius:10px;padding:18px;}
+  .card h2{font-size:14px;font-weight:800;margin:0 0 14px;color:var(--text-primary);}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{
+    text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);
+    font-weight:600;padding:0 8px 8px;border-bottom:1px solid var(--border);
+  }
+  th.num,td.num{text-align:right;white-space:nowrap;}
+  #tbl-body td.num,.card thead th.num{width:1%;padding-left:14px;}
+  #tbl-body td.num + td.num{width:64px;}
+  td{padding:8px;border-bottom:1px solid var(--border);color:var(--text-primary);}
+  tr:last-child td{border-bottom:none;}
+  .cat-name{font-weight:600;}
+  .cat-code{color:var(--text-muted);font-size:11px;overflow-wrap:anywhere;line-height:1.3;}
+  .table-scroll{overflow-x:auto;}
+
+  /* chart */
+  .chart-row{display:flex;align-items:center;gap:10px;padding:6px 0;}
+  .chart-label{width:132px;flex:none;font-size:12px;color:var(--text-secondary);text-align:right;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .chart-track{flex:1;background:var(--ramp-1);border-radius:4px;height:16px;position:relative;overflow:hidden;}
+  .chart-fill{height:100%;border-radius:4px;min-width:2px;}
+  .chart-value{width:92px;flex:none;font-size:12px;font-weight:600;color:var(--text-primary);}
+  .chart-row:hover .chart-label{color:var(--text-primary);}
+  .chart-row:hover .chart-track{outline:2px solid var(--focus);outline-offset:1px;}
+
+  .chart-axis{padding-top:2px;margin-top:2px;border-top:1px solid var(--border);}
+  .chart-axis-track{flex:1;display:flex;justify-content:space-between;font-size:10.5px;color:var(--text-muted);}
+
+  /* coluna direita: gráfico de líquido negativo + crédito por causa, empilhados */
+  .col-right{display:flex;flex-direction:column;gap:16px;min-width:0;}
+
+  /* crédito p/ saldo negativo por causa: [nome da causa + barra] | Qtd | Valor | Média | % */
+  .cz-row{display:grid;grid-template-columns:minmax(0,1fr) 30px 98px 82px 54px 96px;gap:8px;align-items:end;padding:5px 0;
+    font-size:12px;font-variant-numeric:tabular-nums;}
+  .cz-cause{min-width:0;display:flex;flex-direction:column;gap:3px;}
+  .cz-label{color:var(--text-secondary);line-height:1.25;overflow-wrap:anywhere;} /* quebra linha em vez de cortar o nome da causa */
+  .cz-row .chart-track{flex:none;height:12px;}
+  .cz-row .num{text-align:right;color:var(--text-primary);line-height:1.2;}
+  .cz-row .cz-valor{font-weight:600;}
+  .cz-head{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);font-weight:600;
+    border-bottom:1px solid var(--border);padding:0 0 6px;}
+  .cz-head .num,.cz-head .cz-label{color:var(--text-muted);white-space:nowrap;}
+  .cz-total{border-top:1px solid var(--border);margin-top:4px;padding-top:7px;font-weight:800;}
+  .cz-total .cz-label{color:var(--text-primary);}
+  .cz-row:not(.cz-head):not(.cz-total):hover .chart-track{outline:2px solid var(--focus);outline-offset:1px;}
+  /* celular: nome + barra ocupam a linha toda; números numa segunda linha */
+  @media (max-width:560px){
+    .cz-row{grid-template-columns:34px 1fr 1fr 54px;row-gap:4px;column-gap:8px;}
+    .cz-row .cz-aviso{grid-column:1 / -1;}
+    .cz-row:not(.cz-head) .cz-aviso:not(:empty)::before{content:"Aviso prévio: ";color:var(--text-muted);font-weight:400;}
+    .cz-row .cz-aviso:empty{display:none;}
+    .cz-head .cz-aviso{display:none;}
+    .cz-cause{grid-column:1 / -1;}
+  }
+
+  /* nomes dos eventos e das causas em negrito nos gráficos (tela e impressão) */
+  .chart-label,.cz-row:not(.cz-head) .cz-label{font-weight:700;}
+
+  .empty{padding:32px 8px;text-align:center;color:var(--text-muted);font-size:13px;}
+
+  footer{font-size:11.5px;color:var(--text-muted);border-top:1px solid var(--border);padding-top:14px;
+    display:flex;flex-direction:column;gap:6px;}
+  footer .footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+  footer .footer-notice{font-size:11px;color:var(--text-muted);opacity:.8;}
+
+
+  /* cabeçalho exclusivo de impressão */
+  .print-only{display:none;}
+  .print-header-row{display:flex;align-items:center;gap:14px;}
+  .print-logo{height:30px;width:auto;}
+  .print-title{font-family:'Nunito',sans-serif;font-size:19px;font-weight:800;color:var(--brand);}
+  .print-subtitle{font-size:11.5px;color:var(--text-secondary);}
+  .print-meta{display:flex;gap:20px;flex-wrap:wrap;font-size:11.5px;color:var(--text-secondary);margin-top:8px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+  .print-meta strong{color:var(--text-primary);font-weight:600;}
+
+  @media print{
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact;}
+    body{padding:0;background:#fff;font-size:13px;}
+    .topbar .topbar-actions, #pdf-btn, #cfg-link, .filters{display:none !important;}
+    .topbar{display:none;}
+    .print-only{display:block;margin-bottom:6px;}
+    #tbl-foot{display:table-footer-group;}
+    .print-header-row{gap:10px;}
+    .print-logo{height:24px;}
+    .print-title{font-size:18px;}
+    .print-subtitle{font-size:12px;}
+    .print-meta{margin-top:4px;padding-bottom:6px;font-size:12px;gap:20px;}
+    .wrap{max-width:100%;gap:6px;}
+    .stats{display:none !important;} /* cards removidos na impressão, a pedido */
+    /* na impressão: tabela mais estreita à esquerda, gráfico com barras à direita, lado a lado */
+    .content{display:grid;grid-template-columns:0.85fr 1.15fr;gap:12px;align-items:start;margin-top:2px;}
+    .card{border:1px solid #b9bfc8;box-shadow:none;padding:8px 10px;}
+    .card h2{font-size:14px;margin:0 0 5px;}
+    footer{display:none !important;} /* remove o rodapé com link na impressão */
+
+    /* tabela em estilo planilha: grade completa, linhas compactas e zebradas em amarelo, como a planilha de origem */
+    table{font-size:11.5px;border-collapse:collapse;width:100%;}
+    th{background:#004773;color:#fff;padding:4px 7px;border:1px solid #b9bfc8;text-transform:none;letter-spacing:0;font-size:11.5px;}
+    td{padding:3px 7px;border:1px solid #d7dbe1;line-height:1.25;}
+    tbody tr:nth-child(odd) td{background:#fff9db;}
+    tbody tr:nth-child(even) td{background:#ffffff;}
+    .cat-code{display:none;}
+    tr{break-inside:avoid;}
+
+    .chart-row{padding:2px 0;}
+    .chart-track{height:12px;}
+    .chart-label{width:132px;font-size:11px;}
+    .chart-value{width:74px;font-size:11px;}
+    .col-right{gap:8px;}
+    .cz-row{grid-template-columns:minmax(0,1fr) 26px 82px 66px 42px 90px;gap:6px;padding:2px 0;font-size:11px;}
+    .cz-row .cz-aviso{display:block !important;grid-column:auto !important;}
+    .cz-row .cz-aviso::before{content:none !important;}
+    .cz-head{font-size:10px;padding-bottom:3px;}
+    .cz-row .chart-track{height:9px;}
+    /* causa + barra na mesma linha (economiza altura) */
+    .cz-cause{flex-direction:row;align-items:center;gap:6px;}
+    .cz-cause .cz-label{flex:none;width:186px;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+    .cz-cause .chart-track{flex:1;}
+    .cz-row{align-items:center;}
+    /* tudo em uma página: o JS calcula --print-zoom no beforeprint */
+    .content{zoom:var(--print-zoom,1);}
+
+    /* linhas de totais em destaque, ao final da tabela, maiores e em negrito */
+    tfoot td{font-weight:800;border:1px solid #8a9099;padding:6px 7px;font-size:13.5px;}
+    tfoot tr.tot-geral td{background:#d7ecd9;color:#1d5c33;}
+    tfoot tr.tot-credito td{background:#fff2b8;color:#7a5b00;}
+    tfoot tr.tot-liquido td{background:#fff2b8;color:#7a5b00;}
+    @page{size:A4 landscape;margin:10mm 12mm;}
+  }
+</style>
+</head>
+<body>
+<nav class="cbar" aria-label="Navegação da Central">
+  <a class="cb-link" href="../../index.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Central de Relatórios</a>
+  <span class="cb-sep cb-area">/</span><a class="cb-link cb-area" href="../../area.html?a=rh">Recursos Humanos</a>
+  <span class="cb-sp"></span><div id="user-slot"></div>
+</nav>
+<div class="wrap">
+  <div class="topbar">
+    <div class="topbar-title">
+      <div class="brand-row"><img class="brand-logo" alt="Tecnolimp" src="../../assets/tecnolimplogo.png"></div>
+      <h1 id="main-title">Painel de Rescisões</h1>
+      <div class="subtitle">Composição dos descontos sobre o líquido de rescisão, por Evento</div>
+    </div>
+    <div class="topbar-actions-col" style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+      <div class="status-row"><span class="dot pulse" id="status-dot"></span><span id="status-text">carregando…</span></div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <a class="gear-btn" id="cfg-link" href="configuracoes.html" title="Configurar eventos e categorias do relatório">⚙ Configurações</a>
+        <button class="gear-btn" id="pdf-btn" type="button">🖶 Imprimir</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="filter-group">
+      <label class="f-label" for="sel-empresa">Empresa</label>
+      <select id="sel-empresa"></select>
+    </div>
+    <div class="filter-group">
+      <label class="f-label" for="sel-competencia">Competência</label>
+      <select id="sel-competencia"></select>
+    </div>
+  </div>
+
+  <div id="print-header" class="print-only">
+    <div class="print-header-row">
+      <img class="print-logo" alt="Tecnolimp" src="../../assets/tecnolimplogo.png">
+      <div class="print-title-block">
+        <div class="print-title" id="print-report-title">Painel de Rescisões</div>
+        <div class="print-subtitle">Composição dos descontos sobre o líquido de rescisão, por Evento</div>
+      </div>
+    </div>
+    <div class="print-meta">
+      <span><strong>Empresa:</strong> <span id="print-empresa">—</span></span>
+      <span><strong>Competência:</strong> <span id="print-competencia">—</span></span>
+      <span><strong>Emitido em:</strong> <span id="print-emitido">—</span></span>
+    </div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="content">
+    <div class="card">
+      <h2>Descontos por categoria</h2>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Categoria</th><th class="num">Valor</th><th class="num">%</th></tr></thead>
+          <tbody id="tbl-body"></tbody>
+          <tfoot id="tbl-foot" class="print-only"></tfoot>
+        </table>
+      </div>
+    </div>
+    <div class="col-right">
+      <div class="card">
+        <h2 id="chart-title">Maiores descontos</h2>
+        <div id="chart-body"></div>
+      </div>
+      <div class="card" id="causas-card">
+        <h2 id="causas-title">Crédito p/ saldo negativo — por causa da demissão</h2>
+        <div id="causas-body"><div class="empty">Carregando…</div></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-row">
+      <span id="footer-audit">—</span>
+      <span>Dados sincronizados automaticamente do Sapiens/Oracle — Tecnolimp</span>
+    </div>
+    <div class="footer-notice">Correção aplicada em 22/09/2026 no cálculo do "Total descontado".</div>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  // Acesso pela Central de Relatórios (login único + permissão por relatório,
+  // decisão do gestor em 05/10/2026). Configurações: só administradores.
+  document.getElementById("pdf-btn").addEventListener("click", function(){
+    var tituloOriginal = document.title;
+    document.title = " "; // reduz o texto que o navegador injeta no cabeçalho de impressão
+    window.print();
+    setTimeout(function(){ document.title = tituloOriginal; }, 500);
+  });
+
+
+  // Leitura via sessão da Central (login único). O banco só devolve dados
+  // para quem tem acesso ao relatório "eventos" (RLS: central.pode_ver_relatorio).
+  function sb(path, opts){ return TC.rest(path, opts); }
+
+  var fmtBRL = new Intl.NumberFormat("pt-BR", {style:"currency", currency:"BRL", minimumFractionDigits:2, maximumFractionDigits:2});
+  var fmtPct = new Intl.NumberFormat("pt-BR", {minimumFractionDigits:2, maximumFractionDigits:2}); // tabela de descontos por categoria
+  var fmtPctCard = new Intl.NumberFormat("pt-BR", {minimumFractionDigits:1, maximumFractionDigits:1}); // cards do topo
+  var fmtDate = new Intl.DateTimeFormat("pt-BR", {day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit"});
+
+  var state = { empresas: [], eventos: [], numemp: null, codcal: null, resumos: [], valores: [], causas: [], empresasPermitidas: null };
+
+  // Garante que todas as categorias ativas de config_eventos apareçam na
+  // competência, mesmo sem movimento (valor 0) — evita a tabela/gráfico
+  // "encolherem" em meses com menos eventos reais que outros.
+  function mergeComCategoriasFixas(rows){
+    if(!state.eventos.length) return rows;
+    var porCodigo = {};
+    rows.forEach(function(r){ porCodigo[r.evento_codigo] = r; });
+    return state.eventos.filter(function(e){ return e.ativo; }).map(function(e){
+      return porCodigo[e.codigo] || {
+        numemp: state.numemp, codcal: state.codcal,
+        evento_codigo: e.codigo, categoria: e.categoria,
+        valor: 0, percentual: 0
+      };
+    });
+  }
+
+  function rampFor(rank, total){
+    var steps = ["--ramp-1","--ramp-2","--ramp-3","--ramp-4","--ramp-5","--ramp-6"];
+    var idx = Math.min(steps.length - 1, Math.floor((rank / Math.max(1,total)) * steps.length));
+    return "var(" + steps[steps.length - 1 - idx] + ")";
+  }
+
+  function renderStats(resumo){
+    var el = document.getElementById("stats");
+    if(!resumo){ el.innerHTML = '<div class="empty" style="grid-column:1/-1;">Sem dados para esta competência ainda.</div>'; return; }
+    el.innerHTML = [
+      tile("Total descontado", fmtBRL.format(resumo.total_desconto_valor), false, "Soma de todos os eventos de desconto da competência."),
+      tile("Valor descontado", fmtBRL.format(resumo.total_desconto_valor - resumo.credito_valor) + " (" + fmtPctCard.format(resumo.valor_descontado_percentual) + "%)", true, "Total descontado menos o crédito p/ saldo negativo."),
+      tile("Crédito para saldo negativo", fmtBRL.format(resumo.credito_valor) + " (" + fmtPctCard.format(resumo.credito_percentual) + "%)", false, "Valor coberto pela empresa quando os descontos superam o líquido devido ao colaborador."),
+      tile("Líquido da rescisão", fmtBRL.format(resumo.liquido_rescisao_valor), false, "Valor total da rescisão antes da aplicação dos descontos.")
+    ].join("");
+    function tile(label, value, critical, sub){
+      return '<div class="tile' + (critical ? ' critical' : '') + '"><div class="tile-label">' + label + '</div><div class="tile-value">' + value + '</div>' +
+        (sub ? '<div class="tile-sub">' + sub + '</div>' : '') + '</div>';
+    }
+  }
+
+  function renderTable(valores){
+    var body = document.getElementById("tbl-body");
+    if(!valores.length){ body.innerHTML = '<tr><td colspan="3" class="empty">Nenhum evento com valor nesta competência.</td></tr>'; return; }
+    var sorted = valores.slice().sort(function(a,b){ return b.valor - a.valor; });
+    body.innerHTML = sorted.map(function(v){
+      return '<tr><td><div class="cat-name">' + escapeHtml(v.categoria) + '</div><div class="cat-code">' + escapeHtml(v.evento_codigo) + '</div></td>' +
+        '<td class="num">' + fmtBRL.format(v.valor) + '</td>' +
+        '<td class="num">' + fmtPct.format(v.percentual) + '%</td></tr>';
+    }).join("");
+  }
+
+  // linhas de totais em destaque no rodapé da tabela — visíveis só na impressão, no padrão da planilha
+  function renderTableFoot(resumo){
+    var foot = document.getElementById("tbl-foot");
+    if(!resumo){ foot.innerHTML = ""; return; }
+    var valorDescontado = resumo.total_desconto_valor - resumo.credito_valor;
+    foot.innerHTML =
+      '<tr class="tot-geral"><td>Total Desconto</td><td class="num">' + fmtBRL.format(resumo.total_desconto_valor) + '</td><td class="num">--</td></tr>' +
+      '<tr class="tot-credito"><td>Crédito p/ saldo negativo</td><td class="num">' + fmtBRL.format(resumo.credito_valor) + '</td><td class="num">' + fmtPct.format(resumo.credito_percentual) + '%</td></tr>' +
+      '<tr class="tot-liquido"><td>Valor descontado</td><td class="num">' + fmtBRL.format(valorDescontado) + '</td><td class="num">' + fmtPct.format(resumo.valor_descontado_percentual) + '%</td></tr>';
+  }
+
+  function renderChart(valores, limite){
+    var el = document.getElementById("chart-body");
+    var sorted = valores.filter(function(v){return v.valor > 0;}).sort(function(a,b){ return b.valor - a.valor; });
+    if(limite){ sorted = sorted.slice(0, limite); }
+    if(!sorted.length){ el.innerHTML = '<div class="empty">Sem valores para exibir.</div>'; return; }
+    var max = sorted[0].valor;
+    var linhas = sorted.map(function(v, i){
+      var pct = Math.max(2, (v.valor / max) * 100);
+      return '<div class="chart-row" title="' + escapeHtml(v.categoria) + ': ' + fmtBRL.format(v.valor) + ' (' + fmtPct.format(v.percentual) + '%)">' +
+        '<div class="chart-label">' + escapeHtml(v.categoria) + '</div>' +
+        '<div class="chart-track"><div class="chart-fill" style="width:' + pct + '%;background:' + rampFor(i, sorted.length) + ';"></div></div>' +
+        '<div class="chart-value">' + fmtBRL.format(v.valor) + '</div></div>';
+    }).join("");
+    // eixo X (0–100%) alinhado com a área do chart-track: espaço reservado igual ao chart-label + gap
+    var eixo = '<div class="chart-row chart-axis">' +
+      '<div class="chart-label"></div>' +
+      '<div class="chart-axis-track"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>' +
+      '<div class="chart-value"></div></div>';
+    el.innerHTML = linhas + eixo;
+  }
+
+  // Crédito p/ saldo negativo por causa da demissão (R042CAU via sync).
+  // Mesma escala/cores do gráfico de líquido negativo; tela e impressão iguais.
+  function renderCausas(rows){
+    state.causas = rows || [];
+    var el = document.getElementById("causas-body");
+    if(rows === null){ el.innerHTML = '<div class="empty">Detalhamento por causa indisponível no momento.</div>'; return; }
+    var sorted = (rows || []).filter(function(r){ return Number(r.valor) > 0; })
+      .sort(function(a,b){ return b.valor - a.valor; });
+    if(!sorted.length){ el.innerHTML = '<div class="empty">Sem crédito p/ saldo negativo nesta competência.</div>'; return; }
+    var max = Number(sorted[0].valor);
+    var totQtd = 0, totValor = 0, totAviso = 0, temAviso = false;
+    var head = '<div class="cz-row cz-head"><div class="cz-cause"><div class="cz-label">Causa</div></div>' +
+      '<div class="num">Qtd</div><div class="num">Valor</div><div class="num">Média</div><div class="num">%</div><div class="num cz-aviso">Aviso prévio</div></div>';
+    var linhas = sorted.map(function(r, i){
+      var valor = Number(r.valor), qtd = Number(r.quantidade);
+      totQtd += qtd; totValor += valor;
+      if (r.aviso_previo != null) { totAviso += Number(r.aviso_previo); temAviso = true; }
+      var w = Math.max(2, (valor / max) * 100);
+      return '<div class="cz-row" title="' + escapeHtml(r.causa_descricao) + ': ' + qtd + ' colaborador(es), ' + fmtBRL.format(valor) + '">' +
+        '<div class="cz-cause"><div class="cz-label">' + escapeHtml(r.causa_descricao) + '</div>' +
+        '<div class="chart-track"><div class="chart-fill" style="width:' + w + '%;background:' + rampFor(i, sorted.length) + ';"></div></div></div>' +
+        '<div class="num">' + qtd + '</div>' +
+        '<div class="num cz-valor">' + fmtBRL.format(valor) + '</div>' +
+        '<div class="num">' + fmtBRL.format(Number(r.media)) + '</div>' +
+        '<div class="num">' + fmtPct.format(Number(r.percentual)) + '%</div>' +
+        '<div class="num cz-aviso">' + (r.aviso_previo == null ? '' : fmtBRL.format(Number(r.aviso_previo))) + '</div></div>';
+    }).join("");
+    var total = '<div class="cz-row cz-total"><div class="cz-cause"><div class="cz-label">Total</div></div>' +
+      '<div class="num">' + totQtd + '</div>' +
+      '<div class="num">' + fmtBRL.format(totValor) + '</div>' +
+      '<div class="num">' + fmtBRL.format(totQtd ? totValor / totQtd : 0) + '</div>' +
+      '<div class="num">100,00%</div><div class="num cz-aviso">' + (temAviso ? fmtBRL.format(totAviso) : '') + '</div></div>';
+    el.innerHTML = head + linhas + total;
+  }
+
+  function escapeHtml(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  function setStatus(resumo){
+    var dot = document.getElementById("status-dot");
+    var text = document.getElementById("status-text");
+    if(!resumo){ dot.className = "dot stale"; text.textContent = "sem dados"; return; }
+    var d = new Date(resumo.atualizado_em);
+    var ageH = (Date.now() - d.getTime()) / 3600000;
+    dot.className = ageH < 30 ? "dot pulse" : "dot stale";
+    text.textContent = "atualizado em " + fmtDate.format(d);
+  }
+
+  function loadResumoEValores(){
+    var resumo = state.resumos.find(function(r){ return r.numemp === state.numemp && r.codcal === state.codcal; });
+    setStatus(resumo);
+    renderStats(resumo);
+    updatePrintHeader(resumo);
+    renderTableFoot(resumo);
+    sb("painel_eventos_valores?numemp=eq." + state.numemp + "&codcal=eq." + state.codcal).then(function(rows){
+      state.valores = mergeComCategoriasFixas(rows || []);
+      renderTable(state.valores);
+      renderChart(state.valores);
+    }).catch(function(){
+      renderTable([]); renderChart([]);
+    });
+    sb("painel_credito_causas?numemp=eq." + state.numemp + "&codcal=eq." + state.codcal + "&order=valor.desc")
+      .then(function(rows){ renderCausas(rows || []); })
+      .catch(function(){ renderCausas(null); });
+  }
+
+  function updatePrintHeader(resumo){
+    var selEmpresa = document.getElementById("sel-empresa");
+    var nomeEmp = selEmpresa.options[selEmpresa.selectedIndex] ? selEmpresa.options[selEmpresa.selectedIndex].text : "—";
+    var competencia = resumo ? resumo.competencia_label : "—";
+    document.getElementById("print-empresa").textContent = nomeEmp;
+    document.getElementById("print-competencia").textContent = competencia;
+    document.getElementById("print-emitido").textContent = fmtDate.format(new Date());
+
+    // título do relatório impresso: Empresa - FOLHA DE PAGAMENTO DEMITIDOS - Mês de competência
+    var tituloRelatorio = nomeEmp.toUpperCase() + " - FOLHA DE PAGAMENTO DEMITIDOS - " + competencia.toUpperCase();
+    document.getElementById("print-report-title").textContent = tituloRelatorio;
+
+    // título principal do dashboard: mesmo padrão do relatório impresso
+    document.getElementById("main-title").textContent = tituloRelatorio;
+
+    // título do gráfico no dashboard: (Empresa) em uma linha, LÍQUIDO NEGATIVO - DEMITIDOS na outra
+    document.getElementById("chart-title").innerHTML =
+      "(" + escapeHtml(nomeEmp.toUpperCase()) + ")<br>LÍQUIDO NEGATIVO - DEMITIDOS";
+    document.getElementById("causas-title").innerHTML =
+      "(" + escapeHtml(nomeEmp.toUpperCase()) + ")<br>CRÉDITO P/ SALDO NEGATIVO - POR CAUSA DA DEMISSÃO";
+  }
+
+  // O gráfico sempre mostra todas as categorias com valor (nunca as zeradas), tanto na
+  // tela quanto na impressão — sem limite de Top 10.
+  // Já a tabela de descontos por categoria só oculta os eventos com valor zerado
+  // (sem movimento na competência) na impressão — na tela eles continuam aparecendo
+  // normalmente, só o PDF/impressão os esconde.
+  // Impressão sempre em UMA página (A4 paisagem): estima a altura das duas colunas
+  // pelo nº de linhas e reduz o conteúdo proporcionalmente só quando não couber.
+  // Medidas calibradas no layout de impressão (px por linha/base de cada card).
+  function ajustarImpressaoUmaPagina(){
+    var nTab = state.valores.filter(function(v){ return v.valor !== 0; }).length;
+    var nChart = state.valores.filter(function(v){ return v.valor > 0; }).length;
+    var nCausas = (state.causas || []).filter(function(r){ return Number(r.valor) > 0; }).length;
+    var esquerda = 170 + 21.5 * nTab;
+    var direita = (76 + 17 * nChart) + 8 + (98 + 17.5 * nCausas);
+    var disponivel = 646 * 0.97; // área útil da página abaixo do cabeçalho, com folga
+    var zoom = Math.min(1, disponivel / Math.max(esquerda, direita));
+    document.documentElement.style.setProperty("--print-zoom", zoom.toFixed(3));
+  }
+
+  window.addEventListener("beforeprint", function(){
+    renderChart(state.valores);
+    renderTable(state.valores.filter(function(v){ return v.valor !== 0; }));
+    ajustarImpressaoUmaPagina();
+  });
+  window.addEventListener("afterprint", function(){
+    renderChart(state.valores);
+    renderTable(state.valores); // volta a mostrar todas, incluindo zeradas, na tela
+  });
+
+  function populateCompetencias(){
+    var selC = document.getElementById("sel-competencia");
+    var opts = state.resumos.filter(function(r){ return r.numemp === state.numemp; })
+      .sort(function(a,b){ return b.codcal.localeCompare(a.codcal); });
+    selC.innerHTML = opts.map(function(r){
+      return '<option value="' + r.codcal + '">' + escapeHtml(r.competencia_label) + '</option>';
+    }).join("") || '<option value="">—</option>';
+    state.codcal = opts.length ? opts[0].codcal : null;
+    selC.value = state.codcal || "";
+  }
+
+  function loadResumos(){
+    return sb("painel_resumo?numemp=eq." + state.numemp + "&order=codcal.desc").then(function(rows){
+      state.resumos = state.resumos.filter(function(r){ return r.numemp !== state.numemp; }).concat(rows || []);
+      populateCompetencias();
+      loadResumoEValores();
+    });
+  }
+
+  function populateEmpresas(){
+    var sel = document.getElementById("sel-empresa");
+    var ativos = state.empresas.filter(function(e){
+      if(!e.ativo) return false;
+      if(state.empresasPermitidas === null) return true; // admin: vê todas
+      return state.empresasPermitidas.indexOf(e.numemp) !== -1;
+    });
+    sel.innerHTML = ativos.map(function(e){
+      return '<option value="' + e.numemp + '">' + escapeHtml(e.nome_empresa || ("Empresa " + e.numemp)) + '</option>';
+    }).join("") || '<option value="">Nenhuma empresa ativa</option>';
+    state.numemp = ativos.length ? ativos[0].numemp : null;
+    sel.value = state.numemp || "";
+  }
+
+  function loadAll(){
+    Promise.all([
+      sb("config_empresas?order=numemp.asc"),
+      sb("integracao_auditoria?order=inicio.desc&limit=1")
+    ]).then(function(res){
+      state.empresas = res[0] || [];
+      state.empresasPermitidas = null;
+      var audit = (res[1] || [])[0];
+      document.getElementById("footer-audit").textContent = audit
+        ? "Última sincronização Oracle → painel: " + fmtDate.format(new Date(audit.inicio)) + " · " + audit.registros_atualizados + " atualizados, " + audit.registros_novos + " novos" + (audit.status !== "SUCESSO" ? " · status: " + audit.status : "")
+        : "Aguardando primeira sincronização automática.";
+      populateEmpresas();
+      if(state.numemp != null){ loadResumos(); }
+      else {
+        document.getElementById("stats").innerHTML = '<div class="empty" style="grid-column:1/-1;">Você ainda não tem empresas liberadas para visualização. Fale com o administrador.</div>';
+      }
+    });
+    sb("config_eventos?order=ordem.asc.nullslast,categoria.asc").then(function(rows){
+      state.eventos = rows || [];
+    });
+  }
+
+  document.getElementById("sel-empresa").addEventListener("change", function(e){
+    state.numemp = e.target.value ? Number(e.target.value) : null;
+    if(state.numemp != null){ loadResumos(); }
+  });
+  document.getElementById("sel-competencia").addEventListener("change", function(e){
+    state.codcal = e.target.value || null;
+    loadResumoEValores();
+  });
+
+  TC.protegerRelatorio("eventos").then(function(perfil){
+    TC.montarMenuUsuario(document.getElementById("user-slot"), perfil);
+    if (!perfil.is_admin) document.getElementById("cfg-link").hidden = true;
+    loadAll();
+    setInterval(loadAll, 5 * 60 * 1000);
+  });
+})();
+</script>
+</body>
+</html>

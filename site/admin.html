@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Administração — Central de Relatórios Tecnolimp</title>
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/central.css">
+<script src="assets/config.js"></script>
+<script src="assets/auth.js"></script>
+<script src="assets/icones.js"></script>
+<style>
+  .ph{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px;}
+  .ph h1{font-family:var(--font-display);font-size:26px;margin:0;}
+  .ph p{margin:4px 0 0;color:var(--muted);}
+  .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:20px;}
+  .kpi{padding:14px 16px;}
+  .kpi b{display:block;font-family:var(--font-display);font-size:24px;line-height:1.1;color:var(--ink);}
+  .kpi span{font-size:12.5px;color:var(--muted);}
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow-x:auto;}
+  .tab{border:0;background:none;font:inherit;font-weight:600;color:var(--muted);padding:10px 14px;border-bottom:2px solid transparent;margin-bottom:-1px;cursor:pointer;white-space:nowrap;display:flex;gap:8px;align-items:center;}
+  .tab:hover{color:var(--ink);}
+  .tab[aria-selected="true"]{color:var(--brand);border-bottom-color:var(--brand);}
+  .tab .n{font-size:11.5px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:0 7px;color:var(--muted);}
+  .tb{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;}
+  .tb .tc-search{flex:1;min-width:220px;max-width:380px;}
+  .tb .sp{flex:1;}
+  .tb select.input{width:auto;min-width:170px;}
+  .tbl{width:100%;border-collapse:collapse;}
+  .tbl th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700;padding:11px 14px;background:var(--surface-2);border-bottom:1px solid var(--line);}
+  .tbl td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle;}
+  .tbl tr:last-child td{border-bottom:0;}
+  .tbl tbody tr:hover td{background:#fbfcfd;}
+  .tbl .acoes{text-align:right;white-space:nowrap;}
+  .pess{display:flex;gap:10px;align-items:center;min-width:0;}
+  .pess .tc-avatar{flex:none;}
+  .pess b{display:block;font-weight:600;}
+  .pess div span{font-size:12.5px;color:var(--muted);}
+  .muted{color:var(--muted);font-size:13px;}
+  .scroll{overflow-x:auto;}
+  .mini-ico{--c:var(--brand);width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:var(--c);background:#eef3f7;background:color-mix(in srgb,var(--c) 11%,#fff);flex:none;}
+  code{font-size:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--ink-2);}
+
+  /* permissões */
+  .perm{border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .perm-area{border-top:1px solid var(--line);}
+  .perm-area:first-child{border-top:0;}
+  .perm-h{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface-2);}
+  .perm-h .nm{flex:1;font-weight:600;}
+  .perm-h .nm small{display:block;font-weight:400;color:var(--muted);font-size:12px;}
+  .perm-rels{padding:6px 14px 12px 60px;display:grid;gap:4px;}
+  .perm-rels label{display:flex;gap:10px;align-items:center;font-size:13.5px;padding:5px 0;cursor:pointer;}
+  .perm-rels input{width:16px;height:16px;accent-color:var(--brand);}
+  .perm-rels .vazio{font-size:12.5px;color:var(--subtle);padding:6px 0;}
+  .perm-area.inteira .perm-rels label{color:var(--muted);cursor:default;}
+  .icones{display:grid;grid-template-columns:repeat(auto-fill,44px);gap:8px;}
+  .icones button{width:44px;height:44px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);cursor:pointer;display:grid;place-items:center;}
+  .icones button[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-050);color:var(--brand);box-shadow:0 0 0 2px rgba(0,71,115,.15);}
+  .cores{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .cores button{width:30px;height:30px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line-2);cursor:pointer;}
+  .cores button[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink);}
+  .cores input[type=color]{width:38px;height:32px;border:1px solid var(--line-2);border-radius:8px;padding:2px;background:#fff;}
+  .sec{font-weight:700;font-size:13px;color:var(--ink-2);margin:6px 0 -4px;display:flex;justify-content:space-between;align-items:center;}
+  .cfg-card{padding:22px;max-width:620px;display:flex;flex-direction:column;gap:14px;}
+  .cfg-card h2{margin:0;font-family:var(--font-display);font-size:18px;}
+  .row-inline{display:flex;gap:10px;align-items:flex-end;}
+  .row-inline .field{flex:1;}
+  @media (max-width:860px){
+    .kpis{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .tbl .hide-sm{display:none;}
+    .perm-rels{padding-left:14px;}
+  }
+</style>
+</head>
+<body>
+<header class="tc-top"><div class="tc-top-in">
+  <a class="tc-brand" href="index.html"><img src="assets/tecnolimplogo.png" alt="Tecnolimp"><span class="tc-brand-sep"></span><span class="tc-brand-nome">Central de Relatórios</span></a>
+  <nav class="tc-crumbs" aria-label="Você está em"><span class="sep">/</span><span class="atual">Administração</span></nav>
+  <div class="tc-top-sp"></div>
+  <div id="user-slot"></div>
+</div></header>
+
+<main class="tc-main">
+  <div class="ph">
+    <div><h1>Administração</h1><p>Usuários, permissões por área e relatório, e o catálogo da Central.</p></div>
+  </div>
+  <div class="kpis" id="kpis"></div>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="usuarios" aria-selected="true">Usuários <span class="n" id="n-usuarios">0</span></button>
+    <button class="tab" role="tab" data-tab="areas" aria-selected="false">Áreas <span class="n" id="n-areas">0</span></button>
+    <button class="tab" role="tab" data-tab="relatorios" aria-selected="false">Relatórios <span class="n" id="n-relatorios">0</span></button>
+    <button class="tab" role="tab" data-tab="config" aria-selected="false">Configurações</button>
+  </div>
+
+  <section data-painel="usuarios">
+    <div class="tb">
+      <div class="tc-search"><span class="ic-b"></span><input class="input" id="u-busca" type="search" placeholder="Buscar por nome ou e-mail…" aria-label="Buscar usuário"></div>
+      <select class="input" id="u-filtro" aria-label="Filtrar usuários">
+        <option value="">Todos os usuários</option><option value="admin">Administradores</option>
+        <option value="pendente">Aguardando 1º acesso</option><option value="inativo">Inativos</option>
+      </select>
+      <div class="sp"></div>
+      <button class="btn btn-primary" id="u-novo" type="button"><span class="ic-mais"></span>Novo usuário</button>
+    </div>
+    <div class="card scroll"><table class="tbl"><thead><tr><th>Usuário</th><th>Perfil</th><th class="hide-sm">Acessos</th><th>Status</th><th class="hide-sm">Último acesso</th><th></th></tr></thead><tbody id="u-tb"></tbody></table></div>
+  </section>
+
+  <section data-painel="areas" hidden>
+    <div class="tb"><div class="sp"></div><button class="btn btn-primary" id="a-nova" type="button"><span class="ic-mais"></span>Nova área</button></div>
+    <div class="card scroll"><table class="tbl"><thead><tr><th>Área</th><th class="hide-sm">Identificador</th><th>Relatórios</th><th>Status</th><th class="hide-sm">Ordem</th><th></th></tr></thead><tbody id="a-tb"></tbody></table></div>
+  </section>
+
+  <section data-painel="relatorios" hidden>
+    <div class="tb">
+      <div class="tc-search"><span class="ic-b"></span><input class="input" id="r-busca" type="search" placeholder="Buscar relatório…" aria-label="Buscar relatório"></div>
+      <select class="input" id="r-area" aria-label="Filtrar por área"><option value="">Todas as áreas</option></select>
+      <div class="sp"></div>
+      <button class="btn btn-primary" id="r-novo" type="button"><span class="ic-mais"></span>Novo relatório</button>
+    </div>
+    <div class="card scroll"><table class="tbl"><thead><tr><th>Relatório</th><th>Área</th><th class="hide-sm">Endereço</th><th class="hide-sm">Usuários</th><th>Status</th><th></th></tr></thead><tbody id="r-tb"></tbody></table></div>
+  </section>
+
+  <section data-painel="config" hidden>
+    <div class="card cfg-card">
+      <h2>Senha padrão</h2>
+      <p class="muted" style="margin:0">Usada ao criar usuários e ao redefinir senhas. No primeiro acesso a pessoa é obrigada a trocar por uma senha pessoal.</p>
+      <form id="cfg-form" class="row-inline" novalidate>
+        <div class="field"><label for="cfg-senha">Senha padrão</label><input class="input" id="cfg-senha" type="password" autocomplete="off" minlength="8"></div>
+        <button class="btn btn-ghost" type="button" id="cfg-ver">Mostrar</button>
+        <button class="btn btn-primary" type="submit">Salvar</button>
+      </form>
+      <div class="alert alert-info">Mínimo de 8 caracteres, com letras e números. Alterar a senha padrão não muda a senha de quem já criou a própria.</div>
+    </div>
+  </section>
+</main>
+
+<div id="modal-slot"></div>
+
+<script>
+(function(){
+  "use strict";
+  var esc = TC.esc;
+  document.querySelectorAll(".ic-b").forEach(function(e){ e.outerHTML = TCIcone("busca", 18); });
+  document.querySelectorAll(".ic-mais").forEach(function(e){ e.outerHTML = TCIcone("mais", 16); });
+  var fmtDH = new Intl.DateTimeFormat("pt-BR", {day:"2-digit", month:"2-digit", year:"2-digit", hour:"2-digit", minute:"2-digit"});
+  var CORES = ["#004773","#0b6e4f","#8a5a00","#5b3f9e","#c4261d","#0f7c90","#9b2c6f","#3c4858"];
+  var D = { eu: null, perfis: [], areas: [], rels: [], aa: [], ar: [] };
+
+  TC.exigirLogin({ admin: true }).then(function(p){
+    D.eu = p;
+    TC.montarMenuUsuario(document.getElementById("user-slot"), p);
+    return carregar();
+  });
+
+  function carregar(){
+    return Promise.all([
+      TC.db("perfis?select=*&order=nome.asc"),
+      TC.db("areas?select=*&order=ordem.asc,nome.asc"),
+      TC.db("relatorios?select=*&order=ordem.asc,nome.asc"),
+      TC.db("acessos_area?select=*"),
+      TC.db("acessos_relatorio?select=*"),
+      TC.db("configuracoes?select=valor&chave=eq.senha_padrao")
+    ]).then(function(r){
+      D.perfis = r[0]; D.areas = r[1]; D.rels = r[2]; D.aa = r[3]; D.ar = r[4];
+      document.getElementById("cfg-senha").value = (r[5][0] || {}).valor || "";
+      renderTudo();
+    }).catch(function(e){ TC.toast("Erro ao carregar: " + e.message, "err"); });
+  }
+  function renderTudo(){ renderKpis(); renderUsuarios(); renderAreas(); renderRels(); }
+  function area(id){ return D.areas.find(function(a){ return a.id === id; }) || {}; }
+
+  function renderKpis(){
+    var ativos = D.perfis.filter(function(p){ return p.ativo; }).length;
+    var pend = D.perfis.filter(function(p){ return p.ativo && p.must_change_password; }).length;
+    document.getElementById("kpis").innerHTML =
+      kpi(ativos, "usuários ativos") + kpi(pend, "aguardando 1º acesso") +
+      kpi(D.areas.filter(function(a){ return a.ativo; }).length, "áreas ativas") + kpi(D.rels.filter(function(r){ return r.ativo; }).length, "relatórios publicados");
+    document.getElementById("n-usuarios").textContent = D.perfis.length;
+    document.getElementById("n-areas").textContent = D.areas.length;
+    document.getElementById("n-relatorios").textContent = D.rels.length;
+  }
+  function kpi(v, t){ return '<div class="card kpi"><b>' + v + '</b><span>' + t + '</span></div>'; }
+
+  // ---------- abas ----------
+  document.querySelector(".tabs").addEventListener("click", function(e){
+    var b = e.target.closest("[data-tab]"); if (!b) return;
+    document.querySelectorAll(".tab").forEach(function(t){ t.setAttribute("aria-selected", String(t === b)); });
+    document.querySelectorAll("[data-painel]").forEach(function(s){ s.hidden = s.dataset.painel !== b.dataset.tab; });
+  });
+
+  // ---------- usuários ----------
+  function resumoAcessos(uid){
+    var p = D.perfis.find(function(x){ return x.id === uid; });
+    if (p && p.is_admin) return '<span class="muted">Todas as áreas</span>';
+    var areas = D.aa.filter(function(x){ return x.usuario_id === uid; }).map(function(x){ return area(x.area_id).nome; });
+    var nRel = D.ar.filter(function(x){ return x.usuario_id === uid; }).length;
+    var partes = areas.map(function(n){ return '<span class="tag">' + esc(n) + '</span>'; });
+    if (nRel) partes.push('<span class="tag">' + nRel + (nRel === 1 ? " relatório" : " relatórios") + '</span>');
+    return partes.join(" ") || '<span class="tag tag-warn">Sem acesso</span>';
+  }
+  function statusUsuario(p){
+    if (!p.ativo) return '<span class="tag tag-off">Inativo</span>';
+    if (p.must_change_password) return '<span class="tag tag-warn">Aguardando 1º acesso</span>';
+    return '<span class="tag tag-new">Ativo</span>';
+  }
+  function renderUsuarios(){
+    var t = (document.getElementById("u-busca").value || "").toLowerCase(), f = document.getElementById("u-filtro").value;
+    var l = D.perfis.filter(function(p){
+      if (t && (p.nome + " " + p.email).toLowerCase().indexOf(t) === -1) return false;
+      if (f === "admin") return p.is_admin;
+      if (f === "pendente") return p.ativo && p.must_change_password;
+      if (f === "inativo") return !p.ativo;
+      return true;
+    });
+    document.getElementById("u-tb").innerHTML = l.map(function(p){
+      return '<tr><td><div class="pess"><span class="tc-avatar">' + esc(TC.iniciais(p.nome, p.email)) + '</span><div><b>' + esc(p.nome || "—") + (p.id === D.eu.id ? ' <span class="muted">(você)</span>' : '') + '</b><span>' + esc(p.email) + '</span></div></div></td>' +
+        '<td>' + (p.is_admin ? '<span class="tag tag-admin">Administrador</span>' : '<span class="muted">Usuário</span>') + '</td>' +
+        '<td class="hide-sm">' + resumoAcessos(p.id) + '</td><td>' + statusUsuario(p) + '</td>' +
+        '<td class="hide-sm muted">' + (p.ultimo_acesso_em ? fmtDH.format(new Date(p.ultimo_acesso_em)) : "Nunca") + '</td>' +
+        '<td class="acoes"><button class="btn btn-ghost btn-sm" data-editar-u="' + p.id + '">Editar acessos</button></td></tr>';
+    }).join("") || '<tr><td colspan="6"><div class="empty">Nenhum usuário encontrado.</div></td></tr>';
+  }
+  document.getElementById("u-busca").addEventListener("input", renderUsuarios);
+  document.getElementById("u-filtro").addEventListener("change", renderUsuarios);
+  document.getElementById("u-tb").addEventListener("click", function(e){ var b = e.target.closest("[data-editar-u]"); if (b) modalUsuario(b.dataset.editarU); });
+  document.getElementById("u-novo").addEventListener("click", function(){ modalUsuario(null); });
+
+  // ---------- modal genérico ----------
+  function abrirModal(titulo, corpo, rodape, largo){
+    var slot = document.getElementById("modal-slot");
+    slot.innerHTML = '<div class="modal-bg"><div class="modal' + (largo ? " modal-lg" : "") + '" role="dialog" aria-modal="true" aria-labelledby="m-t">' +
+      '<div class="modal-h"><h2 id="m-t">' + titulo + '</h2><button class="btn btn-ghost btn-icon" type="button" data-fechar aria-label="Fechar">' + TCIcone("x", 18) + '</button></div>' +
+      '<div class="modal-b">' + corpo + '</div><div class="modal-f">' + rodape + '</div></div></div>';
+    var bg = slot.querySelector(".modal-bg");
+    function fechar(){ slot.innerHTML = ""; document.removeEventListener("keydown", esc_); }
+    function esc_(e){ if (e.key === "Escape") fechar(); }
+    document.addEventListener("keydown", esc_);
+    bg.addEventListener("mousedown", function(e){ if (e.target === bg) fechar(); });
+    slot.querySelectorAll("[data-fechar]").forEach(function(b){ b.addEventListener("click", fechar); });
+    var primeiro = slot.querySelector(".modal-b input, .modal-b select, .modal-b textarea");
+    if (primeiro) setTimeout(function(){ primeiro.focus(); }, 30);
+    return { el: slot.querySelector(".modal"), fechar: fechar };
+  }
+  function msgModal(m, t){ m.el.querySelector("[data-msg]").innerHTML = t ? '<div class="alert alert-err">' + esc(t) + '</div>' : ""; }
+
+  function blocoPermissoes(uid){
+    var minhasA = D.aa.filter(function(x){ return x.usuario_id === uid; }).map(function(x){ return x.area_id; });
+    var minhosR = D.ar.filter(function(x){ return x.usuario_id === uid; }).map(function(x){ return x.relatorio_id; });
+    return '<div class="perm" id="perm">' + D.areas.map(function(a){
+      var inteira = minhasA.indexOf(a.id) !== -1;
+      var rels = D.rels.filter(function(r){ return r.area_id === a.id; });
+      return '<div class="perm-area' + (inteira ? " inteira" : "") + '" data-area="' + a.id + '">' +
+        '<div class="perm-h"><span class="mini-ico" style="--c:' + esc(a.cor) + '">' + TCIcone(a.icone, 18) + '</span>' +
+        '<div class="nm">' + esc(a.nome) + (a.ativo ? '' : ' <span class="tag tag-off">inativa</span>') + '<small>' + rels.length + (rels.length === 1 ? " relatório" : " relatórios") + '</small></div>' +
+        '<label class="switch" style="font-size:13px"><input type="checkbox" data-inteira' + (inteira ? " checked" : "") + '><span class="tr"></span>Área inteira</label></div>' +
+        '<div class="perm-rels">' + (rels.map(function(r){
+          var marc = inteira || minhosR.indexOf(r.id) !== -1;
+          return '<label><input type="checkbox" data-rel="' + r.id + '"' + (marc ? " checked" : "") + (inteira ? " disabled" : "") + '>' + esc(r.nome) + (r.ativo ? '' : ' <span class="tag tag-off">inativo</span>') + '</label>';
+        }).join("") || '<div class="vazio">Nenhum relatório nesta área ainda. Com “Área inteira”, a pessoa verá os relatórios que forem publicados aqui.</div>') + '</div></div>';
+    }).join("") + '</div>';
+  }
+  function lerPermissoes(root){
+    var areas = [], rels = [];
+    root.querySelectorAll("[data-area]").forEach(function(bl){
+      if (bl.querySelector("[data-inteira]").checked) areas.push(bl.dataset.area);
+      else bl.querySelectorAll("[data-rel]:checked").forEach(function(c){ rels.push(c.dataset.rel); });
+    });
+    return { areas: areas, rels: rels };
+  }
+  function ligarPermissoes(root){
+    root.querySelectorAll("[data-inteira]").forEach(function(sw){
+      sw.addEventListener("change", function(){
+        var bl = sw.closest("[data-area]");
+        bl.classList.toggle("inteira", sw.checked);
+        bl.querySelectorAll("[data-rel]").forEach(function(c){ c.disabled = sw.checked; if (sw.checked) c.checked = true; });
+      });
+    });
+  }
+  function salvarPermissoes(uid, perm){
+    // substitui o conjunto de permissões do usuário
+    return Promise.all([
+      TC.db("acessos_area?usuario_id=eq." + uid, { method: "DELETE" }),
+      TC.db("acessos_relatorio?usuario_id=eq." + uid, { method: "DELETE" })
+    ]).then(function(){
+      var ps = [];
+      if (perm.areas.length) ps.push(TC.db("acessos_area", { method: "POST", prefer: "return=minimal", body: perm.areas.map(function(a){ return { usuario_id: uid, area_id: a }; }) }));
+      if (perm.rels.length) ps.push(TC.db("acessos_relatorio", { method: "POST", prefer: "return=minimal", body: perm.rels.map(function(r){ return { usuario_id: uid, relatorio_id: r }; }) }));
+      return Promise.all(ps);
+    });
+  }
+
+  function modalUsuario(uid){
+    var p = uid ? D.perfis.find(function(x){ return x.id === uid; }) : { nome: "", email: "", is_admin: false, ativo: true };
+    var novo = !uid, eu = uid === D.eu.id;
+    var corpo = '<div data-msg></div>' +
+      '<div class="grid-2"><div class="field"><label for="m-nome">Nome</label><input class="input" id="m-nome" maxlength="80" value="' + esc(p.nome) + '"></div>' +
+      '<div class="field"><label for="m-email">E-mail</label><input class="input" id="m-email" type="email" value="' + esc(p.email) + '"' + (novo ? '' : ' disabled') + '></div></div>' +
+      '<div style="display:flex;gap:24px;flex-wrap:wrap">' +
+      '<label class="switch"><input type="checkbox" id="m-admin"' + (p.is_admin ? " checked" : "") + (eu ? " disabled" : "") + '><span class="tr"></span>Administrador</label>' +
+      (novo ? '' : '<label class="switch"><input type="checkbox" id="m-ativo"' + (p.ativo ? " checked" : "") + (eu ? " disabled" : "") + '><span class="tr"></span>Acesso ativo</label>') + '</div>' +
+      (novo ? '<div class="alert alert-info">O usuário entra com a <b>senha padrão</b> (aba Configurações) e cria a própria senha no primeiro acesso.</div>' : '') +
+      '<div class="sec">Permissões <span class="muted" style="font-weight:400" id="m-adm-obs"></span></div>' + blocoPermissoes(uid);
+    var rod = (novo ? '' : '<button class="btn btn-danger" type="button" data-reset style="margin-right:auto">Redefinir senha</button>') +
+      '<button class="btn btn-ghost" type="button" data-fechar>Cancelar</button><button class="btn btn-primary" type="button" data-salvar>' + (novo ? "Criar usuário" : "Salvar") + '</button>';
+    var m = abrirModal(novo ? "Novo usuário" : "Editar usuário", corpo, rod, true);
+    ligarPermissoes(m.el);
+    var adm = m.el.querySelector("#m-admin");
+    function obsAdm(){ m.el.querySelector("#m-adm-obs").textContent = adm.checked ? "· administrador vê todas as áreas" : ""; m.el.querySelector("#perm").style.opacity = adm.checked ? .5 : 1; }
+    adm.addEventListener("change", obsAdm); obsAdm();
+
+    var reset = m.el.querySelector("[data-reset]");
+    if (reset) reset.addEventListener("click", function(){
+      if (!confirm("Redefinir a senha de " + (p.nome || p.email) + " para a senha padrão? No próximo acesso a pessoa terá de criar uma nova.")) return;
+      reset.disabled = true;
+      TC.fn("central-admin-usuarios", { acao: "resetar_senha", usuario_id: uid }).then(function(){
+        TC.toast("Senha redefinida para a padrão."); m.fechar(); carregar();
+      }).catch(function(e){ msgModal(m, e.message); reset.disabled = false; });
+    });
+
+    m.el.querySelector("[data-salvar]").addEventListener("click", function(){
+      var bt = this, nome = m.el.querySelector("#m-nome").value.trim(), email = m.el.querySelector("#m-email").value.trim();
+      if (nome.length < 2) return msgModal(m, "Informe o nome.");
+      if (novo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return msgModal(m, "Informe um e-mail válido.");
+      var perm = lerPermissoes(m.el);
+      bt.disabled = true; bt.textContent = "Salvando…";
+      var passo = novo
+        ? TC.fn("central-admin-usuarios", { acao: "criar", email: email, nome: nome, is_admin: adm.checked }).then(function(r){ uid = r.id; if (r.ja_existia) TC.toast("E-mail já existia em outro sistema interno: a pessoa entra com a senha que já usa."); })
+        : TC.db("perfis?id=eq." + uid, { method: "PATCH", prefer: "return=minimal", body: eu ? { nome: nome } : { nome: nome, is_admin: adm.checked, ativo: m.el.querySelector("#m-ativo").checked } });
+      passo.then(function(){ return salvarPermissoes(uid, perm); }).then(function(){
+        TC.toast(novo ? "Usuário criado." : "Alterações salvas."); m.fechar(); carregar();
+      }).catch(function(e){ msgModal(m, e.message); bt.disabled = false; bt.textContent = novo ? "Criar usuário" : "Salvar"; });
+    });
+  }
+
+  // ---------- áreas ----------
+  function renderAreas(){
+    document.getElementById("a-tb").innerHTML = D.areas.map(function(a){
+      var n = D.rels.filter(function(r){ return r.area_id === a.id; }).length;
+      return '<tr><td><div class="pess"><span class="mini-ico" style="--c:' + esc(a.cor) + '">' + TCIcone(a.icone, 18) + '</span><div><b>' + esc(a.nome) + '</b><span>' + esc(a.descricao) + '</span></div></div></td>' +
+        '<td class="hide-sm"><code>' + esc(a.slug) + '</code></td><td>' + n + '</td><td>' + (a.ativo ? '<span class="tag tag-new">Ativa</span>' : '<span class="tag tag-off">Inativa</span>') + '</td>' +
+        '<td class="hide-sm muted">' + a.ordem + '</td><td class="acoes"><button class="btn btn-ghost btn-sm" data-editar-a="' + a.id + '">Editar</button></td></tr>';
+    }).join("") || '<tr><td colspan="6"><div class="empty">Nenhuma área cadastrada.</div></td></tr>';
+    var sel = document.getElementById("r-area"), v = sel.value;
+    sel.innerHTML = '<option value="">Todas as áreas</option>' + D.areas.map(function(a){ return '<option value="' + a.id + '">' + esc(a.nome) + '</option>'; }).join("");
+    sel.value = v;
+  }
+  document.getElementById("a-tb").addEventListener("click", function(e){ var b = e.target.closest("[data-editar-a]"); if (b) modalArea(b.dataset.editarA); });
+  document.getElementById("a-nova").addEventListener("click", function(){ modalArea(null); });
+
+  function slugify(s){ return String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40); }
+
+  function modalArea(id){
+    var a = id ? D.areas.find(function(x){ return x.id === id; }) : { nome: "", slug: "", descricao: "", icone: "pasta", cor: "#004773", ordem: (D.areas.length + 1) * 10, ativo: true };
+    var novo = !id;
+    var corpo = '<div data-msg></div>' +
+      '<div class="grid-2"><div class="field"><label for="m-nome">Nome</label><input class="input" id="m-nome" maxlength="60" value="' + esc(a.nome) + '"></div>' +
+      '<div class="field"><label for="m-slug">Identificador</label><input class="input" id="m-slug" maxlength="40" value="' + esc(a.slug) + '"><span class="hint">Usado no endereço: area.html?a=<b id="m-slug-v">' + esc(a.slug) + '</b></span></div></div>' +
+      '<div class="field"><label for="m-desc">Descrição curta</label><input class="input" id="m-desc" maxlength="200" value="' + esc(a.descricao) + '"></div>' +
+      '<div class="field"><span class="f-label">Ícone</span><div class="icones" id="m-icones">' + TCIcone.nomes.map(function(n){ return '<button type="button" data-ic="' + n + '" aria-pressed="' + (n === a.icone) + '" title="' + n + '">' + TCIcone(n, 20) + '</button>'; }).join("") + '</div></div>' +
+      '<div class="field"><span class="f-label">Cor</span><div class="cores" id="m-cores">' + CORES.map(function(c){ return '<button type="button" data-cor="' + c + '" style="background:' + c + '" aria-pressed="' + (c.toLowerCase() === a.cor.toLowerCase()) + '" aria-label="Cor ' + c + '"></button>'; }).join("") +
+      '<input type="color" id="m-cor" value="' + esc(a.cor) + '" aria-label="Outra cor"></div></div>' +
+      '<div class="grid-2"><div class="field"><label for="m-ordem">Ordem na tela inicial</label><input class="input" id="m-ordem" type="number" min="0" max="9999" value="' + a.ordem + '"></div>' +
+      '<div class="field" style="justify-content:flex-end"><label class="switch"><input type="checkbox" id="m-ativo"' + (a.ativo ? " checked" : "") + '><span class="tr"></span>Área ativa</label></div></div>';
+    var rod = (novo ? '' : '<button class="btn btn-danger" type="button" data-excluir style="margin-right:auto">Excluir</button>') +
+      '<button class="btn btn-ghost" type="button" data-fechar>Cancelar</button><button class="btn btn-primary" type="button" data-salvar>Salvar</button>';
+    var m = abrirModal(novo ? "Nova área" : "Editar área", corpo, rod);
+    var nome = m.el.querySelector("#m-nome"), slug = m.el.querySelector("#m-slug"), slugMexido = !novo;
+    nome.addEventListener("input", function(){ if (!slugMexido) { slug.value = slugify(nome.value); m.el.querySelector("#m-slug-v").textContent = slug.value; } });
+    slug.addEventListener("input", function(){ slugMexido = true; m.el.querySelector("#m-slug-v").textContent = slug.value; });
+    var icone = a.icone, cor = a.cor;
+    m.el.querySelector("#m-icones").addEventListener("click", function(e){ var b = e.target.closest("[data-ic]"); if (!b) return; icone = b.dataset.ic; this.querySelectorAll("button").forEach(function(x){ x.setAttribute("aria-pressed", String(x === b)); }); });
+    m.el.querySelector("#m-cores").addEventListener("click", function(e){ var b = e.target.closest("[data-cor]"); if (!b) return; cor = b.dataset.cor; m.el.querySelector("#m-cor").value = cor; this.querySelectorAll("[data-cor]").forEach(function(x){ x.setAttribute("aria-pressed", String(x === b)); }); });
+    m.el.querySelector("#m-cor").addEventListener("input", function(e){ cor = e.target.value; m.el.querySelectorAll("[data-cor]").forEach(function(x){ x.setAttribute("aria-pressed", "false"); }); });
+    var exc = m.el.querySelector("[data-excluir]");
+    if (exc) exc.addEventListener("click", function(){
+      if (D.rels.some(function(r){ return r.area_id === id; })) return msgModal(m, "Esta área tem relatórios. Mova ou exclua os relatórios antes, ou apenas desative a área.");
+      if (!confirm("Excluir a área " + a.nome + "?")) return;
+      TC.db("areas?id=eq." + id, { method: "DELETE" }).then(function(){ TC.toast("Área excluída."); m.fechar(); carregar(); }).catch(function(e){ msgModal(m, e.message); });
+    });
+    m.el.querySelector("[data-salvar]").addEventListener("click", function(){
+      var body = { nome: nome.value.trim(), slug: slug.value.trim(), descricao: m.el.querySelector("#m-desc").value.trim(), icone: icone, cor: cor,
+                   ordem: parseInt(m.el.querySelector("#m-ordem").value, 10) || 0, ativo: m.el.querySelector("#m-ativo").checked };
+      if (body.nome.length < 2) return msgModal(m, "Informe o nome da área.");
+      if (!/^[a-z0-9-]{2,40}$/.test(body.slug)) return msgModal(m, "Identificador: use só letras minúsculas, números e hífen (ex.: recursos-humanos).");
+      var req = novo ? TC.db("areas", { method: "POST", prefer: "return=minimal", body: body }) : TC.db("areas?id=eq." + id, { method: "PATCH", prefer: "return=minimal", body: body });
+      req.then(function(){ TC.toast("Área salva."); m.fechar(); carregar(); })
+         .catch(function(e){ msgModal(m, /duplicate|unique/i.test(e.message) ? "Já existe uma área com esse identificador." : e.message); });
+    });
+  }
+
+  // ---------- relatórios ----------
+  function usuariosDoRel(r){
+    var ids = {};
+    D.aa.forEach(function(x){ if (x.area_id === r.area_id) ids[x.usuario_id] = 1; });
+    D.ar.forEach(function(x){ if (x.relatorio_id === r.id) ids[x.usuario_id] = 1; });
+    return Object.keys(ids).length;
+  }
+  function renderRels(){
+    var t = (document.getElementById("r-busca").value || "").toLowerCase(), fa = document.getElementById("r-area").value;
+    var l = D.rels.filter(function(r){ return (!fa || r.area_id === fa) && (!t || (r.nome + " " + r.categoria + " " + r.slug).toLowerCase().indexOf(t) !== -1); });
+    document.getElementById("r-tb").innerHTML = l.map(function(r){
+      var a = area(r.area_id);
+      return '<tr><td><div class="pess"><span class="mini-ico" style="--c:' + esc(a.cor) + '">' + TCIcone("documento", 18) + '</span><div><b>' + esc(r.nome) + '</b><span>' + esc(r.categoria) + '</span></div></div></td>' +
+        '<td>' + esc(a.nome) + '</td><td class="hide-sm"><code>' + esc(r.url) + '</code></td><td class="hide-sm">' + usuariosDoRel(r) + ' <span class="muted">+ admins</span></td>' +
+        '<td>' + (r.ativo ? '<span class="tag tag-new">Publicado</span>' : '<span class="tag tag-off">Oculto</span>') + '</td>' +
+        '<td class="acoes"><button class="btn btn-ghost btn-sm" data-editar-r="' + r.id + '">Editar</button></td></tr>';
+    }).join("") || '<tr><td colspan="6"><div class="empty">Nenhum relatório encontrado.</div></td></tr>';
+  }
+  document.getElementById("r-busca").addEventListener("input", renderRels);
+  document.getElementById("r-area").addEventListener("change", renderRels);
+  document.getElementById("r-tb").addEventListener("click", function(e){ var b = e.target.closest("[data-editar-r]"); if (b) modalRel(b.dataset.editarR); });
+  document.getElementById("r-novo").addEventListener("click", function(){
+    if (!D.areas.length) return TC.toast("Cadastre uma área antes.", "err");
+    modalRel(null);
+  });
+
+  function modalRel(id){
+    var fa = document.getElementById("r-area").value;
+    var r = id ? D.rels.find(function(x){ return x.id === id; }) : { area_id: fa || D.areas[0].id, nome: "", slug: "", categoria: "", descricao: "", url: "relatorios/", ordem: 100, ativo: true };
+    var novo = !id;
+    var categorias = Array.from(new Set(D.rels.map(function(x){ return x.categoria; }))).sort();
+    var corpo = '<div data-msg></div>' +
+      '<div class="grid-2"><div class="field"><label for="m-area">Área</label><select class="input" id="m-area">' + D.areas.map(function(a){ return '<option value="' + a.id + '"' + (a.id === r.area_id ? " selected" : "") + '>' + esc(a.nome) + '</option>'; }).join("") + '</select></div>' +
+      '<div class="field"><label for="m-cat">Categoria</label><input class="input" id="m-cat" list="m-cats" maxlength="40" value="' + esc(r.categoria) + '" placeholder="Ex.: Folha de pagamento"><datalist id="m-cats">' + categorias.map(function(c){ return '<option value="' + esc(c) + '">'; }).join("") + '</datalist></div></div>' +
+      '<div class="field"><label for="m-nome">Nome do relatório</label><input class="input" id="m-nome" maxlength="90" value="' + esc(r.nome) + '"></div>' +
+      '<div class="field"><label for="m-desc">Descrição</label><textarea class="input" id="m-desc" maxlength="240">' + esc(r.descricao) + '</textarea><span class="hint">Aparece no cartão do relatório (até 240 caracteres).</span></div>' +
+      '<div class="grid-2"><div class="field"><label for="m-slug">Identificador</label><input class="input" id="m-slug" maxlength="60" value="' + esc(r.slug) + '"' + (novo ? '' : ' disabled') + '><span class="hint">Usado nas permissões do banco; não muda depois de criado.</span></div>' +
+      '<div class="field"><label for="m-url">Endereço</label><input class="input" id="m-url" value="' + esc(r.url) + '"><span class="hint">Dentro da Central: <code>relatorios/pasta/</code>. Externo: <code>http://…</code></span></div></div>' +
+      '<div class="grid-2"><div class="field"><label for="m-ordem">Ordem na área</label><input class="input" id="m-ordem" type="number" min="0" max="9999" value="' + r.ordem + '"></div>' +
+      '<div class="field" style="justify-content:flex-end"><label class="switch"><input type="checkbox" id="m-ativo"' + (r.ativo ? " checked" : "") + '><span class="tr"></span>Publicado</label></div></div>';
+    var rod = (novo ? '' : '<button class="btn btn-danger" type="button" data-excluir style="margin-right:auto">Excluir</button>') +
+      '<button class="btn btn-ghost" type="button" data-fechar>Cancelar</button><button class="btn btn-primary" type="button" data-salvar>Salvar</button>';
+    var m = abrirModal(novo ? "Novo relatório" : "Editar relatório", corpo, rod, true);
+    var nome = m.el.querySelector("#m-nome"), slug = m.el.querySelector("#m-slug"), url = m.el.querySelector("#m-url"), mexido = !novo;
+    nome.addEventListener("input", function(){ if (!mexido) { slug.value = slugify(nome.value).slice(0, 60); url.value = "relatorios/" + slug.value + "/"; } });
+    slug.addEventListener("input", function(){ mexido = true; });
+    var exc = m.el.querySelector("[data-excluir]");
+    if (exc) exc.addEventListener("click", function(){
+      if (r.slug === "eventos") return msgModal(m, "Este relatório é usado pelas permissões do Painel de Eventos. Para tirá-lo da Central, desmarque “Publicado”.");
+      if (!confirm("Excluir o relatório " + r.nome + "? As permissões específicas dele também serão removidas.")) return;
+      TC.db("relatorios?id=eq." + id, { method: "DELETE" }).then(function(){ TC.toast("Relatório excluído."); m.fechar(); carregar(); }).catch(function(e){ msgModal(m, e.message); });
+    });
+    m.el.querySelector("[data-salvar]").addEventListener("click", function(){
+      var body = { area_id: m.el.querySelector("#m-area").value, nome: nome.value.trim(), categoria: m.el.querySelector("#m-cat").value.trim() || "Geral",
+                   descricao: m.el.querySelector("#m-desc").value.trim(), url: url.value.trim(), ordem: parseInt(m.el.querySelector("#m-ordem").value, 10) || 0,
+                   ativo: m.el.querySelector("#m-ativo").checked };
+      if (novo) body.slug = slug.value.trim();
+      if (body.nome.length < 2) return msgModal(m, "Informe o nome do relatório.");
+      if (novo && !/^[a-z0-9-]{2,60}$/.test(body.slug)) return msgModal(m, "Identificador: use só letras minúsculas, números e hífen.");
+      if (!/^(relatorios\/[a-z0-9/_-]+\/?|https?:\/\/\S+)$/.test(body.url)) return msgModal(m, "Endereço inválido. Use relatorios/pasta/ ou um link http:// completo.");
+      var req = novo ? TC.db("relatorios", { method: "POST", prefer: "return=minimal", body: body }) : TC.db("relatorios?id=eq." + id, { method: "PATCH", prefer: "return=minimal", body: body });
+      req.then(function(){ TC.toast("Relatório salvo."); m.fechar(); carregar(); })
+         .catch(function(e){ msgModal(m, /duplicate|unique/i.test(e.message) ? "Já existe um relatório com esse identificador." : e.message); });
+    });
+  }
+
+  // ---------- configurações ----------
+  document.getElementById("cfg-ver").addEventListener("click", function(){
+    var i = document.getElementById("cfg-senha"); i.type = i.type === "password" ? "text" : "password";
+    this.textContent = i.type === "password" ? "Mostrar" : "Ocultar";
+  });
+  document.getElementById("cfg-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    var v = document.getElementById("cfg-senha").value;
+    if (v.length < 8 || !/[a-zA-Z]/.test(v) || !/\d/.test(v)) return TC.toast("A senha padrão precisa de 8+ caracteres com letras e números.", "err");
+    TC.db("configuracoes?chave=eq.senha_padrao", { method: "PATCH", prefer: "return=minimal", body: { valor: v } })
+      .then(function(){ TC.toast("Senha padrão atualizada."); }).catch(function(err){ TC.toast(err.message, "err"); });
+  });
+})();
+</script>
+</body>
+</html>

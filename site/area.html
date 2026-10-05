@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Área — Central de Relatórios Tecnolimp</title>
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/central.css">
+<script src="assets/config.js"></script>
+<script src="assets/auth.js"></script>
+<script src="assets/icones.js"></script>
+<style>
+  .ahead{--c:var(--brand);display:flex;gap:18px;align-items:center;padding:24px;position:relative;overflow:hidden;}
+  .ahead::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:var(--c);}
+  .ahead-ico{width:60px;height:60px;border-radius:16px;display:grid;place-items:center;color:var(--c);background:#eef3f7;background:color-mix(in srgb,var(--c) 11%,#fff);flex:none;}
+  .ahead h1{font-family:var(--font-display);font-size:26px;margin:0;line-height:1.2;}
+  .ahead p{margin:4px 0 0;color:var(--muted);}
+  .ahead-n{margin-left:auto;text-align:right;flex:none;}
+  .ahead-n b{display:block;font-family:var(--font-display);font-size:28px;color:var(--c);line-height:1;}
+  .ahead-n span{font-size:12.5px;color:var(--muted);}
+
+  .toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:22px 0 14px;}
+  .toolbar .tc-search{flex:1;min-width:240px;max-width:460px;}
+  .toolbar .sp{flex:1;}
+  .seg{display:inline-flex;border:1px solid var(--line-2);border-radius:10px;overflow:hidden;background:var(--surface);}
+  .seg button{width:40px;height:40px;border:0;background:none;color:var(--muted);cursor:pointer;display:grid;place-items:center;}
+  .seg button[aria-pressed="true"]{background:var(--brand-050);color:var(--brand);}
+  .seg button+button{border-left:1px solid var(--line-2);}
+  select.input.ord{width:auto;min-width:190px;}
+  .cats{margin-bottom:22px;}
+
+  .grupo{margin-bottom:26px;}
+  .grupo-h{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:13px;font-weight:700;color:var(--ink-2);text-transform:uppercase;letter-spacing:.05em;}
+  .grupo-h::after{content:"";flex:1;height:1px;background:var(--line);}
+  .grupo-h span{font-weight:600;color:var(--subtle);text-transform:none;letter-spacing:0;}
+
+  .rels{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;}
+  .rel{--c:var(--brand);display:flex;flex-direction:column;gap:10px;padding:18px;text-decoration:none;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-1);transition:transform .16s,box-shadow .16s,border-color .16s;min-height:168px;}
+  .rel:hover{transform:translateY(-2px);box-shadow:var(--shadow-2);border-color:#cfd8e2;}
+  .rel:hover .rel-go{opacity:1;transform:none;}
+  .rel-top{display:flex;align-items:flex-start;gap:12px;}
+  .rel-ico{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;color:var(--c);background:#eef3f7;background:color-mix(in srgb,var(--c) 11%,#fff);flex:none;}
+  .rel h3{font-size:15px;line-height:1.35;margin:0;font-weight:700;color:var(--ink);}
+  .rel-go{margin-left:auto;color:var(--c);opacity:0;transform:translateX(-4px);transition:all .16s;}
+  .rel p{margin:0;color:var(--muted);font-size:13px;flex:1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .rel-foot{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;color:var(--subtle);}
+  .rel-foot .dt{margin-left:auto;white-space:nowrap;}
+
+  .lista .rels{grid-template-columns:1fr;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-1);}
+  .lista .rel{flex-direction:row;align-items:center;min-height:0;border:0;border-radius:0;box-shadow:none;padding:12px 16px;gap:14px;}
+  .lista .rel + .rel{border-top:1px solid var(--line);}
+  .lista .rel:hover{transform:none;background:var(--surface-2);}
+  .lista .rel-top{flex:0 1 auto;align-items:center;min-width:0;width:40%;}
+  .lista .rel p{-webkit-line-clamp:1;}
+  .lista .rel-foot{flex:none;}
+  .lista .rel-go{opacity:1;transform:none;}
+  .lista .rel-top .rel-go{display:none;}
+
+  @media (max-width:720px){
+    .ahead{padding:18px;gap:14px;}
+    .ahead-ico{width:48px;height:48px;}
+    .ahead h1{font-size:21px;}
+    .ahead-n{display:none;}
+    .toolbar .tc-search{max-width:none;min-width:100%;}
+    .seg{display:none;}
+    select.input.ord{flex:1;}
+    .cats{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;}
+    .chip{flex:none;}
+  }
+</style>
+</head>
+<body>
+<header class="tc-top"><div class="tc-top-in">
+  <a class="tc-brand" href="index.html"><img src="assets/tecnolimplogo.png" alt="Tecnolimp"><span class="tc-brand-sep"></span><span class="tc-brand-nome">Central de Relatórios</span></a>
+  <nav class="tc-crumbs" aria-label="Você está em"><span class="sep">/</span><span class="atual" id="crumb">…</span></nav>
+  <div class="tc-top-sp"></div>
+  <div id="user-slot"></div>
+</div></header>
+
+<main class="tc-main">
+  <section class="card ahead" id="ahead"><div class="sk" style="height:60px;width:100%"></div></section>
+
+  <div class="toolbar">
+    <div class="tc-search">
+      <span id="ic-busca"></span>
+      <label class="sr-only" for="busca">Buscar nesta área</label>
+      <input class="input" id="busca" type="search" placeholder="Buscar relatório nesta área…" autocomplete="off">
+    </div>
+    <div class="sp"></div>
+    <label class="sr-only" for="ordem">Ordenar</label>
+    <select class="input ord" id="ordem">
+      <option value="padrao">Ordem padrão</option>
+      <option value="nome">Nome (A–Z)</option>
+      <option value="recentes">Atualizados recentemente</option>
+    </select>
+    <div class="seg" role="group" aria-label="Visualização">
+      <button type="button" id="v-grade" aria-pressed="true" title="Grade"></button>
+      <button type="button" id="v-lista" aria-pressed="false" title="Lista"></button>
+    </div>
+  </div>
+  <div class="chips cats" id="cats" role="group" aria-label="Filtrar por categoria"></div>
+  <div id="conteudo"></div>
+</main>
+
+<footer class="tc-foot"><div class="tc-foot-in"><span>© Tecnolimp — uso interno</span><span>Não encontrou um relatório? Peça a liberação ao administrador da Central.</span></div></footer>
+
+<script>
+(function(){
+  "use strict";
+  var esc = TC.esc;
+  document.getElementById("ic-busca").outerHTML = TCIcone("busca", 18);
+  document.getElementById("v-grade").innerHTML = TCIcone("grade", 18);
+  document.getElementById("v-lista").innerHTML = TCIcone("lista", 18);
+  var slug = new URLSearchParams(location.search).get("a") || "";
+  var fmtData = new Intl.DateTimeFormat("pt-BR", {day:"2-digit", month:"2-digit", year:"numeric"});
+  var st = { area: null, rels: [], cat: "", busca: "", ordem: "padrao", vista: "grade" };
+  try { st.vista = localStorage.getItem("tl_central_vista") || "grade"; } catch(e){}
+
+  TC.exigirLogin().then(function(p){
+    TC.montarMenuUsuario(document.getElementById("user-slot"), p);
+    return TC.db("areas?select=id,slug,nome,descricao,icone,cor&ativo=eq.true&slug=eq." + encodeURIComponent(slug)).then(function(a){
+      if (!a || !a.length) { location.replace("index.html"); return new Promise(function(){}); }
+      st.area = a[0];
+      return TC.db("relatorios?select=id,slug,nome,descricao,categoria,url,ordem,criado_em,atualizado_em&ativo=eq.true&area_id=eq." + st.area.id);
+    }).then(function(rels){
+      st.rels = rels || [];
+      if (!st.rels.length && !p.is_admin) { location.replace("index.html?sem_acesso=" + encodeURIComponent(slug)); return; }
+      document.title = st.area.nome + " — Central de Relatórios Tecnolimp";
+      document.getElementById("crumb").textContent = st.area.nome;
+      renderCabecalho(); renderCats(); render();
+    });
+  }).catch(function(){
+    document.getElementById("conteudo").innerHTML = '<div class="card empty"><strong>Não foi possível carregar a área</strong>Verifique a conexão com a rede interna e tente novamente.</div>';
+  });
+
+  function renderCabecalho(){
+    var a = st.area, n = st.rels.length;
+    var el = document.getElementById("ahead");
+    el.style.setProperty("--c", a.cor);
+    el.innerHTML = '<span class="ahead-ico">' + TCIcone(a.icone, 30) + '</span>' +
+      '<div><h1>' + esc(a.nome) + '</h1><p>' + esc(a.descricao) + '</p></div>' +
+      '<div class="ahead-n"><b>' + n + '</b><span>' + (n === 1 ? "relatório disponível" : "relatórios disponíveis") + '</span></div>';
+  }
+
+  function cats(){
+    var m = {};
+    st.rels.forEach(function(r){ m[r.categoria] = (m[r.categoria] || 0) + 1; });
+    return Object.keys(m).sort(function(x, y){ return x.localeCompare(y, "pt-BR"); }).map(function(c){ return { nome: c, n: m[c] }; });
+  }
+  function renderCats(){
+    var lista = cats(), el = document.getElementById("cats");
+    if (lista.length < 2) { el.hidden = true; return; }
+    el.innerHTML = '<button type="button" class="chip" data-cat="" aria-pressed="true">Todas <span class="n">' + st.rels.length + '</span></button>' +
+      lista.map(function(c){ return '<button type="button" class="chip" data-cat="' + esc(c.nome) + '" aria-pressed="false">' + esc(c.nome) + ' <span class="n">' + c.n + '</span></button>'; }).join("");
+    el.addEventListener("click", function(e){
+      var b = e.target.closest("[data-cat]"); if (!b) return;
+      st.cat = b.dataset.cat;
+      el.querySelectorAll(".chip").forEach(function(x){ x.setAttribute("aria-pressed", String(x === b)); });
+      render();
+    });
+  }
+
+  function norm(s){ return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); }
+  function filtrados(){
+    var t = norm(st.busca);
+    var l = st.rels.filter(function(r){
+      return (!st.cat || r.categoria === st.cat) && (!t || norm(r.nome + " " + r.descricao + " " + r.categoria).indexOf(t) !== -1);
+    });
+    l.sort(function(x, y){
+      if (st.ordem === "nome") return x.nome.localeCompare(y.nome, "pt-BR");
+      if (st.ordem === "recentes") return new Date(y.atualizado_em) - new Date(x.atualizado_em);
+      return (x.ordem - y.ordem) || x.nome.localeCompare(y.nome, "pt-BR");
+    });
+    return l;
+  }
+  function cartao(r){
+    var novo = (Date.now() - new Date(r.criado_em).getTime()) < 30 * 864e5;
+    return '<a class="rel" href="' + esc(r.url) + '" data-slug="' + esc(r.slug) + '" style="--c:' + esc(st.area.cor) + '">' +
+      '<div class="rel-top"><span class="rel-ico">' + TCIcone("documento", 20) + '</span><h3>' + esc(r.nome) + '</h3><span class="rel-go">' + TCIcone("seta", 18) + '</span></div>' +
+      '<p>' + esc(r.descricao || "Sem descrição.") + '</p>' +
+      '<div class="rel-foot"><span class="tag">' + esc(r.categoria) + '</span>' + (novo ? '<span class="tag tag-new">Novo</span>' : '') +
+      '<span class="dt">Atualizado em ' + fmtData.format(new Date(r.atualizado_em)) + '</span></div></a>';
+  }
+  function render(){
+    var el = document.getElementById("conteudo");
+    el.className = st.vista === "lista" ? "lista" : "";
+    document.getElementById("v-grade").setAttribute("aria-pressed", String(st.vista !== "lista"));
+    document.getElementById("v-lista").setAttribute("aria-pressed", String(st.vista === "lista"));
+    if (!st.rels.length) {
+      el.innerHTML = '<div class="card empty">' + TCIcone("pasta", 40) + '<strong>Nenhum relatório publicado nesta área</strong>Cadastre relatórios em Administração › Relatórios.</div>';
+      return;
+    }
+    var l = filtrados();
+    if (!l.length) {
+      el.innerHTML = '<div class="card empty">' + TCIcone("busca", 40) + '<strong>Nenhum relatório encontrado</strong>Tente outro termo ou limpe o filtro de categoria.</div>';
+      return;
+    }
+    var agrupar = !st.cat && !st.busca && st.ordem === "padrao" && cats().length > 1;
+    if (!agrupar) { el.innerHTML = '<div class="rels">' + l.map(cartao).join("") + '</div>'; return; }
+    var grupos = {};
+    l.forEach(function(r){ (grupos[r.categoria] = grupos[r.categoria] || []).push(r); });
+    el.innerHTML = Object.keys(grupos).sort(function(x, y){ return x.localeCompare(y, "pt-BR"); }).map(function(c){
+      return '<section class="grupo"><h2 class="grupo-h">' + esc(c) + ' <span>' + grupos[c].length + '</span></h2><div class="rels">' + grupos[c].map(cartao).join("") + '</div></section>';
+    }).join("");
+  }
+
+  document.getElementById("busca").addEventListener("input", function(e){ st.busca = e.target.value.trim(); render(); });
+  document.getElementById("ordem").addEventListener("change", function(e){ st.ordem = e.target.value; render(); });
+  function vista(v){ st.vista = v; try { localStorage.setItem("tl_central_vista", v); } catch(e){} render(); }
+  document.getElementById("v-grade").addEventListener("click", function(){ vista("grade"); });
+  document.getElementById("v-lista").addEventListener("click", function(){ vista("lista"); });
+  document.getElementById("conteudo").addEventListener("click", function(e){
+    var a = e.target.closest("[data-slug]"); if (!a) return;
+    try {
+      var l = JSON.parse(localStorage.getItem("tl_central_recentes") || "[]").filter(function(s){ return s !== a.dataset.slug; });
+      l.unshift(a.dataset.slug); localStorage.setItem("tl_central_recentes", JSON.stringify(l.slice(0, 6)));
+    } catch(err){}
+  });
+})();
+</script>
+</body>
+</html>

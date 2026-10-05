@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configurações — Relação de Eventos | Tecnolimp</title>
+<link rel="icon" href="../../assets/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
+<script src="../../assets/config.js"></script>
+<script src="../../assets/auth.js"></script>
+<style>
+  /* barra da Central (login único) */
+  .cbar{max-width:1100px;margin:0 auto 16px;display:flex;align-items:center;gap:10px;font-size:13px;font-family:'Inter',system-ui,sans-serif;}
+  .cbar a.cb-link{display:inline-flex;align-items:center;gap:6px;color:#66707f;text-decoration:none;font-weight:500;}
+  .cbar a.cb-link:hover{color:#004773;text-decoration:underline;}
+  .cbar .cb-sep{color:#cbd2dc;}
+  .cbar .cb-sp{flex:1;}
+  .tc-user{position:relative;}
+  .tc-user-btn{display:flex;align-items:center;gap:8px;border:1px solid #e4e7ec;background:#fff;border-radius:999px;padding:3px 10px 3px 3px;font:inherit;font-weight:600;color:#161c2d;cursor:pointer;}
+  .tc-avatar{width:28px;height:28px;border-radius:50%;background:#004773;color:#fff;display:grid;place-items:center;font-size:11.5px;font-weight:700;}
+  .tc-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:230px;background:#fff;border:1px solid #e4e7ec;border-radius:12px;box-shadow:0 10px 28px -10px rgba(0,42,69,.25);padding:6px;z-index:30;}
+  .tc-menu-head{padding:8px 12px;border-bottom:1px solid #e4e7ec;margin-bottom:4px;display:flex;flex-direction:column;}
+  .tc-menu-head span{color:#66707f;font-size:12px;}
+  .tc-menu a,.tc-menu button{display:block;width:100%;text-align:left;padding:8px 12px;border-radius:8px;color:#161c2d;text-decoration:none;font:inherit;background:none;border:0;cursor:pointer;}
+  .tc-menu a:hover,.tc-menu button:hover{background:#eaf1f6;}
+  .tc-menu .tc-sair{color:#c4261d;}
+  [hidden]{display:none !important;}
+  @media (max-width:560px){ .tc-user-nome,.cb-area{display:none;} }
+  @media print{ .cbar{display:none !important;} }
+
+  :root{
+    --color-primary:#004773;--color-primary-hover:#00385c;--color-primary-light:#e6eef3;
+    --color-accent:#c4261d;--color-ink:#161c2d;--color-muted:#3c4858;--color-subtle:#66707f;
+    --color-surface:#ffffff;--color-surface-alt:#f7f8fa;--color-border:#e4e7ec;--color-border-strong:#cbd2dc;
+    --color-danger:#c4261d;--color-danger-light:#fbeae9;--color-success:#1d7a4c;--color-success-light:#e6f4ec;
+    --color-warning:#935e09;--color-warning-light:#fbf1e1;
+    --font-display:"Nunito",ui-sans-serif,system-ui,sans-serif;--font-body:"Inter",ui-sans-serif,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--color-surface-alt);font-family:var(--font-body);color:var(--color-ink);}
+  .wrap{max-width:920px;margin:0 auto;padding:32px 24px 60px;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px;flex-wrap:wrap;}
+  .brand-row{display:flex;align-items:center;gap:12px;}
+  .brand-row img{height:26px;width:auto;}
+  .brand-row h1{font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--color-primary);margin:0;}
+  .brand-row .subtitle{font-size:13px;color:var(--color-subtle);margin-top:2px;}
+  .topbar-actions{display:flex;gap:10px;align-items:center;}
+  .btn{height:38px;border-radius:8px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);padding:0 16px;transition:background .15s;}
+  .btn-primary{background:var(--color-primary);color:#fff;}
+  .btn-primary:hover{background:var(--color-primary-hover);}
+  .btn-primary:disabled{opacity:.5;cursor:not-allowed;}
+  .btn-outline{background:transparent;color:var(--color-primary);border:1px solid var(--color-border-strong);}
+  .btn-outline:hover{background:var(--color-primary-light);}
+  .btn-ghost{background:transparent;color:var(--color-muted);}
+  .card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:12px;padding:24px;margin-bottom:20px;}
+  .card h2{font-family:var(--font-display);font-size:15px;font-weight:800;margin:0 0 16px;color:var(--color-ink);}
+  .add-form{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;}
+  .field-card{flex:1;min-width:220px;}
+  label.f-label{display:block;font-size:13px;font-weight:600;color:var(--color-muted);margin-bottom:6px;}
+  input[type=email]{width:100%;height:38px;border-radius:8px;border:1px solid var(--color-border);padding:0 12px;font-size:14px;font-family:var(--font-body);color:var(--color-ink);background:var(--color-surface);outline:none;}
+  input:focus{border-color:var(--color-primary);box-shadow:0 0 0 3px rgba(0,71,115,.15);}
+  .checkbox-row{display:flex;align-items:center;gap:8px;height:38px;font-size:13px;color:var(--color-muted);}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  thead th{text-align:left;font-size:12px;color:var(--color-subtle);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--color-border);text-transform:uppercase;letter-spacing:.02em;}
+  tbody td{padding:10px;border-bottom:1px solid var(--color-border);color:var(--color-ink);}
+  tbody tr:last-child td{border-bottom:none;}
+  .badge{display:inline-block;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;}
+  .badge.publicado{background:var(--color-success-light);color:var(--color-success);}
+  .badge.revisao{background:var(--color-warning-light);color:var(--color-warning);}
+  .alert{border-radius:8px;padding:10px 12px;font-size:13px;margin-bottom:16px;display:none;}
+  .alert.danger{background:var(--color-danger-light);color:var(--color-danger);}
+  .alert.success{background:var(--color-success-light);color:var(--color-success);}
+  .empty-box{border:1px dashed var(--color-border-strong);border-radius:10px;padding:28px;text-align:center;color:var(--color-subtle);font-size:13px;}
+  .helper{font-size:12px;color:var(--color-subtle);margin-top:8px;}
+  .cfg-list{display:flex;flex-direction:column;gap:4px;margin-top:6px;}
+  .cfg-row-emp{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-ink);}
+  .cfg-row-emp input{margin:0;}
+  .empresas-tag{font-size:11.5px;color:var(--color-subtle);}
+  .link-btn{background:none;border:none;color:var(--color-primary);font:inherit;font-size:12.5px;cursor:pointer;padding:0;text-decoration:underline;}
+  .link-btn:hover{color:var(--color-primary-hover);}
+  :focus-visible{outline:2px solid var(--color-primary);outline-offset:2px;}
+
+  .cfg-row{display:flex;align-items:center;gap:10px;font-size:13px;padding:7px 8px;border-radius:6px;}
+  .cfg-row:hover{background:var(--color-surface-alt);}
+  .cfg-row .name{flex:1;}
+  .cfg-row .code{color:var(--color-subtle);font-size:11.5px;font-family:monospace;}
+  .toggle{position:relative;width:34px;height:19px;flex:none;}
+  .toggle input{position:absolute;inset:0;opacity:0;cursor:pointer;margin:0;}
+  .toggle .track{position:absolute;inset:0;background:var(--color-border-strong);border-radius:999px;transition:background .15s;}
+  .toggle .knob{position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:var(--color-surface);transition:transform .15s;box-shadow:0 1px 2px rgba(0,0,0,.25);}
+  .toggle input:checked + .track{background:var(--color-primary);}
+  .toggle input:checked + .track + .knob{transform:translateX(15px);}
+  .toggle input:focus-visible + .track{outline:2px solid var(--color-primary);outline-offset:2px;}
+  .pill{font-size:10.5px;padding:2px 7px;border-radius:999px;background:var(--color-primary-light);color:var(--color-primary);font-weight:600;}
+  .add-form-eventos{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-top:12px;}
+  .add-form-eventos input{font:inherit;font-size:13px;background:var(--color-surface-alt);border:1px solid var(--color-border-strong);border-radius:7px;padding:8px 10px;color:var(--color-ink);}
+  .add-form-eventos input:focus-visible{outline:2px solid var(--color-primary);outline-offset:1px;}
+  #ev-codigo,#ev-categoria{width:100%;}
+  .add-form-eventos .field-card{flex:1 1 180px;}
+  .add-form-eventos{margin:0 0 16px;padding-bottom:16px;border-bottom:1px solid var(--color-border);}
+  #ev-add-msg{flex-basis:100%;}
+  .edit-btn{background:none;border:none;color:var(--color-primary);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;padding:4px 6px;border-radius:6px;}
+  .edit-btn:hover{background:var(--color-primary-light);}
+  .cfg-row.editing{flex-wrap:wrap;background:var(--color-surface-alt);}
+  .cfg-row.editing input[type=text]{font:inherit;font-size:13px;border:1px solid var(--color-border-strong);border-radius:7px;padding:7px 9px;background:#fff;min-width:0;}
+  .cfg-row.editing .e-cod{flex:0 1 150px;} .cfg-row.editing .e-cat{flex:1 1 200px;}
+  .cfg-row.editing .row-msg{flex-basis:100%;font-size:12px;color:var(--color-danger);}
+  .form-msg{font-size:12px;color:var(--color-subtle);}
+  .form-msg.err{color:var(--color-danger);}
+  .form-msg.ok{color:var(--color-success);}
+</style>
+</head>
+<body>
+<nav class="cbar" aria-label="Navegação da Central">
+  <a class="cb-link" href="../../index.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Central de Relatórios</a>
+  <span class="cb-sep cb-area">/</span><a class="cb-link cb-area" href="../../area.html?a=rh">Recursos Humanos</a>
+  <span class="cb-sp"></span><div id="user-slot"></div>
+</nav>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand-row">
+      <img alt="Tecnolimp" src="../../assets/tecnolimplogo.png">
+      <div>
+        <h1>Configurações</h1>
+        <div class="subtitle">Eventos e categorias exibidos no relatório</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <a class="btn btn-outline" href="index.html" style="display:inline-flex;align-items:center;text-decoration:none;">Voltar ao relatório</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Eventos acompanhados</h2>
+    <div class="helper" style="margin-top:-8px;margin-bottom:8px;">Cadastre um evento novo, edite código/categoria ou desative os que não quer ver na lista abaixo. Alterações aparecem no relatório após a próxima sincronização (até 30 min).</div>
+    <form class="add-form-eventos" id="ev-form" novalidate>
+      <div class="field-card" style="min-width:0;">
+        <label class="f-label" for="ev-codigo">Código(s) do evento *</label>
+        <input id="ev-codigo" placeholder="ex: 860 ou 860,861" required inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="field-card" style="min-width:0;">
+        <label class="f-label" for="ev-categoria">Categoria *</label>
+        <input id="ev-categoria" placeholder="ex: Adiantamento 13º" required maxlength="60" autocomplete="off">
+      </div>
+      <button class="btn btn-primary" id="ev-add-btn" type="submit">Adicionar</button>
+      <span class="form-msg" id="ev-add-msg" role="status"></span>
+    </form>
+    <div class="cfg-list" id="cfg-eventos"><div class="empty-box">Carregando…</div></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  // Só administradores da Central (a página e as funções do banco conferem).
+  // Escrita só via funções do banco (painel_adicionar_evento / painel_ativar_evento /
+  // painel_editar_evento), que validam os dados e não permitem apagar eventos.
+  function sb(path, opts){ return TC.rest(path, opts); }
+  function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+
+  var eventos = [];
+  function render(){
+    var el = document.getElementById("cfg-eventos");
+    el.innerHTML = eventos.map(function(ev){
+      return '<div class="cfg-row">' +
+        '<div class="name">' + esc(ev.categoria) + ' <span class="code">' + esc(ev.codigo) + '</span></div>' +
+        '<button type="button" class="edit-btn" data-editar="' + esc(ev.codigo) + '">Editar</button>' +
+        '<label class="toggle" title="Mostrar no relatório"><input type="checkbox" aria-label="Mostrar ' + esc(ev.categoria) + ' no relatório" data-codigo="' + esc(ev.codigo) + '"' + (ev.ativo ? " checked" : "") + '><span class="track"></span><span class="knob"></span></label></div>';
+    }).join("") || '<div class="empty-box">Nenhum evento cadastrado.</div>';
+    el.querySelectorAll("[data-editar]").forEach(function(b){
+      b.addEventListener("click", function(){ abrirEdicao(b.closest(".cfg-row"), b.dataset.editar); });
+    });
+    el.querySelectorAll("input[type=checkbox]").forEach(function(inp){
+      inp.addEventListener("change", function(){
+        sb("rpc/painel_ativar_evento", {method:"POST", body:{p_codigo: inp.dataset.codigo, p_ativo: inp.checked}})
+          .catch(function(){ inp.checked = !inp.checked; alert("Não foi possível salvar. Tente novamente."); });
+      });
+    });
+  }
+  function abrirEdicao(row, codigo){
+    var ev = eventos.find(function(x){ return x.codigo === codigo; });
+    row.classList.add("editing");
+    row.innerHTML =
+      '<input type="text" class="e-cod" aria-label="Código(s) do evento" inputmode="numeric" value="' + esc(ev.codigo) + '">' +
+      '<input type="text" class="e-cat" aria-label="Categoria" maxlength="60" value="' + esc(ev.categoria) + '">' +
+      '<button type="button" class="btn btn-primary" data-salvar>Salvar</button>' +
+      '<button type="button" class="btn btn-ghost" data-cancelar>Cancelar</button>' +
+      '<span class="row-msg" role="status"></span>';
+    var inCod = row.querySelector(".e-cod"), inCat = row.querySelector(".e-cat"), msg = row.querySelector(".row-msg");
+    inCat.focus();
+    row.querySelector("[data-cancelar]").addEventListener("click", render);
+    function salvar(){
+      var novoCod = inCod.value.replace(/\s+/g, ""), novaCat = inCat.value.trim();
+      if(!novoCod || !novaCat){ msg.textContent = "Código do evento e categoria são obrigatórios."; return; }
+      if(!/^\d+(,\d+)*$/.test(novoCod)){ msg.textContent = "Código inválido: use só números, separados por vírgula."; return; }
+      msg.textContent = "";
+      sb("rpc/painel_editar_evento", {method:"POST", body:{p_codigo_atual: codigo, p_codigo_novo: novoCod, p_categoria: novaCat}})
+        .then(carregar)
+        .catch(function(err){ msg.textContent = /já cadastrado/i.test(err.message) ? "Esse código já está em outro evento." : "Não foi possível salvar: " + err.message; });
+    }
+    row.querySelector("[data-salvar]").addEventListener("click", salvar);
+    row.addEventListener("keydown", function(e){ if(e.key === "Enter") salvar(); if(e.key === "Escape") render(); });
+  }
+
+  function carregar(){
+    sb("config_eventos?select=codigo,categoria,ativo&order=ordem.asc.nullslast,categoria.asc")
+      .then(function(rows){ eventos = rows || []; render(); })
+      .catch(function(){ document.getElementById("cfg-eventos").innerHTML = '<div class="empty-box">Não foi possível carregar os eventos.</div>'; });
+  }
+
+  document.getElementById("ev-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    var codigo = document.getElementById("ev-codigo").value.replace(/\s+/g, "");
+    var categoria = document.getElementById("ev-categoria").value.trim();
+    var msg = document.getElementById("ev-add-msg");
+    if(!codigo || !categoria){ msg.textContent = "Código do evento e categoria são obrigatórios."; msg.className = "form-msg err"; return; }
+    if(!/^\d+(,\d+)*$/.test(codigo)){ msg.textContent = "Código inválido: use só números, separados por vírgula (ex: 860,861)."; msg.className = "form-msg err"; return; }
+    var btn = document.getElementById("ev-add-btn"); btn.disabled = true;
+    msg.textContent = "salvando…"; msg.className = "form-msg";
+    sb("rpc/painel_adicionar_evento", {method:"POST", body:{p_codigo: codigo, p_categoria: categoria}})
+      .then(function(){
+        msg.textContent = "Adicionado — aparece no relatório após a próxima sincronização (até 30 min)."; msg.className = "form-msg ok";
+        document.getElementById("ev-codigo").value = ""; document.getElementById("ev-categoria").value = "";
+        carregar();
+      }).catch(function(err){
+        msg.textContent = /já cadastrado/i.test(err.message) ? "Esse código já está cadastrado." : "Não foi possível salvar: " + err.message;
+        msg.className = "form-msg err";
+      }).then(function(){ btn.disabled = false; });
+  });
+  TC.exigirLogin({ admin: true }).then(function(perfil){
+    TC.montarMenuUsuario(document.getElementById("user-slot"), perfil);
+    carregar();
+  });
+})();
+</script>
+</body>
+</html>

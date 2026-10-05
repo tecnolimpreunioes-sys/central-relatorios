@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Criar senha — Central de Relatórios Tecnolimp</title>
+<link rel="icon" href="assets/favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/central.css">
+<script src="assets/config.js"></script>
+<script src="assets/auth.js"></script>
+<script src="assets/icones.js"></script>
+<style>
+  .wrap{flex:1;display:flex;align-items:flex-start;justify-content:center;padding:56px 16px;}
+  .box{width:100%;max-width:460px;padding:30px 30px 26px;}
+  .step{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--brand);background:var(--brand-050);border-radius:999px;padding:4px 10px;margin-bottom:14px;}
+  h1{font-family:var(--font-display);font-size:23px;margin:0 0 6px;}
+  .sub{color:var(--muted);margin:0 0 22px;}
+  form{display:flex;flex-direction:column;gap:16px;}
+  .regras{list-style:none;margin:0;padding:12px 14px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;display:grid;gap:6px;font-size:13px;}
+  .regras li{display:flex;align-items:center;gap:8px;color:var(--muted);}
+  .regras li .dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line-2);display:grid;place-items:center;flex:none;}
+  .regras li.ok{color:var(--ok);}
+  .regras li.ok .dot{background:var(--ok);border-color:var(--ok);color:#fff;}
+  .forca{height:6px;border-radius:999px;background:var(--line);overflow:hidden;}
+  .forca span{display:block;height:100%;width:0;border-radius:999px;transition:width .2s,background .2s;}
+</style>
+</head>
+<body>
+<header class="tc-top"><div class="tc-top-in">
+  <a class="tc-brand" href="index.html"><img src="assets/tecnolimplogo.png" alt="Tecnolimp"><span class="tc-brand-sep"></span><span class="tc-brand-nome">Central de Relatórios</span></a>
+  <div class="tc-top-sp"></div>
+  <button class="btn btn-ghost btn-sm" id="sair" type="button">Sair</button>
+</div></header>
+
+<div class="wrap">
+  <div class="card box">
+    <span class="step" id="step">Primeiro acesso</span>
+    <h1 id="titulo">Crie sua senha pessoal</h1>
+    <p class="sub" id="sub">Por segurança, a senha padrão precisa ser trocada antes de continuar. Ela vale para todos os relatórios da Central.</p>
+    <form id="form" novalidate>
+      <div id="msg" role="alert"></div>
+      <div class="field" id="campo-atual" hidden>
+        <label for="atual">Senha atual</label>
+        <input class="input" id="atual" type="password" autocomplete="current-password">
+      </div>
+      <div class="field">
+        <label for="nova">Nova senha</label>
+        <input class="input" id="nova" type="password" autocomplete="new-password" aria-describedby="regras">
+        <div class="forca" aria-hidden="true"><span id="forca"></span></div>
+      </div>
+      <ul class="regras" id="regras">
+        <li data-r="tam"><span class="dot"></span>Pelo menos 8 caracteres</li>
+        <li data-r="letra"><span class="dot"></span>Contém letras</li>
+        <li data-r="num"><span class="dot"></span>Contém números</li>
+        <li data-r="igual"><span class="dot"></span>As duas senhas conferem</li>
+      </ul>
+      <div class="field">
+        <label for="conf">Confirmar nova senha</label>
+        <input class="input" id="conf" type="password" autocomplete="new-password">
+      </div>
+      <label class="switch" style="font-size:13px;color:var(--muted)"><input type="checkbox" id="mostrar"><span class="tr"></span>Mostrar senhas</label>
+      <button class="btn btn-primary" id="btn" type="submit" style="height:46px">Salvar e continuar</button>
+    </form>
+  </div>
+</div>
+<script>
+(function(){
+  "use strict";
+  var params = new URLSearchParams(location.search);
+  var next = TC.destinoSeguro(params.get("next"));
+  document.getElementById("sair").addEventListener("click", TC.sair);
+
+  TC.exigirLogin({ permitirTrocaPendente: true }).then(function(p){
+    var voluntario = !p.must_change_password;
+    if (voluntario) {
+      document.getElementById("step").textContent = "Minha conta";
+      document.getElementById("titulo").textContent = "Alterar senha";
+      document.getElementById("sub").textContent = "Informe a senha atual e escolha a nova.";
+      document.getElementById("campo-atual").hidden = false;
+      document.getElementById("btn").textContent = "Salvar nova senha";
+      document.getElementById("atual").focus();
+    } else {
+      document.getElementById("nova").focus();
+    }
+    iniciar(p, voluntario);
+  });
+
+  function iniciar(p, voluntario){
+    var nova = document.getElementById("nova"), conf = document.getElementById("conf"), atual = document.getElementById("atual");
+    var msg = document.getElementById("msg"), btn = document.getElementById("btn");
+    function regras(){
+      var v = nova.value;
+      var r = { tam: v.length >= 8, letra: /[a-zA-Z]/.test(v), num: /\d/.test(v), igual: v.length > 0 && v === conf.value };
+      document.querySelectorAll("#regras li").forEach(function(li){
+        var ok = r[li.dataset.r];
+        li.classList.toggle("ok", ok);
+        li.querySelector(".dot").innerHTML = ok ? TCIcone("check", 12) : "";
+      });
+      var pontos = (v.length >= 8) + (v.length >= 12) + /[a-z]/.test(v) + /[A-Z]/.test(v) + /\d/.test(v) + /[^a-zA-Z0-9]/.test(v);
+      var f = document.getElementById("forca");
+      f.style.width = Math.min(100, pontos / 6 * 100) + "%";
+      f.style.background = pontos <= 2 ? "#c4261d" : pontos <= 4 ? "#d68a00" : "#0b6e4f";
+      return r.tam && r.letra && r.num && r.igual;
+    }
+    nova.addEventListener("input", regras); conf.addEventListener("input", regras);
+    document.getElementById("mostrar").addEventListener("change", function(e){
+      [nova, conf, atual].forEach(function(i){ i.type = e.target.checked ? "text" : "password"; });
+    });
+    document.getElementById("form").addEventListener("submit", function(e){
+      e.preventDefault(); msg.innerHTML = "";
+      if (voluntario && !atual.value) { msg.innerHTML = '<div class="alert alert-err">Informe a senha atual.</div>'; atual.focus(); return; }
+      if (!regras()) { msg.innerHTML = '<div class="alert alert-err">A nova senha não atende a todos os requisitos.</div>'; nova.focus(); return; }
+      btn.disabled = true; var txt = btn.textContent; btn.textContent = "Salvando…";
+      var verifica = voluntario ? TC.login(p.email, atual.value).catch(function(){ throw new Error("Senha atual incorreta."); }) : Promise.resolve();
+      verifica.then(function(){ return TC.trocarSenha(nova.value); }).then(function(){
+        msg.innerHTML = '<div class="alert alert-ok">Senha salva com sucesso. Redirecionando…</div>';
+        setTimeout(function(){ location.replace(voluntario ? "index.html" : next); }, 700);
+      }).catch(function(err){
+        msg.innerHTML = '<div class="alert alert-err">' + TC.esc(err.message) + '</div>';
+        btn.disabled = false; btn.textContent = txt;
+      });
+    });
+  }
+})();
+</script>
+</body>
+</html>

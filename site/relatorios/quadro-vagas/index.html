@@ -70,7 +70,7 @@
   /* folha (prévia fiel ao papel/Excel) */
   .folha{background:#fff;border:1px solid var(--border);border-radius:10px;padding:24px;overflow-x:auto;box-shadow:0 6px 20px -14px rgba(0,42,69,.3);}
   .vazio{color:var(--text-muted);text-align:center;padding:48px 16px;font-size:14px;}
-  table.qv{width:100%;min-width:940px;border-collapse:collapse;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#161c2d;table-layout:fixed;}
+  table.qv{width:100%;min-width:940px;border-collapse:separate;border-spacing:0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#161c2d;table-layout:fixed;}
   .qv th,.qv td{padding:0 8px;}
   .qv-titulo th{font-size:18px;color:var(--brand);text-align:center;height:34px;}
   .qv-titulo th.qv-data{font-size:13px;color:#161c2d;text-align:right;white-space:nowrap;}
@@ -79,21 +79,90 @@
   .qv-local-cod{margin-left:36px;font-size:13px;}
   .qv-endereco td{font-size:12px;color:var(--text-muted);height:24px;border-bottom:1px solid var(--qv-linha);}
   .qv-endereco strong{color:#161c2d;}
-  .qv-cargo-cab th{background:var(--qv-cab);border:1px solid var(--qv-linha);height:25px;text-align:center;}
+  .qv-cargo-cab th{background:var(--qv-cab);border-top:1px solid var(--qv-linha);height:25px;text-align:center;}
   .qv-cargo-cab th.qv-esq{text-align:left;}
-  .qv-quadro td{background:var(--qv-quadro);border:1px solid var(--qv-linha);height:23px;text-align:center;}
+  .qv-quadro td{background:var(--qv-quadro);height:23px;text-align:center;}
   .qv-quadro td:first-child{text-align:left;}
   .qv-num{margin-left:18px;}
-  .qv-linha td{border:1px solid var(--qv-linha);height:30px;}
+  .qv-linha td{height:30px;}
+  /* bordas no modelo "separate" (evita traço solto na quebra de página da impressão) */
+  .qv-cargo-cab th,.qv-quadro td,.qv-linha td{border-right:1px solid var(--qv-linha);border-bottom:1px solid var(--qv-linha);}
+  .qv-cargo-cab th:first-child,.qv-quadro td:first-child,.qv-linha td:first-child{border-left:1px solid var(--qv-linha);}
   .qv-espaco td{height:10px;}
-  .resumo{font-size:12.5px;color:var(--text-muted);}
+  .qv-totais td{background:var(--qv-quadro);border-top:2px solid #161c2d;border-bottom:2px solid #161c2d;height:30px;font-weight:700;font-size:12.5px;text-align:center;}
+  .qv-totais td:first-child{text-align:left;}
+  .qv-totais strong{color:var(--brand);font-size:14px;margin-left:4px;}
+  .qv-totais .qv-espaco td{background:none;border:0;height:12px;}
+  .folha.entra{animation:entra .45s cubic-bezier(.2,.7,.2,1) both;}
+  @keyframes entra{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+
+  /* indicadores */
+  .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;}
+  @media (max-width:760px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  .kpi{background:var(--surface-raised);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;}
+  .kpi span{font-size:12px;color:var(--text-secondary);}
+  .kpi strong{font-family:'Nunito',sans-serif;font-size:26px;font-weight:800;line-height:1.1;color:var(--text-primary);font-variant-numeric:tabular-nums;}
+  .kpi.destaque{border-color:color-mix(in srgb,var(--brand) 30%,var(--border));background:var(--brand-050);}
+  .kpi.destaque strong{color:var(--brand);}
+  .kpi small{font-size:11.5px;color:var(--text-muted);}
+  .kpi small.alerta{color:var(--critical);font-weight:600;}
+
+  /* aviso de geração (motion com a logo) */
+  .gerando{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:16px;
+    background:rgba(247,248,250,.74);-webkit-backdrop-filter:blur(6px) saturate(1.1);backdrop-filter:blur(6px) saturate(1.1);
+    animation:g-fundo .25s ease both;}
+  .gerando.sai{animation:g-fundo-sai .35s ease both;}
+  @keyframes g-fundo{from{opacity:0;}to{opacity:1;}}
+  @keyframes g-fundo-sai{to{opacity:0;}}
+  .g-card{width:min(400px,100%);background:#fff;border:1px solid var(--border);border-radius:18px;padding:30px 28px 22px;
+    box-shadow:0 30px 60px -24px rgba(0,42,69,.35),0 2px 6px rgba(0,42,69,.06);text-align:center;
+    animation:g-card .45s cubic-bezier(.2,.8,.2,1) both;}
+  .gerando.sai .g-card{animation:g-card-sai .35s ease both;}
+  @keyframes g-card{from{opacity:0;transform:translateY(14px) scale(.97);}to{opacity:1;transform:none;}}
+  @keyframes g-card-sai{to{opacity:0;transform:translateY(-8px) scale(.98);}}
+  .g-palco{position:relative;height:96px;display:grid;place-items:center;margin-bottom:6px;}
+  .g-palco::before,.g-palco::after{content:"";position:absolute;left:50%;top:50%;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;
+    background:radial-gradient(circle,rgba(0,71,115,.10) 0%,rgba(0,71,115,0) 65%);animation:g-onda 2.6s ease-out infinite;}
+  .g-palco::after{animation-delay:1.3s;}
+  @keyframes g-onda{0%{transform:scale(.55);opacity:0;}30%{opacity:1;}100%{transform:scale(1.7);opacity:0;}}
+  .g-logo{position:relative;width:220px;aspect-ratio:230/42;animation:g-respira 2.6s ease-in-out infinite;}
+  .g-logo img{display:block;width:100%;height:100%;}
+  .g-brilho{position:absolute;inset:0;pointer-events:none;
+    -webkit-mask:url("../../assets/tecnolimplogo.png") center/100% 100% no-repeat;mask:url("../../assets/tecnolimplogo.png") center/100% 100% no-repeat;
+    background:linear-gradient(100deg,transparent 0 40%,rgba(255,255,255,.95) 50%,transparent 60% 100%);background-size:300% 100%;
+    animation:g-brilho 2.6s cubic-bezier(.45,.05,.25,1) infinite;}
+  @keyframes g-respira{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
+  @keyframes g-brilho{0%{background-position:100% 0;}55%,100%{background-position:0 0;}}
+  .g-barra{height:4px;border-radius:99px;background:var(--brand-050);overflow:hidden;margin:4px 6px 20px;position:relative;}
+  .g-barra span{position:absolute;top:0;bottom:0;left:0;width:38%;border-radius:99px;
+    background:linear-gradient(90deg,rgba(0,71,115,0),var(--brand) 55%,#1f6690 85%,var(--critical));animation:g-corre 1.5s cubic-bezier(.65,0,.35,1) infinite;}
+  @keyframes g-corre{from{transform:translateX(-105%);}to{transform:translateX(270%);}}
+  .gerando.ok .g-barra span{animation:none;width:100%;transform:none;background:var(--brand);transition:width .3s ease;}
+  .g-card h2{font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;margin:0 0 14px;color:var(--text-primary);}
+  .g-etapas{list-style:none;margin:0 auto;padding:0;display:flex;flex-direction:column;gap:10px;text-align:left;width:max-content;max-width:100%;}
+  .g-etapas li{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text-muted);transition:color .3s;}
+  .g-etapas i{width:20px;height:20px;border-radius:50%;border:2px solid var(--border-strong);display:grid;place-items:center;flex:none;position:relative;transition:background .3s,border-color .3s;}
+  .g-etapas svg{width:12px;height:12px;fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:14;stroke-dashoffset:14;}
+  .g-etapas li.ativo{color:var(--text-primary);font-weight:600;}
+  .g-etapas li.ativo i{border-color:var(--brand-050);}
+  .g-etapas li.ativo i::after{content:"";position:absolute;inset:-2px;border-radius:50%;border:2px solid transparent;border-top-color:var(--brand);animation:gira .8s linear infinite;}
+  .g-etapas li.feito{color:var(--text-secondary);}
+  .g-etapas li.feito i{background:var(--brand);border-color:var(--brand);}
+  .g-etapas li.feito svg{animation:g-check .35s ease forwards;}
+  @keyframes g-check{to{stroke-dashoffset:0;}}
+  .g-rodape{display:flex;justify-content:space-between;gap:12px;margin-top:20px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--text-muted);text-align:left;}
+  .g-rodape b{font-variant-numeric:tabular-nums;font-weight:600;color:var(--text-secondary);}
+  @media (prefers-reduced-motion:reduce){
+    .gerando,.g-card,.g-palco::before,.g-palco::after,.g-logo,.g-brilho,.folha.entra{animation:none !important;}
+    .g-barra span{animation-duration:3s;}
+  }
 
   @page{size:A4 landscape;margin:12mm 10mm 14mm;
     @bottom-right{content:"Página " counter(page) " de " counter(pages);font:8pt Arial,sans-serif;color:#66707f;}}
   @media print{
     *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
     body{background:#fff;padding:0;}
-    .cbar,.topbar,.filtros,.status,.resumo{display:none !important;}
+    .cbar,.topbar,.filtros,.status,.kpis,.gerando{display:none !important;}
     .wrap{max-width:none;gap:0;}
     .folha{border:0;padding:0;box-shadow:none;overflow:visible;}
     table.qv{min-width:0;font-size:9pt;}
@@ -102,6 +171,7 @@
     .qv-local{break-after:avoid;}
     .qv-cargo{break-inside:avoid;}
     .qv-linha td{height:22pt;}
+    .folha.entra{animation:none;}
   }
 </style>
 </head>
@@ -122,10 +192,6 @@
 
   <form class="filtros" id="form" novalidate>
     <div class="campo">
-      <label for="f-data">Data emissão</label>
-      <input type="date" id="f-data" required>
-    </div>
-    <div class="campo">
       <label for="f-empresa">Empresa</label>
       <input type="text" id="f-empresa" inputmode="numeric" placeholder="Ex.: 3" autocomplete="off" required>
       <small>Código, lista (1,3) ou faixa (1-5)</small>
@@ -143,8 +209,27 @@
   </form>
 
   <div class="status" id="status" role="status" aria-live="polite" hidden></div>
-  <div class="resumo" id="resumo" hidden></div>
-  <div class="folha" id="folha"><div class="vazio">Informe a data de emissão, a empresa e o local e clique em <strong>Gerar</strong>.</div></div>
+  <div class="kpis" id="kpis" hidden>
+    <div class="kpi destaque"><span>Total geral de colaboradores</span><strong id="k-colab">0</strong><small>Uma linha em branco por colaborador</small></div>
+    <div class="kpi"><span>Total geral autorizado</span><strong id="k-aut">0</strong><small>Quadro da competência atual</small></div>
+    <div class="kpi"><span>Total geral efetivo</span><strong id="k-efe">0</strong><small id="k-dif"></small></div>
+    <div class="kpi"><span>Cargos no quadro</span><strong id="k-cargos">0</strong><small id="k-locais"></small></div>
+  </div>
+  <div class="folha" id="folha"><div class="vazio">Informe a empresa e o local e clique em <strong>Gerar</strong>.</div></div>
+</div>
+
+<div class="gerando" id="gerando" hidden>
+  <div class="g-card" role="status" aria-live="polite">
+    <div class="g-palco"><div class="g-logo"><img src="../../assets/tecnolimplogo.png" alt="Tecnolimp"><span class="g-brilho" aria-hidden="true"></span></div></div>
+    <div class="g-barra" aria-hidden="true"><span></span></div>
+    <h2>Gerando o quadro de vagas</h2>
+    <ol class="g-etapas">
+      <li data-etapa="enviado"><i><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-6.5"/></svg></i>Solicitação enviada</li>
+      <li data-etapa="consultando"><i><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-6.5"/></svg></i>Consultando o Senior</li>
+      <li data-etapa="montando"><i><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-6.5"/></svg></i>Montando o layout</li>
+    </ol>
+    <div class="g-rodape"><span id="g-msg">Isso costuma levar poucos segundos.</span><b id="g-tempo">00:00</b></div>
+  </div>
 </div>
 
 <script id="qv-pagina">
@@ -164,11 +249,75 @@ window.QVPagina = (function () {
   }
   function lembrar(f) { try { localStorage.setItem(CHAVE, JSON.stringify({ empresas: f.empresas, locais: f.locais })); } catch (e) {} }
   function recuperar() { try { return JSON.parse(localStorage.getItem(CHAVE)) || {}; } catch (e) { return {}; } }
-  function hoje() { var d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); }
+
+  // Aviso de geração: logo animada + etapas reais da fila (enviado → consultando → montando).
+  var aviso = (function () {
+    var el = $("gerando"), ordem = ["enviado", "consultando", "montando"], relogio = null, inicio = 0;
+    function marcar(ativa) {
+      var i = ordem.indexOf(ativa);
+      el.querySelectorAll(".g-etapas li").forEach(function (li, k) {
+        li.className = k < i ? "feito" : (k === i ? "ativo" : "");
+      });
+    }
+    function msg(t) { $("g-msg").textContent = t; }
+    function tempo() {
+      var s = Math.floor((Date.now() - inicio) / 1000);
+      $("g-tempo").textContent = String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+    }
+    function fechar() {
+      clearInterval(relogio);
+      if (el.hidden) return Promise.resolve();
+      el.classList.add("sai");
+      return new Promise(function (ok) { setTimeout(function () { el.hidden = true; el.classList.remove("sai", "ok"); ok(); }, 340); });
+    }
+    return {
+      abrir: function () {
+        inicio = Date.now(); tempo(); clearInterval(relogio); relogio = setInterval(tempo, 1000);
+        el.classList.remove("sai", "ok"); el.hidden = false;
+        marcar("enviado"); msg("Isso costuma levar poucos segundos.");
+      },
+      fase: function (f) {
+        if (f === "enviado") { marcar("consultando"); msg("Solicitação na fila do serviço de geração."); }
+        else if (f === "consultando") { marcar("consultando"); msg("Lendo quadro de vagas e lotação no Senior…"); }
+        else if (f === "aguardando") msg("Aguardando o serviço de geração (TECNOLIMP12)…");
+      },
+      concluir: function () {
+        marcar("montando"); msg("Organizando locais e cargos…");
+        return new Promise(function (ok) { setTimeout(ok, 380); }).then(function () {
+          marcar("fim"); el.querySelectorAll(".g-etapas li").forEach(function (li) { li.className = "feito"; });
+          el.classList.add("ok"); msg("Pronto!");
+          return new Promise(function (ok) { setTimeout(ok, 520); });
+        }).then(fechar);
+      },
+      fechar: fechar
+    };
+  })();
+
+  function contar(el, valor) {
+    var reduz = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduz || valor < 10) { el.textContent = QV.fmtInt(valor); return; }
+    var t0 = performance.now(), dur = 700;
+    (function passo(t) {
+      var p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = QV.fmtInt(Math.round(valor * e));
+      if (p < 1) requestAnimationFrame(passo);
+    })(t0);
+  }
+  function indicadores(dados) {
+    var t = QV.totais(dados);
+    contar($("k-colab"), t.colaboradores);
+    contar($("k-aut"), t.autorizado);
+    contar($("k-efe"), t.efetivo);
+    contar($("k-cargos"), t.cargos);
+    $("k-locais").textContent = "Em " + t.locais + (t.locais === 1 ? " local" : " locais");
+    var dif = t.autorizado - t.efetivo;
+    $("k-dif").textContent = dif > 0 ? dif + " abaixo do autorizado" : dif < 0 ? -dif + " acima do autorizado" : "Igual ao autorizado";
+    $("k-dif").className = dif !== 0 ? "alerta" : "";
+    $("kpis").hidden = false;
+  }
 
   function iniciar(gerar) {
     var salvo = recuperar();
-    $("f-data").value = hoje();
     if (salvo.empresas) $("f-empresa").value = salvo.empresas;
     if (salvo.locais) $("f-local").value = salvo.locais;
 
@@ -176,29 +325,30 @@ window.QVPagina = (function () {
       e.preventDefault();
       var f;
       try {
-        if (!$("f-data").value) throw new Error("Informe a data de emissão.");
-        f = { data_emissao: $("f-data").value, empresas: QV.validarEmpresas($("f-empresa").value), locais: QV.validarLocais($("f-local").value) };
+        f = { empresas: QV.validarEmpresas($("f-empresa").value), locais: QV.validarLocais($("f-local").value) };
       } catch (err) { status(err.message, "erro"); return; }
       lembrar(f);
       atual = null;
       $("btn-gerar").disabled = $("btn-excel").disabled = $("btn-imprimir").disabled = true;
-      $("resumo").hidden = true;
-      status("Gerando…", "carregando");
-      gerar(f, function (msg) { status(msg, "carregando"); }).then(function (dados) {
+      $("kpis").hidden = true;
+      status("");
+      aviso.abrir();
+      gerar(f, aviso.fase).then(function (dados) {
+        return aviso.concluir().then(function () { return dados; });
+      }).then(function (dados) {
+        var folha = $("folha");
+        folha.classList.remove("entra"); void folha.offsetWidth; folha.classList.add("entra");
         if (!dados || !(dados.locais || []).length) {
-          $("folha").innerHTML = '<div class="vazio">Nenhum colaborador ativo encontrado para os filtros informados.</div>';
-          status("");
+          folha.innerHTML = '<div class="vazio">Nenhum colaborador ativo encontrado para os filtros informados.</div>';
           return;
         }
         atual = { dados: dados, filtros: f };
-        $("folha").innerHTML = QV.renderizar(dados, f);
-        var t = QV.totais(dados);
-        $("resumo").textContent = t.locais + (t.locais === 1 ? " local" : " locais") + " · " + t.cargos + " cargos · " + t.linhas + " linhas para preenchimento";
-        $("resumo").hidden = false;
+        folha.innerHTML = QV.renderizar(dados, f);
+        indicadores(dados);
         $("btn-excel").disabled = $("btn-imprimir").disabled = false;
-        status("");
         document.title = "Quadro de Vagas — " + QV.fmtData(dados.data_emissao);
       }).catch(function (err) {
+        aviso.fechar();
         status(err.message || "Não foi possível gerar o relatório.", "erro");
       }).then(function () { $("btn-gerar").disabled = false; });
     });
@@ -227,6 +377,7 @@ window.QVPagina = (function () {
     var inicio = Date.now();
     return TC.db("qv_solicitacoes?select=id", { method: "POST", body: f, prefer: "return=representation" }).then(function (rows) {
       var id = rows[0].id;
+      progresso("enviado");
       function consultar() {
         return TC.db("qv_solicitacoes?select=status,mensagem,resultado&id=eq." + id).then(function (r) {
           var s = r && r[0];
@@ -235,8 +386,8 @@ window.QVPagina = (function () {
           if (s.status === "erro") throw new Error("Erro ao gerar: " + (s.mensagem || "verifique com a T.I."));
           var passou = Date.now() - inicio;
           if (passou > LIMITE) throw new Error("O serviço de geração não respondeu. Avise a T.I. (serviço Quadro de Vagas na TECNOLIMP12).");
-          if (s.status === "processando") progresso("Consultando o Senior…");
-          else if (passou > AVISO_FILA) progresso("Aguardando o serviço de geração…");
+          if (s.status === "processando") progresso("consultando");
+          else if (passou > AVISO_FILA) progresso("aguardando");
           return esperar(INTERVALO).then(consultar);
         });
       }

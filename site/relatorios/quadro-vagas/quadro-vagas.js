@@ -45,13 +45,19 @@
     });
   }
   function totais(dados) {
-    var t = { locais: 0, cargos: 0, linhas: 0 };
+    var t = { locais: 0, cargos: 0, colaboradores: 0, autorizado: 0, efetivo: 0 };
     (dados.locais || []).forEach(function (l) {
       t.locais++;
-      (l.cargos || []).forEach(function (c) { t.cargos++; t.linhas += c.linhas || 0; });
+      (l.cargos || []).forEach(function (c) {
+        t.cargos++;
+        t.colaboradores += c.linhas || 0;
+        t.autorizado += c.autorizado || 0;
+        t.efetivo += c.efetivo || 0;
+      });
     });
     return t;
   }
+  function fmtInt(n) { return Number(n || 0).toLocaleString("pt-BR"); }
 
   // ---------- tela (prévia fiel ao papel) ----------
   function renderizar(dados, filtros) {
@@ -62,6 +68,11 @@
     h.push('<tr class="qv-titulo"><th colspan="6">RELAÇÃO DE FUNCIONÁRIOS</th><th class="qv-data">Data: ' + esc(fmtData(dados.data_emissao)) + '</th></tr>');
     h.push('<tr class="qv-filtros"><th colspan="7">' + esc(textoFiltros(dados, filtros)) + '</th></tr>');
     h.push('</thead>');
+    var t = totais(dados); // só no início do relatório (1ª página), como no Senior
+    h.push('<tbody class="qv-totais"><tr><td colspan="2">TOTAL GERAL de COLABORADORES: <strong>' + fmtInt(t.colaboradores) + '</strong></td>' +
+      '<td colspan="3">TOTAL GERAL AUTORIZADO: <strong>' + fmtInt(t.autorizado) + '</strong></td>' +
+      '<td colspan="2">TOTAL GERAL EFETIVO: <strong>' + fmtInt(t.efetivo) + '</strong></td></tr>' +
+      '<tr class="qv-espaco"><td colspan="7"></td></tr></tbody>');
     (dados.locais || []).forEach(function (l, i) {
       h.push('<tbody class="qv-local' + (i ? ' qv-quebra' : '') + '">');
       h.push('<tr class="qv-local-nome"><td colspan="7"><strong>' + esc(l.nomloc) + '</strong><span class="qv-local-cod">Local: <strong>' + esc(l.codloc) + '</strong></span></td></tr>');
@@ -94,7 +105,7 @@
 
   // ---------- Excel (pronto para imprimir) ----------
   var COR = { marca: "FF004773", cab: "FFD9E3EC", quadro: "FFF2F5F8", linha: "FF7F8896", texto: "FF161C2D", sutil: "FF66707F" };
-  var ALTURA = { titulo: 24, filtros: 16, local: 22, endereco: 17, cab: 19, quadro: 17, linha: 22, espaco: 6 };
+  var ALTURA = { titulo: 24, filtros: 16, totais: 22, local: 22, endereco: 17, cab: 19, quadro: 17, linha: 22, espaco: 6 };
   // A4 paisagem = 595pt de altura; menos margens (0,5" + 0,6") e linhas de título repetidas, com folga.
   var CAPACIDADE_PAGINA = (595 - 36 - 43 - ALTURA.titulo - ALTURA.filtros) * 0.98;
 
@@ -144,7 +155,23 @@
     cf.alignment = { horizontal: "center", vertical: "middle" };
     cf.border = { bottom: { style: "medium", color: { argb: COR.marca } } };
 
-    var usado = 0;
+    // totais gerais: só no início do relatório (não repetem nas páginas seguintes)
+    var tg = totais(dados);
+    var lt = linha(ALTURA.totais);
+    [[1, 2, "TOTAL GERAL de COLABORADORES: ", tg.colaboradores], [3, 5, "TOTAL GERAL AUTORIZADO: ", tg.autorizado],
+     [6, 7, "TOTAL GERAL EFETIVO: ", tg.efetivo]].forEach(function (g) {
+      var cell = mesclar(lt, g[0], g[1]);
+      cell.value = { richText: [{ text: g[2], font: fonte({ size: 10, bold: true }) },
+                                { text: fmtInt(g[3]), font: fonte({ size: 11, bold: true, color: { argb: COR.marca } }) }] };
+      cell.alignment = { horizontal: g[0] === 1 ? "left" : "center", vertical: "middle", indent: g[0] === 1 ? 1 : 0 };
+    });
+    for (var k0 = 1; k0 <= 7; k0++) {
+      lt.getCell(k0).fill = { type: "pattern", pattern: "solid", fgColor: { argb: COR.quadro } };
+      lt.getCell(k0).border = { top: { style: "medium", color: { argb: COR.texto } }, bottom: { style: "medium", color: { argb: COR.texto } } };
+    }
+    linha(ALTURA.espaco);
+
+    var usado = ALTURA.totais + ALTURA.espaco;
     function quebraAntes() { ws.getRow(r - 1).addPageBreak(); usado = 0; }
     function cabe(altura) {
       if (usado > 0 && usado + altura > CAPACIDADE_PAGINA) quebraAntes();
@@ -249,7 +276,7 @@
 
   var QV = {
     validarEmpresas: validarEmpresas, validarLocais: validarLocais,
-    fmtData: fmtData, nomeArquivo: nomeArquivo, totais: totais,
+    fmtData: fmtData, fmtInt: fmtInt, nomeArquivo: nomeArquivo, totais: totais,
     renderizar: renderizar, gerarExcel: gerarExcel, baixarExcel: baixarExcel
   };
   if (typeof module !== "undefined" && module.exports) module.exports = QV;

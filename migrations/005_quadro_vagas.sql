@@ -9,7 +9,7 @@
 create table if not exists central.qv_solicitacoes (
   id            uuid primary key default gen_random_uuid(),
   usuario_id    uuid not null default auth.uid() references central.perfis(id) on delete cascade,
-  data_emissao  date not null,
+  data_emissao  date not null default (now() at time zone 'America/Sao_Paulo')::date,
   empresas      text not null check (empresas ~ '^\d{1,4}(-\d{1,4})?(,\d{1,4}(-\d{1,4})?)*$' and length(empresas) <= 100),
   locais        text not null default '' check (locais ~ '^(\d+(\.\d+)*(==)?(,\d+(\.\d+)*(==)?)*)?$' and length(locais) <= 300),
   status        text not null default 'pendente' check (status in ('pendente','processando','concluido','erro')),
@@ -27,6 +27,7 @@ returns trigger language plpgsql security definer set search_path = central, pg_
 begin
   if auth.role() = 'service_role' then return new; end if;
   new.usuario_id := auth.uid();
+  new.data_emissao := (now() at time zone 'America/Sao_Paulo')::date; -- sempre o dia (competência do mês, como no Senior)
   new.status := 'pendente'; new.mensagem := null; new.resultado := null;
   new.criado_em := now(); new.atualizado_em := now();
   if (select count(*) from central.qv_solicitacoes s
@@ -59,7 +60,7 @@ revoke all on function central.qv_proxima(), central.qv_manutencao() from public
 grant execute on function central.qv_proxima(), central.qv_manutencao() to service_role;
 
 grant select on central.qv_solicitacoes to authenticated;
-grant insert (data_emissao, empresas, locais) on central.qv_solicitacoes to authenticated;
+grant insert (empresas, locais) on central.qv_solicitacoes to authenticated;
 grant all on central.qv_solicitacoes to service_role;
 
 alter table central.qv_solicitacoes enable row level security;

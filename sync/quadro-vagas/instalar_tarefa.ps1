@@ -1,4 +1,4 @@
-# Registra o worker no Agendador de Tarefas da TECNOLIMP12: inicia com o Windows,
+﻿# Registra o worker no Agendador de Tarefas da TECNOLIMP12: inicia com o Windows,
 # sem limite de tempo de execução e com reinício automático. Rodar como administrador:
 #   powershell -ExecutionPolicy Bypass -File .\instalar_tarefa.ps1
 $pasta = Split-Path -Parent $MyInvocation.MyCommand.Path

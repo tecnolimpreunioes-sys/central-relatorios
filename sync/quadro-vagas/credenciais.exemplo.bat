@@ -1,8 +1,10 @@
 @echo off
 REM credenciais.bat do worker Quadro de Vagas - NUNCA versionar nem incluir no zip.
 REM Oracle: reaproveita a FONTE UNICA de credenciais do sync (ORACLE_USER, ORACLE_PASSWORD,
-REM ORACLE_HOST, ORACLE_PORT, ORACLE_SID). Ajuste o caminho para a pasta do sync:
-call "C:\CAMINHO\DO\SYNC\credenciais.bat"
+REM ORACLE_HOST, ORACLE_PORT, ORACLE_SID). Aponte para o credenciais.bat (NAO o run_sync.bat).
+REM Prefira caminho relativo a esta pasta (%~dp0): o cmd le .bat em OEM e quebra acentos
+REM como "Automacoes" com cedilha. Exemplo: pasta irma "03 - Relacao_Eventos" dois niveis acima:
+call "%~dp0..\..\03 - Relacao_Eventos\credenciais.bat"
 
 REM Python do usuario que roda a tarefa (o caminho muda por usuario do Windows).
 REM Se a fonte unica ja define PYEXE, apague a linha abaixo.

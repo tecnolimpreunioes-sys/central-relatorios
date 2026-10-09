@@ -64,7 +64,10 @@ def conectar_oracle():
     if pasta_client and not getattr(conectar_oracle, "thick", False):
         oracledb.init_oracle_client(lib_dir=pasta_client)  # Oracle antigo (< 12.1) exige modo thick
         conectar_oracle.thick = True
-    return oracledb.connect(user=env("ORACLE_USER"), password=env("ORACLE_PASSWORD"), dsn=env("ORACLE_DSN"))
+    # Padrão da TECNOLIMP12: ORACLE_HOST/PORT/SID no credenciais.bat (ORACLE_DSN só se for usado)
+    dsn = os.environ.get("ORACLE_DSN") or oracledb.makedsn(
+        env("ORACLE_HOST"), int(os.environ.get("ORACLE_PORT") or 1521), sid=env("ORACLE_SID"))
+    return oracledb.connect(user=env("ORACLE_USER"), password=env("ORACLE_PASSWORD"), dsn=dsn)
 
 
 _colunas_cache = {}
@@ -201,7 +204,7 @@ def gerar(con, data_emissao, empresas, locais):
 class Fila:
     def __init__(self):
         self.url = env("SUPABASE_URL").rstrip("/") + "/rest/v1/"
-        chave = env("SUPABASE_SERVICE_KEY")
+        chave = os.environ.get("SUPABASE_SERVICE_KEY") or env("SUPABASE_SERVICE_ROLE_KEY")
         self.s = requests.Session()
         self.s.headers.update({"apikey": chave, "Authorization": "Bearer " + chave,
                                "Content-Type": "application/json", "Content-Profile": "central",

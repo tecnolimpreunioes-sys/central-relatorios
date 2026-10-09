@@ -1,8 +1,8 @@
 @echo off
-rem Worker do Quadro de Vagas: fica ouvindo a fila da Central e só consulta o
-rem Oracle quando alguém clica em "Gerar". Reinicia sozinho se cair.
+REM Worker do Quadro de Vagas: fica ouvindo a fila da Central e so consulta o
+REM Oracle quando alguem clica em "Gerar". Reinicia sozinho se cair.
 cd /d "%~dp0"
-if not exist credenciais.bat (echo Falta credenciais.bat & exit /b 1)
+if not exist credenciais.bat (echo Falta credenciais.bat - copie de credenciais.exemplo.bat & exit /b 1)
 call credenciais.bat
 :loop
 "%PYEXE%" worker_quadro_vagas.py

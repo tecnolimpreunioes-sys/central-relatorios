@@ -287,6 +287,7 @@ def main():
             dados = gerar(con, dt.date.fromisoformat(a.data), a.empresa.replace(" ", ""), a.local.replace(" ", "").replace('"', ""))
         finally:
             con.close()
+        sys.stdout.reconfigure(encoding="utf-8")  # "> teste.json" no Windows sairia em cp1252
         print(json.dumps(dados, ensure_ascii=False, indent=2))
         return None
     return servico()

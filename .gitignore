@@ -2,3 +2,5 @@
 *.zip
 credenciais.bat
 .env
+__pycache__/
+logs/

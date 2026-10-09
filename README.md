@@ -9,12 +9,14 @@ Cada usuário vê só as áreas/relatórios liberados pelo administrador; a perm
 - Página de área: busca, filtro por categoria, grade/lista, selo "Novo"
 - Administração: usuários, permissões (área inteira ou relatório), áreas, relatórios, senha padrão
 - Relatório **Relação de Eventos — Folha Demitidos** em `site/relatorios/eventos/`
+- Relatório **Quadro de Vagas (FPRF307)** em `site/relatorios/quadro-vagas/` (área T.I.): gerado sob demanda, prévia na tela, Excel pronto para imprimir
 
 ## Estrutura
 | Pasta | Conteúdo |
 |---|---|
 | `site/` | Frontend estático (HTML/CSS/JS, sem build). `assets/config.js` = único ponto com URL/chave do Supabase |
-| `migrations/` | SQL do schema `central` (001), proteção do Painel de Eventos (002) e carga inicial da produção (003) e login por usuário de rede (004) |
+| `migrations/` | SQL do schema `central` (001), proteção do Painel de Eventos (002) e carga inicial da produção (003) login por usuário de rede (004) e Quadro de Vagas (005) |
+| `sync/quadro-vagas/` | Worker Python da TECNOLIMP12: fila `central.qv_solicitacoes` → Oracle → resultado (ver `LEIAME.md`) |
 | `supabase/functions/central-admin-usuarios/` | Edge Function: criar usuário e redefinir senha |
 | `painel-redirect/` | Página que redireciona o endereço antigo do painel para a Central |
 

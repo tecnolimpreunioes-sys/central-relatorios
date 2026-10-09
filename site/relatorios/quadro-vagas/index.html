@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quadro de Vagas</title>
+<link rel="icon" href="../../assets/favicon-tecnolimp.ico" sizes="16x16 32x32 48x48">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
+<script src="../../assets/config.js"></script>
+<script src="../../assets/auth.js"></script>
+<script src="quadro-vagas.js"></script>
+<style>
+  /* barra da Central (login único) */
+  .cbar{max-width:1180px;margin:0 auto 16px;display:flex;align-items:center;gap:10px;font-size:13px;}
+  .cbar a.cb-link{display:inline-flex;align-items:center;gap:6px;color:#66707f;text-decoration:none;font-weight:500;}
+  .cbar a.cb-link:hover{color:#004773;text-decoration:underline;}
+  .cbar .cb-sep{color:#cbd2dc;}
+  .cbar .cb-sp{flex:1;}
+  .tc-user{position:relative;}
+  .tc-user-btn{display:flex;align-items:center;gap:8px;border:1px solid #e4e7ec;background:#fff;border-radius:999px;padding:3px 10px 3px 3px;font:inherit;font-weight:600;color:#161c2d;cursor:pointer;}
+  .tc-avatar{width:28px;height:28px;border-radius:50%;background:#004773;color:#fff;display:grid;place-items:center;font-size:11.5px;font-weight:700;}
+  .tc-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:230px;background:#fff;border:1px solid #e4e7ec;border-radius:12px;box-shadow:0 10px 28px -10px rgba(0,42,69,.25);padding:6px;z-index:30;}
+  .tc-menu-head{padding:8px 12px;border-bottom:1px solid #e4e7ec;margin-bottom:4px;display:flex;flex-direction:column;}
+  .tc-menu-head span{color:#66707f;font-size:12px;}
+  .tc-menu a,.tc-menu button{display:block;width:100%;text-align:left;padding:8px 12px;border-radius:8px;color:#161c2d;text-decoration:none;font:inherit;background:none;border:0;cursor:pointer;}
+  .tc-menu a:hover,.tc-menu button:hover{background:#eaf1f6;}
+  .tc-menu .tc-sair{color:#c4261d;}
+  [hidden]{display:none !important;}
+  @media (max-width:560px){ .tc-user-nome,.cb-area{display:none;} }
+
+  :root{
+    --brand:#004773; --brand-600:#00385c; --brand-050:#e6eef3;
+    --critical:#c4261d; --critical-050:#fbeae9;
+    --text-primary:#161c2d; --text-secondary:#3c4858; --text-muted:#66707f;
+    --surface:#f7f8fa; --surface-raised:#ffffff; --border:#e4e7ec; --border-strong:#cbd2dc;
+    --focus:#1f6690;
+    --qv-linha:#7f8896; --qv-cab:#d9e3ec; --qv-quadro:#f2f5f8;
+    color-scheme: light;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--surface);color:var(--text-primary);font-family:'Inter',system-ui,sans-serif;padding:24px 16px;}
+  h1{font-family:'Nunito',system-ui,sans-serif;font-size:20px;font-weight:800;margin:4px 0 2px;}
+  .wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:16px;}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+  .brand-logo{height:26px;width:auto;display:block;}
+  .subtitle{font-size:13px;color:var(--text-secondary);}
+
+  /* filtros */
+  .filtros{background:var(--surface-raised);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;}
+  .campo{display:flex;flex-direction:column;gap:4px;min-width:150px;}
+  .campo.local{flex:1 1 240px;}
+  .campo label{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);font-weight:600;}
+  .campo input{font:inherit;font-size:14px;color:var(--text-primary);background:#fff;border:1px solid var(--border-strong);border-radius:8px;padding:8px 10px;}
+  .campo input:focus-visible{outline:2px solid var(--focus);outline-offset:1px;border-color:var(--focus);}
+  .campo small{font-size:11.5px;color:var(--text-muted);}
+  .acoes{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto;}
+  .btn{font:inherit;font-size:13.5px;font-weight:600;border-radius:8px;padding:9px 16px;cursor:pointer;border:1px solid var(--border-strong);background:#fff;color:var(--text-primary);display:inline-flex;align-items:center;gap:6px;}
+  .btn:hover:not(:disabled){border-color:var(--brand);color:var(--brand);}
+  .btn.primario{background:var(--brand);border-color:var(--brand);color:#fff;}
+  .btn.primario:hover:not(:disabled){background:var(--brand-600);color:#fff;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .btn:focus-visible{outline:2px solid var(--focus);outline-offset:2px;}
+
+  .status{font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;}
+  .status.erro{color:var(--critical);}
+  .spin{width:14px;height:14px;border:2px solid var(--brand-050);border-top-color:var(--brand);border-radius:50%;animation:gira .8s linear infinite;}
+  @keyframes gira{to{transform:rotate(360deg);}}
+
+  /* folha (prévia fiel ao papel/Excel) */
+  .folha{background:#fff;border:1px solid var(--border);border-radius:10px;padding:24px;overflow-x:auto;box-shadow:0 6px 20px -14px rgba(0,42,69,.3);}
+  .vazio{color:var(--text-muted);text-align:center;padding:48px 16px;font-size:14px;}
+  table.qv{width:100%;min-width:940px;border-collapse:separate;border-spacing:0;font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#161c2d;table-layout:fixed;}
+  .qv th,.qv td{padding:0 8px;}
+  .qv-titulo th{font-size:18px;color:var(--brand);text-align:center;height:34px;}
+  .qv-titulo th.qv-data{font-size:13px;color:#161c2d;text-align:right;white-space:nowrap;}
+  .qv-filtros th{font-size:10.5px;font-weight:400;color:var(--text-muted);height:20px;border-bottom:2px solid var(--brand);text-align:center;}
+  .qv-local-nome td{background:var(--brand);color:#fff;text-align:center;font-size:14px;height:30px;}
+  .qv-local-cod{margin-left:36px;font-size:13px;}
+  .qv-endereco td{font-size:12px;color:var(--text-muted);height:24px;border-bottom:1px solid var(--qv-linha);}
+  .qv-endereco strong{color:#161c2d;}
+  .qv-cargo-cab th{background:var(--qv-cab);border-top:1px solid var(--qv-linha);height:25px;text-align:center;}
+  .qv-cargo-cab th.qv-esq{text-align:left;}
+  .qv-quadro td{background:var(--qv-quadro);height:23px;text-align:center;}
+  .qv-quadro td:first-child{text-align:left;}
+  .qv-num{margin-left:18px;}
+  .qv-linha td{height:30px;}
+  /* bordas no modelo "separate" (evita traço solto na quebra de página da impressão) */
+  .qv-cargo-cab th,.qv-quadro td,.qv-linha td{border-right:1px solid var(--qv-linha);border-bottom:1px solid var(--qv-linha);}
+  .qv-cargo-cab th:first-child,.qv-quadro td:first-child,.qv-linha td:first-child{border-left:1px solid var(--qv-linha);}
+  .qv-espaco td{height:10px;}
+  .qv-totais td{background:var(--qv-quadro);border-top:2px solid #161c2d;border-bottom:2px solid #161c2d;height:30px;font-weight:700;font-size:12.5px;text-align:center;}
+  .qv-totais td:first-child{text-align:left;}
+  .qv-totais strong{color:var(--brand);font-size:14px;margin-left:4px;}
+  .qv-totais .qv-espaco td{background:none;border:0;height:12px;}
+  .folha.entra{animation:entra .45s cubic-bezier(.2,.7,.2,1) both;}
+  @keyframes entra{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+
+  /* indicadores */
+  .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;}
+  @media (max-width:760px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr));}}
+  .kpi{background:var(--surface-raised);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:4px;}
+  .kpi span{font-size:12px;color:var(--text-secondary);}
+  .kpi strong{font-family:'Nunito',sans-serif;font-size:26px;font-weight:800;line-height:1.1;color:var(--text-primary);font-variant-numeric:tabular-nums;}
+  .kpi.destaque{border-color:color-mix(in srgb,var(--brand) 30%,var(--border));background:var(--brand-050);}
+  .kpi.destaque strong{color:var(--brand);}
+  .kpi small{font-size:11.5px;color:var(--text-muted);}
+
+  /* aviso de geração (motion com a logo) */
+  .gerando{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:16px;
+    background:rgba(247,248,250,.74);-webkit-backdrop-filter:blur(6px) saturate(1.1);backdrop-filter:blur(6px) saturate(1.1);
+    animation:g-fundo .25s ease both;}
+  .gerando.sai{animation:g-fundo-sai .35s ease both;}
+  @keyframes g-fundo{from{opacity:0;}to{opacity:1;}}
+  @keyframes g-fundo-sai{to{opacity:0;}}
+  .g-card{width:min(400px,100%);background:#fff;border:1px solid var(--border);border-radius:18px;padding:30px 28px 22px;
+    box-shadow:0 30px 60px -24px rgba(0,42,69,.35),0 2px 6px rgba(0,42,69,.06);text-align:center;
+    animation:g-card .45s cubic-bezier(.2,.8,.2,1) both;}
+  .gerando.sai .g-card{animation:g-card-sai .35s ease both;}
+  @keyframes g-card{from{opacity:0;transform:translateY(14px) scale(.97);}to{opacity:1;transform:none;}}
+  @keyframes g-card-sai{to{opacity:0;transform:translateY(-8px) scale(.98);}}
+  .g-palco{position:relative;height:96px;display:grid;place-items:center;margin-bottom:6px;}
+  .g-palco::before,.g-palco::after{content:"";position:absolute;left:50%;top:50%;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;
+    background:radial-gradient(circle,rgba(0,71,115,.10) 0%,rgba(0,71,115,0) 65%);animation:g-onda 2.6s ease-out infinite;}
+  .g-palco::after{animation-delay:1.3s;}
+  @keyframes g-onda{0%{transform:scale(.55);opacity:0;}30%{opacity:1;}100%{transform:scale(1.7);opacity:0;}}
+  .g-logo{position:relative;width:220px;aspect-ratio:230/42;animation:g-respira 2.6s ease-in-out infinite;}
+  .g-logo img{display:block;width:100%;height:100%;}
+  .g-brilho{position:absolute;inset:0;pointer-events:none;
+    -webkit-mask:url("../../assets/tecnolimplogo.png") center/100% 100% no-repeat;mask:url("../../assets/tecnolimplogo.png") center/100% 100% no-repeat;
+    background:linear-gradient(100deg,transparent 0 40%,rgba(255,255,255,.95) 50%,transparent 60% 100%);background-size:300% 100%;
+    animation:g-brilho 2.6s cubic-bezier(.45,.05,.25,1) infinite;}
+  @keyframes g-respira{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
+  @keyframes g-brilho{0%{background-position:100% 0;}55%,100%{background-position:0 0;}}
+  .g-barra{height:4px;border-radius:99px;background:var(--brand-050);overflow:hidden;margin:4px 6px 20px;position:relative;}
+  .g-barra span{position:absolute;top:0;bottom:0;left:0;width:38%;border-radius:99px;
+    background:linear-gradient(90deg,rgba(0,71,115,0),var(--brand) 55%,#1f6690 85%,var(--critical));animation:g-corre 1.5s cubic-bezier(.65,0,.35,1) infinite;}
+  @keyframes g-corre{from{transform:translateX(-105%);}to{transform:translateX(270%);}}
+  .gerando.ok .g-barra span{animation:none;width:100%;transform:none;background:var(--brand);transition:width .3s ease;}
+  .g-card h2{font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;margin:0 0 14px;color:var(--text-primary);}
+  .g-etapas{list-style:none;margin:0 auto;padding:0;display:flex;flex-direction:column;gap:10px;text-align:left;width:max-content;max-width:100%;}
+  .g-etapas li{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--text-muted);transition:color .3s;}
+  .g-etapas i{width:20px;height:20px;border-radius:50%;border:2px solid var(--border-strong);display:grid;place-items:center;flex:none;position:relative;transition:background .3s,border-color .3s;}
+  .g-etapas svg{width:12px;height:12px;fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:14;stroke-dashoffset:14;}
+  .g-etapas li.ativo{color:var(--text-primary);font-weight:600;}
+  .g-etapas li.ativo i{border-color:var(--brand-050);}
+  .g-etapas li.ativo i::after{content:"";position:absolute;inset:-2px;border-radius:50%;border:2px solid transparent;border-top-color:var(--brand);animation:gira .8s linear infinite;}
+  .g-etapas li.feito{color:var(--text-secondary);}
+  .g-etapas li.feito i{background:var(--brand);border-color:var(--brand);}
+  .g-etapas li.feito svg{animation:g-check .35s ease forwards;}
+  @keyframes g-check{to{stroke-dashoffset:0;}}
+  .g-rodape{display:flex;justify-content:space-between;gap:12px;margin-top:20px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--text-muted);text-align:left;}
+  .g-rodape b{font-variant-numeric:tabular-nums;font-weight:600;color:var(--text-secondary);}
+  @media (prefers-reduced-motion:reduce){
+    .gerando,.g-card,.g-palco::before,.g-palco::after,.g-logo,.g-brilho,.folha.entra{animation:none !important;}
+    .g-barra span{animation-duration:3s;}
+  }
+
+  @page{size:A4 landscape;margin:12mm 10mm 14mm;
+    @bottom-right{content:"Página " counter(page) " de " counter(pages);font:8pt Arial,sans-serif;color:#66707f;}}
+  @media print{
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    body{background:#fff;padding:0;}
+    .cbar,.topbar,.filtros,.status,.kpis,.gerando{display:none !important;}
+    .wrap{max-width:none;gap:0;}
+    .folha{border:0;padding:0;box-shadow:none;overflow:visible;}
+    table.qv{min-width:0;font-size:9pt;}
+    .qv-titulo th{font-size:14pt;}
+    .qv-local.qv-quebra{break-before:page;}
+    .qv-local{break-after:avoid;}
+    .qv-cargo{break-inside:avoid;}
+    .qv-linha td{height:22pt;}
+    .folha.entra{animation:none;}
+  }
+</style>
+</head>
+<body>
+<nav class="cbar" aria-label="Navegação da Central">
+  <a class="cb-link" href="../../index.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Central de Relatórios</a>
+  <span class="cb-sep cb-area">/</span><a class="cb-link cb-area" href="../../area.html?a=ti">T.I.</a>
+  <span class="cb-sp"></span><div id="user-slot"></div>
+</nav>
+<div class="wrap">
+  <div class="topbar">
+    <div>
+      <img class="brand-logo" alt="Tecnolimp" src="../../assets/tecnolimplogo.png">
+      <h1>Quadro de Vagas</h1>
+      <div class="subtitle">Relação de Funcionários por local e cargo — formulário para preenchimento manual</div>
+    </div>
+  </div>
+
+  <form class="filtros" id="form" novalidate>
+    <div class="campo">
+      <label for="f-empresa">Empresa</label>
+      <input type="text" id="f-empresa" inputmode="numeric" placeholder="Ex.: 3" autocomplete="off" required>
+      <small>Código, lista (1,3) ou faixa (1-5)</small>
+    </div>
+    <div class="campo local">
+      <label for="f-local">Local</label>
+      <input type="text" id="f-local" placeholder="Ex.: 3.111== ou 3.111.1.1" autocomplete="off">
+      <small><strong>3.111==</strong> traz todos abaixo de 3.111 · vazio = todos</small>
+    </div>
+    <div class="acoes">
+      <button class="btn primario" type="submit" id="btn-gerar">Gerar</button>
+      <button class="btn" type="button" id="btn-excel" disabled>Exportar Excel</button>
+      <button class="btn" type="button" id="btn-imprimir" disabled>Imprimir</button>
+    </div>
+  </form>
+
+  <div class="status" id="status" role="status" aria-live="polite" hidden></div>
+  <div class="kpis" id="kpis" hidden>
+    <div class="kpi destaque"><span>Total geral de colaboradores</span><strong id="k-colab">0</strong><small>Autorizado + efetivo</small></div>
+    <div class="kpi"><span>Total geral autorizado</span><strong id="k-aut">0</strong><small>Quadro da competência atual</small></div>
+    <div class="kpi"><span>Total geral efetivo</span><strong id="k-efe">0</strong><small>Último quadro efetivo lançado</small></div>
+    <div class="kpi"><span>Cargos no quadro</span><strong id="k-cargos">0</strong><small id="k-locais"></small></div>
+  </div>
+  <div class="folha" id="folha"><div class="vazio">Informe a empresa e o local e clique em <strong>Gerar</strong>.</div></div>
+</div>
+
+<div class="gerando" id="gerando" hidden>
+  <div class="g-card" role="status" aria-live="polite">
+    <div class="g-palco"><div class="g-logo"><img src="../../assets/tecnolimplogo.png" alt="Tecnolimp"><span class="g-brilho" aria-hidden="true"></span></div></div>
+    <div class="g-barra" aria-hidden="true"><span></span></div>
+    <h2>Gerando o quadro de vagas</h2>
+    <ol class="g-etapas">
+      <li data-etapa="enviado"><i><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-6.5"/></svg></i>Solicitação enviada</li>
+      <li data-etapa="consultando"><i><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-6.5"/></svg></i>Consultando o Senior</li>
+      <li data-etapa="montando"><i><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-6.5"/></svg></i>Montando o layout</li>
+    </ol>
+    <div class="g-rodape"><span id="g-msg">Isso costuma levar poucos segundos.</span><b id="g-tempo">00:00</b></div>
+  </div>
+</div>
+
+<script id="qv-pagina">
+// Tela: filtros → gerar (fonte de dados plugável) → prévia → Excel/Imprimir.
+window.QVPagina = (function () {
+  "use strict";
+  var CHAVE = "tl_qv_filtros";
+  var $ = function (id) { return document.getElementById(id); };
+  var atual = null;
+
+  function status(msg, tipo) {
+    var el = $("status");
+    el.className = "status" + (tipo === "erro" ? " erro" : "");
+    el.hidden = !msg;
+    el.innerHTML = (tipo === "carregando" ? '<span class="spin" aria-hidden="true"></span>' : "") + "<span></span>";
+    el.lastChild.textContent = msg || "";
+  }
+  function lembrar(f) { try { localStorage.setItem(CHAVE, JSON.stringify({ empresas: f.empresas, locais: f.locais })); } catch (e) {} }
+  function recuperar() { try { return JSON.parse(localStorage.getItem(CHAVE)) || {}; } catch (e) { return {}; } }
+
+  // Aviso de geração: logo animada + etapas reais da fila (enviado → consultando → montando).
+  var aviso = (function () {
+    var el = $("gerando"), ordem = ["enviado", "consultando", "montando"], relogio = null, inicio = 0;
+    function marcar(ativa) {
+      var i = ordem.indexOf(ativa);
+      el.querySelectorAll(".g-etapas li").forEach(function (li, k) {
+        li.className = k < i ? "feito" : (k === i ? "ativo" : "");
+      });
+    }
+    function msg(t) { $("g-msg").textContent = t; }
+    function tempo() {
+      var s = Math.floor((Date.now() - inicio) / 1000);
+      $("g-tempo").textContent = String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0");
+    }
+    function fechar() {
+      clearInterval(relogio);
+      if (el.hidden) return Promise.resolve();
+      el.classList.add("sai");
+      return new Promise(function (ok) { setTimeout(function () { el.hidden = true; el.classList.remove("sai", "ok"); ok(); }, 340); });
+    }
+    return {
+      abrir: function () {
+        inicio = Date.now(); tempo(); clearInterval(relogio); relogio = setInterval(tempo, 1000);
+        el.classList.remove("sai", "ok"); el.hidden = false;
+        marcar("enviado"); msg("Isso costuma levar poucos segundos.");
+      },
+      fase: function (f) {
+        if (f === "enviado") { marcar("consultando"); msg("Solicitação na fila do serviço de geração."); }
+        else if (f === "consultando") { marcar("consultando"); msg("Lendo quadro de vagas e lotação no Senior…"); }
+        else if (f === "aguardando") msg("Aguardando o serviço de geração (TECNOLIMP12)…");
+      },
+      concluir: function () {
+        marcar("montando"); msg("Organizando locais e cargos…");
+        return new Promise(function (ok) { setTimeout(ok, 380); }).then(function () {
+          marcar("fim"); el.querySelectorAll(".g-etapas li").forEach(function (li) { li.className = "feito"; });
+          el.classList.add("ok"); msg("Pronto!");
+          return new Promise(function (ok) { setTimeout(ok, 520); });
+        }).then(fechar);
+      },
+      fechar: fechar
+    };
+  })();
+
+  function contar(el, valor) {
+    var reduz = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduz || valor < 10) { el.textContent = QV.fmtInt(valor); return; }
+    var t0 = performance.now(), dur = 700;
+    (function passo(t) {
+      var p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+      el.textContent = QV.fmtInt(Math.round(valor * e));
+      if (p < 1) requestAnimationFrame(passo);
+    })(t0);
+  }
+  function indicadores(dados) {
+    var t = QV.totais(dados);
+    contar($("k-colab"), t.colaboradores);
+    contar($("k-aut"), t.autorizado);
+    contar($("k-efe"), t.efetivo);
+    contar($("k-cargos"), t.cargos);
+    $("k-locais").textContent = "Em " + t.locais + (t.locais === 1 ? " local" : " locais");
+    $("kpis").hidden = false;
+  }
+
+  function iniciar(gerar) {
+    var salvo = recuperar();
+    if (salvo.empresas) $("f-empresa").value = salvo.empresas;
+    if (salvo.locais) $("f-local").value = salvo.locais;
+
+    $("form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var f;
+      try {
+        f = { empresas: QV.validarEmpresas($("f-empresa").value), locais: QV.validarLocais($("f-local").value) };
+      } catch (err) { status(err.message, "erro"); return; }
+      lembrar(f);
+      atual = null;
+      $("btn-gerar").disabled = $("btn-excel").disabled = $("btn-imprimir").disabled = true;
+      $("kpis").hidden = true;
+      status("");
+      aviso.abrir();
+      gerar(f, aviso.fase).then(function (dados) {
+        return aviso.concluir().then(function () { return dados; });
+      }).then(function (dados) {
+        var folha = $("folha");
+        folha.classList.remove("entra"); void folha.offsetWidth; folha.classList.add("entra");
+        if (!dados || !(dados.locais || []).length) {
+          folha.innerHTML = '<div class="vazio">Nenhum colaborador ativo encontrado para os filtros informados.</div>';
+          return;
+        }
+        atual = { dados: dados, filtros: f };
+        folha.innerHTML = QV.renderizar(dados, f);
+        indicadores(dados);
+        $("btn-excel").disabled = $("btn-imprimir").disabled = false;
+        document.title = "Quadro de Vagas — " + QV.fmtData(dados.data_emissao);
+      }).catch(function (err) {
+        aviso.fechar();
+        status(err.message || "Não foi possível gerar o relatório.", "erro");
+      }).then(function () { $("btn-gerar").disabled = false; });
+    });
+
+    $("btn-excel").addEventListener("click", function () {
+      if (!atual) return;
+      var b = this; b.disabled = true;
+      QV.baixarExcel(atual.dados, atual.filtros, "../../assets/vendor/exceljs-4.4.0.min.js")
+        .catch(function (err) { status(err.message, "erro"); })
+        .then(function () { b.disabled = false; });
+    });
+    $("btn-imprimir").addEventListener("click", function () { window.print(); });
+  }
+  return { iniciar: iniciar };
+})();
+</script>
+<script id="qv-boot">
+// Produção: grava a solicitação na fila (central.qv_solicitacoes); o worker da
+// TECNOLIMP12 consulta o Oracle e devolve o resultado na mesma linha.
+(function () {
+  "use strict";
+  var INTERVALO = 2000, AVISO_FILA = 20000, LIMITE = 180000;
+  function esperar(ms) { return new Promise(function (ok) { setTimeout(ok, ms); }); }
+
+  function gerarViaFila(f, progresso) {
+    var inicio = Date.now();
+    return TC.db("qv_solicitacoes?select=id", { method: "POST", body: f, prefer: "return=representation" }).then(function (rows) {
+      var id = rows[0].id;
+      progresso("enviado");
+      function consultar() {
+        return TC.db("qv_solicitacoes?select=status,mensagem,resultado&id=eq." + id).then(function (r) {
+          var s = r && r[0];
+          if (!s) throw new Error("Solicitação não encontrada.");
+          if (s.status === "concluido") return s.resultado;
+          if (s.status === "erro") throw new Error("Erro ao gerar: " + (s.mensagem || "verifique com a T.I."));
+          var passou = Date.now() - inicio;
+          if (passou > LIMITE) throw new Error("O serviço de geração não respondeu. Avise a T.I. (serviço Quadro de Vagas na TECNOLIMP12).");
+          if (s.status === "processando") progresso("consultando");
+          else if (passou > AVISO_FILA) progresso("aguardando");
+          return esperar(INTERVALO).then(consultar);
+        });
+      }
+      return esperar(800).then(consultar);
+    });
+  }
+
+  TC.protegerRelatorio("quadro-vagas").then(function (perfil) {
+    TC.montarMenuUsuario(document.getElementById("user-slot"), perfil);
+    QVPagina.iniciar(gerarViaFila);
+  });
+})();
+</script>
+</body>
+</html>

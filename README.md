@@ -18,7 +18,7 @@ Cada usuário vê só as áreas/relatórios liberados pelo administrador; a perm
 ### Quadro de Vagas (FPRF307)
 Formulário por local e cargo para impressão e preenchimento à caneta.
 - **Filtros:** Empresa (`3`, `1,3`, `1-5`) e Local (`3.111.1.1` ou `3.111==` = o local e todos abaixo). Data sempre a do dia.
-- **Conteúdo:** totais gerais (colaboradores = autorizado + efetivo), local (nome, código, endereço), cargo, quadro **Autorizado × Efetivo** (competência do mês atual, como no Senior) e uma linha em branco por colaborador ativo.
+- **Conteúdo:** totais gerais (colaboradores = autorizado + efetivo), local (nome, código, endereço), cargo, quadro **Autorizado × Efetivo** (competência do mês atual, como no Senior) e linhas em branco: uma por colaborador ativo; cargos do quadro do mês sem colaborador (vagas em aberto, posto novo) também saem, com uma linha por vaga autorizada.
 - **Saídas:** prévia na tela igual ao papel, **Imprimir** e **Exportar Excel** (`quadro de vagas - dd-mm-aaaa.xlsx`, A4 paisagem, cabeçalho repetido, "Página X de Y", cada local em página nova).
 - **Fluxo:** tela grava em `central.qv_solicitacoes` → worker da TECNOLIMP12 (`sync/quadro-vagas/`) consulta o Oracle e grava o resultado → tela exibe. Resultado só com quantidades (sem dados pessoais); retenção de 7 dias.
 - Documentação técnica completa: [`docs/quadro-de-vagas-documentacao-tecnica.pdf`](docs/quadro-de-vagas-documentacao-tecnica.pdf).

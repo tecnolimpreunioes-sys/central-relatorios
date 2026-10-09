@@ -45,16 +45,17 @@
     });
   }
   function totais(dados) {
-    var t = { locais: 0, cargos: 0, colaboradores: 0, autorizado: 0, efetivo: 0 };
+    var t = { locais: 0, cargos: 0, linhas: 0, autorizado: 0, efetivo: 0, colaboradores: 0 };
     (dados.locais || []).forEach(function (l) {
       t.locais++;
       (l.cargos || []).forEach(function (c) {
         t.cargos++;
-        t.colaboradores += c.linhas || 0;
+        t.linhas += c.linhas || 0;
         t.autorizado += c.autorizado || 0;
         t.efetivo += c.efetivo || 0;
       });
     });
+    t.colaboradores = t.autorizado + t.efetivo; // total de pessoas/vagas (definição da área)
     return t;
   }
   function fmtInt(n) { return Number(n || 0).toLocaleString("pt-BR"); }
@@ -87,6 +88,7 @@
           '<span class="qv-num">Autorizado: <strong>' + esc(c.autorizado) + '</strong></span>' +
           '<span class="qv-num">Efetivo: <strong>' + esc(c.efetivo) + '</strong></span></td>' +
           '<td colspan="2"><strong>' + esc(l.codloc) + '</strong></td><td colspan="3"><strong>' + esc(l.nomloc) + '</strong></td></tr>');
+        h.push('<tr class="qv-end-cargo"><td colspan="7">Endereço: <strong>' + esc(l.endereco) + '</strong></td></tr>');
         for (var n = 0; n < (c.linhas || 0); n++) h.push('<tr class="qv-linha"><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>');
         h.push('<tr class="qv-espaco"><td colspan="7"></td></tr>');
         h.push('</tbody>');
@@ -105,7 +107,7 @@
 
   // ---------- Excel (pronto para imprimir) ----------
   var COR = { marca: "FF004773", cab: "FFD9E3EC", quadro: "FFF2F5F8", linha: "FF7F8896", texto: "FF161C2D", sutil: "FF66707F" };
-  var ALTURA = { titulo: 24, filtros: 16, totais: 22, local: 22, endereco: 17, cab: 19, quadro: 17, linha: 22, espaco: 6 };
+  var ALTURA = { titulo: 24, filtros: 16, totais: 22, local: 22, endereco: 17, cab: 19, quadro: 17, endcargo: 16, linha: 22, espaco: 6 };
   // A4 paisagem = 595pt de altura; menos margens (0,5" + 0,6") e linhas de título repetidas, com folga.
   var CAPACIDADE_PAGINA = (595 - 36 - 43 - ALTURA.titulo - ALTURA.filtros) * 0.98;
 
@@ -158,8 +160,8 @@
     // totais gerais: só no início do relatório (não repetem nas páginas seguintes)
     var tg = totais(dados);
     var lt = linha(ALTURA.totais);
-    [[1, 2, "TOTAL GERAL de COLABORADORES: ", tg.colaboradores], [3, 5, "TOTAL GERAL AUTORIZADO: ", tg.autorizado],
-     [6, 7, "TOTAL GERAL EFETIVO: ", tg.efetivo]].forEach(function (g) {
+    [[1, 2, "TOTAL GERAL de COLABORADORES: ", tg.colaboradores], [3, 6, "TOTAL GERAL AUTORIZADO: ", tg.autorizado],
+     [7, 7, "TOTAL GERAL EFETIVO: ", tg.efetivo]].forEach(function (g) {
       var cell = mesclar(lt, g[0], g[1]);
       cell.value = { richText: [{ text: g[2], font: fonte({ size: 10, bold: true }) },
                                 { text: fmtInt(g[3]), font: fonte({ size: 11, bold: true, color: { argb: COR.marca } }) }] };
@@ -233,6 +235,16 @@
           q.getCell(k).border = borda(COR.linha);
         }
 
+        var lec = linha(ALTURA.endcargo);
+        var cec = mesclar(lec, 1, 7);
+        cec.value = { richText: [{ text: "Endereço: ", font: fonte({ size: 8.5, color: { argb: COR.sutil } }) },
+                                 { text: l.endereco || "", font: fonte({ size: 8.5, bold: true }) }] };
+        cec.alignment = { vertical: "middle", indent: 1, shrinkToFit: true };
+        for (var k2 = 1; k2 <= 7; k2++) {
+          lec.getCell(k2).fill = { type: "pattern", pattern: "solid", fgColor: { argb: COR.quadro } };
+          lec.getCell(k2).border = borda(COR.linha);
+        }
+
         for (var n = 0; n < (c.linhas || 0); n++) {
           var lb = linha(ALTURA.linha);
           for (var j = 1; j <= 7; j++) lb.getCell(j).border = borda(COR.linha);
@@ -245,7 +257,7 @@
     return wb.xlsx.writeBuffer();
   }
 
-  function alturaCargo(c) { return ALTURA.cab + ALTURA.quadro + (c.linhas || 0) * ALTURA.linha + ALTURA.espaco; }
+  function alturaCargo(c) { return ALTURA.cab + ALTURA.quadro + ALTURA.endcargo + (c.linhas || 0) * ALTURA.linha + ALTURA.espaco; }
 
   // Navegador: carrega o ExcelJS só na 1ª exportação e baixa o arquivo.
   var carregando = null;

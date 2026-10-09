@@ -84,6 +84,10 @@
   .qv-quadro td{background:var(--qv-quadro);height:23px;text-align:center;}
   .qv-quadro td:first-child{text-align:left;}
   .qv-num{margin-left:18px;}
+  .qv-end-cargo td{background:var(--qv-quadro);height:21px;font-size:11px;color:var(--text-muted);text-align:left;
+    border-right:1px solid var(--qv-linha);border-bottom:1px solid var(--qv-linha);border-left:1px solid var(--qv-linha);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .qv-end-cargo strong{color:#161c2d;}
   .qv-linha td{height:30px;}
   /* bordas no modelo "separate" (evita traço solto na quebra de página da impressão) */
   .qv-cargo-cab th,.qv-quadro td,.qv-linha td{border-right:1px solid var(--qv-linha);border-bottom:1px solid var(--qv-linha);}
@@ -105,7 +109,6 @@
   .kpi.destaque{border-color:color-mix(in srgb,var(--brand) 30%,var(--border));background:var(--brand-050);}
   .kpi.destaque strong{color:var(--brand);}
   .kpi small{font-size:11.5px;color:var(--text-muted);}
-  .kpi small.alerta{color:var(--critical);font-weight:600;}
 
   /* aviso de geração (motion com a logo) */
   .gerando{position:fixed;inset:0;z-index:40;display:grid;place-items:center;padding:16px;
@@ -210,9 +213,9 @@
 
   <div class="status" id="status" role="status" aria-live="polite" hidden></div>
   <div class="kpis" id="kpis" hidden>
-    <div class="kpi destaque"><span>Total geral de colaboradores</span><strong id="k-colab">0</strong><small>Uma linha em branco por colaborador</small></div>
+    <div class="kpi destaque"><span>Total geral de colaboradores</span><strong id="k-colab">0</strong><small>Autorizado + efetivo</small></div>
     <div class="kpi"><span>Total geral autorizado</span><strong id="k-aut">0</strong><small>Quadro da competência atual</small></div>
-    <div class="kpi"><span>Total geral efetivo</span><strong id="k-efe">0</strong><small id="k-dif"></small></div>
+    <div class="kpi"><span>Total geral efetivo</span><strong id="k-efe">0</strong><small>Último quadro efetivo lançado</small></div>
     <div class="kpi"><span>Cargos no quadro</span><strong id="k-cargos">0</strong><small id="k-locais"></small></div>
   </div>
   <div class="folha" id="folha"><div class="vazio">Informe a empresa e o local e clique em <strong>Gerar</strong>.</div></div>
@@ -310,9 +313,6 @@ window.QVPagina = (function () {
     contar($("k-efe"), t.efetivo);
     contar($("k-cargos"), t.cargos);
     $("k-locais").textContent = "Em " + t.locais + (t.locais === 1 ? " local" : " locais");
-    var dif = t.autorizado - t.efetivo;
-    $("k-dif").textContent = dif > 0 ? dif + " abaixo do autorizado" : dif < 0 ? -dif + " acima do autorizado" : "Igual ao autorizado";
-    $("k-dif").className = dif !== 0 ? "alerta" : "";
     $("kpis").hidden = false;
   }
 

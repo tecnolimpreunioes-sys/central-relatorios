@@ -8,7 +8,8 @@ Regras herdadas do FPRF307:
   - colaborador no local histórico da data de emissão (R038HLO) e SitAfa <> 7;
   - Autorizado = R080QUD.VagGer da competência do MÊS ATUAL (igual ao Senior);
   - Efetivo    = R080EFD.VagGer da competência mais recente;
-  - uma linha em branco por colaborador ativo no cargo/local (preenchimento à caneta).
+  - uma linha em branco por colaborador ativo no cargo/local (preenchimento à caneta);
+  - cargos/locais do quadro do mês sem colaborador ativo também saem, com uma linha por vaga autorizada.
 
 Uso:
   python worker_quadro_vagas.py                      # serviço (loop)
@@ -159,18 +160,28 @@ def gerar(con, data_emissao, empresas, locais):
          GROUP BY f.NumEmp, hlo.TabOrg, hlo.NumLoc, hie.CodLoc, f.CodCar"""
     cur.execute(sql, binds)
     linhas = cur.fetchall()
-    if not linhas:
-        return {"data_emissao": data_emissao.isoformat(), "competencia": competencia_atual()[0].strftime("%Y-%m"), "locais": []}
 
-    # Quadro: autorizado (competência do mês atual) e efetivo (competência mais recente)
+    # Quadro do mês atual (R080QUD) nos mesmos locais: dá o Autorizado e também lista as
+    # vagas de cargos/locais ainda sem colaborador ativo (ex.: posto novo, vaga em aberto).
     ini, fim = competencia_atual()
-    bq = {"ini": ini, "fim": fim}
+    bq = {"dat": data, "ini": ini, "fim": fim}
     f_emp_q = filtro_empresas(empresas, bq).replace("f.NumEmp", "q.NumEmp")
-    cur.execute(f"""SELECT q.NumEmp, q.TabOrg, q.NumLoc, q.CodCar, MAX(q.VagGer)
-                      FROM R080QUD q
-                     WHERE q.CmpQua BETWEEN :ini AND :fim AND {f_emp_q}
-                     GROUP BY q.NumEmp, q.TabOrg, q.NumLoc, q.CodCar""", bq)
-    autorizado = {(r[0], r[1], r[2], str(r[3]).strip()): r[4] for r in cur.fetchall()}
+    f_loc_q = filtro_locais(locais, bq)
+    cur.execute(f"""
+        SELECT q.NumEmp, q.TabOrg, q.NumLoc, hie.CodLoc, MAX(orn.NomLoc), MAX({endereco}),
+               q.CodCar, MAX(car.{titulo}), MAX(q.VagGer)
+          FROM R080QUD q
+          JOIN R016HIE hie ON hie.TabOrg = q.TabOrg AND hie.NumLoc = q.NumLoc{hie_hist}
+          LEFT JOIN R016ORN orn ON orn.NumLoc = q.NumLoc{orn_tab.replace("hlo.", "q.")}
+          LEFT JOIN R024CAR car ON car.EstCar = q.EstCar AND car.CodCar = q.CodCar
+         WHERE q.CmpQua BETWEEN :ini AND :fim AND {f_emp_q}{f_loc_q}
+         GROUP BY q.NumEmp, q.TabOrg, q.NumLoc, hie.CodLoc, q.CodCar""", bq)
+    quadro = cur.fetchall()
+    if not linhas and not quadro:
+        return {"data_emissao": data_emissao.isoformat(), "competencia": ini.strftime("%Y-%m"), "locais": []}
+    autorizado = {(r[0], r[1], r[2], str(r[6]).strip()): r[8] for r in quadro}
+
+    # Efetivo: competência mais recente
     be = {}
     f_emp_e = filtro_empresas(empresas, be).replace("f.NumEmp", "q.NumEmp")
     cur.execute(f"""SELECT NumEmp, TabOrg, NumLoc, CodCar, VagGer FROM (
@@ -180,18 +191,29 @@ def gerar(con, data_emissao, empresas, locais):
                         FROM R080EFD q WHERE {f_emp_e}) WHERE rn = 1""", be)
     efetivo = {(r[0], r[1], r[2], str(r[3]).strip()): r[4] for r in cur.fetchall()}
 
-    locais_out = {}
-    for numemp, taborg, numloc, codloc, nomloc, endloc, codcar, tit, qtd in linhas:
+    locais_out, vistos = {}, set()
+
+    def adicionar(numemp, taborg, numloc, codloc, nomloc, endloc, codcar, tit, qtd_linhas):
         codcar = str(codcar or "").strip()
-        chave_local = (numemp, taborg, numloc)
-        local = locais_out.setdefault(chave_local, {
+        k = (numemp, taborg, numloc, codcar)
+        if k in vistos:
+            return
+        vistos.add(k)
+        local = locais_out.setdefault((numemp, taborg, numloc), {
             "codloc": str(codloc or "").strip(), "nomloc": (nomloc or "").strip(),
             "endereco": (endloc or "").strip(), "cargos": []})
-        k = (numemp, taborg, numloc, codcar)
         local["cargos"].append({
             "codcar": codcar, "titulo": (tit or "").strip(),
             "autorizado": int(autorizado.get(k) or 0), "efetivo": int(efetivo.get(k) or 0),
-            "linhas": int(qtd)})
+            "linhas": int(qtd_linhas)})
+
+    # 1) cargos com colaborador ativo: uma linha em branco por colaborador (como no Senior)
+    for numemp, taborg, numloc, codloc, nomloc, endloc, codcar, tit, qtd in linhas:
+        adicionar(numemp, taborg, numloc, codloc, nomloc, endloc, codcar, tit, qtd)
+    # 2) vagas do quadro sem colaborador: uma linha em branco por vaga autorizada
+    for numemp, taborg, numloc, codloc, nomloc, endloc, codcar, tit, vag in quadro:
+        if (vag or 0) > 0:
+            adicionar(numemp, taborg, numloc, codloc, nomloc, endloc, codcar, tit, vag)
 
     resultado = sorted(locais_out.items(), key=lambda kv: (chave_codloc(kv[1]["codloc"]), kv[0][0]))
     for _, local in resultado:

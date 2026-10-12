@@ -1,0 +1,10 @@
+{
+  "extraKnownMarketplaces": {
+    "diario-tarefas-mods": {
+      "source": { "source": "github", "repo": "Ygor-Silva/claude-mod-diario-tarefas" }
+    }
+  },
+  "enabledPlugins": {
+    "diario-tarefas@diario-tarefas-mods": true
+  }
+}

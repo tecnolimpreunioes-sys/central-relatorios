@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Liberação de Holerites — Protótipo</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --color-primary:#004773;
+    --color-primary-hover:#00385c;
+    --color-primary-soft:#e6eef4;
+    --color-accent:#c4261d;
+    --color-ink:#161c2d;
+    --color-muted:#3c4858;
+    --color-subtle:#66707f;
+    --color-surface:#ffffff;
+    --color-surface-alt:#f7f8fa;
+    --color-border:#e4e7ec;
+    --ok:#137a3d;      --ok-bg:#e7f5ec;
+    --sched:#8a5a00;   --sched-bg:#fdf3dc;
+    --lock:#9b1c15;    --lock-bg:#fbe9e8;
+    --pend:#3b4cc0;    --pend-bg:#ebedfb;
+    --none:#66707f;    --none-bg:#f0f1f4;
+    --font-display:"Nunito",ui-sans-serif,system-ui,sans-serif;
+    --font-body:"Inter",ui-sans-serif,system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--color-surface-alt);font-family:var(--font-body);color:var(--color-ink);font-size:14px;}
+  a{color:var(--color-primary);}
+  button{font-family:inherit;font-size:13px;cursor:pointer;}
+  :focus-visible{outline:2px solid var(--color-primary);outline-offset:2px;}
+  .hidden{display:none !important;}
+
+  /* ---------- barra da Central ---------- */
+  .topbar{background:var(--color-surface);border-bottom:1px solid var(--color-border);
+    display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 20px;position:sticky;top:0;z-index:20;}
+  .crumbs{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-subtle);min-width:0;flex-wrap:wrap;}
+  .crumbs a{text-decoration:none;font-weight:600;}
+  .logo{height:24px;width:auto;margin-right:8px;}
+  .user{position:relative;}
+  .user-btn{display:flex;align-items:center;gap:8px;background:none;border:1px solid var(--color-border);border-radius:999px;padding:4px 10px 4px 4px;color:var(--color-ink);}
+  .avatar{width:26px;height:26px;border-radius:50%;background:var(--color-primary);color:#fff;display:grid;place-items:center;font-weight:700;font-size:11px;}
+  .user-menu{position:absolute;right:0;top:40px;background:#fff;border:1px solid var(--color-border);border-radius:10px;box-shadow:0 12px 32px rgba(22,28,45,.12);min-width:200px;padding:6px;}
+  .user-menu div{padding:8px 10px;font-size:13px;}
+  .user-menu .m{color:var(--color-subtle);font-size:12px;border-bottom:1px solid var(--color-border);}
+  .user-menu a{display:block;padding:8px 10px;text-decoration:none;color:var(--color-ink);border-radius:6px;font-size:13px;}
+  .user-menu a:hover{background:var(--color-surface-alt);}
+
+  main{max-width:1180px;margin:0 auto;padding:22px 20px 60px;}
+
+  /* ---------- home da Central ---------- */
+  .home{max-width:520px;margin:30px auto;background:#fff;border:1px solid var(--color-border);border-radius:14px;padding:32px;box-shadow:0 12px 32px rgba(22,28,45,.08);}
+  .home h1{font-family:var(--font-display);color:var(--color-primary);text-align:center;font-size:20px;margin:0 0 6px;}
+  .home .sub{text-align:center;color:var(--color-subtle);font-size:13px;margin-bottom:24px;}
+  .grp{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--color-subtle);margin:18px 0 8px;}
+  .link-btn{display:flex;justify-content:space-between;align-items:center;text-decoration:none;padding:14px 16px;border-radius:8px;font-weight:600;background:var(--color-primary);color:#fff;margin-bottom:8px;}
+  .link-btn:hover{background:var(--color-primary-hover);}
+  .link-btn.new::after{content:"novo";background:var(--color-accent);font-size:10px;padding:2px 7px;border-radius:999px;margin-left:auto;margin-right:10px;text-transform:uppercase;letter-spacing:.04em;}
+  .link-btn.off{background:var(--color-surface-alt);color:var(--color-subtle);border:1px dashed var(--color-border);pointer-events:none;}
+
+  /* ---------- relatório ---------- */
+  .head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:16px;}
+  .head h1{font-family:var(--font-display);font-size:24px;color:var(--color-primary);margin:0;}
+  .head .meta{color:var(--color-subtle);font-size:13px;margin-top:4px;}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .btn{border:1px solid var(--color-border);background:#fff;color:var(--color-ink);padding:8px 14px;border-radius:8px;font-weight:600;}
+  .btn:hover{background:var(--color-surface-alt);}
+  .btn.primary{background:var(--color-primary);border-color:var(--color-primary);color:#fff;}
+  .btn.primary:hover{background:var(--color-primary-hover);}
+  .btn.danger{background:var(--color-accent);border-color:var(--color-accent);color:#fff;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--color-border);margin-bottom:18px;overflow-x:auto;}
+  .tab{background:none;border:none;border-bottom:2px solid transparent;padding:10px 14px;font-weight:600;color:var(--color-subtle);white-space:nowrap;}
+  .tab[aria-selected="true"]{color:var(--color-primary);border-bottom-color:var(--color-primary);}
+
+  .banner{display:flex;gap:10px;align-items:flex-start;border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:13px;}
+  .banner.warn{background:var(--lock-bg);color:var(--lock);border:1px solid #f1c7c4;}
+  .banner.info{background:var(--color-primary-soft);color:var(--color-primary);border:1px solid #c8dae8;}
+  .banner code{background:rgba(255,255,255,.7);padding:1px 5px;border-radius:4px;}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px;}
+  .kpi{background:#fff;border:1px solid var(--color-border);border-radius:12px;padding:14px 16px;}
+  .kpi .l{font-size:12px;color:var(--color-subtle);font-weight:600;}
+  .kpi .v{font-family:var(--font-display);font-size:26px;font-weight:800;margin-top:2px;}
+  .kpi .s{font-size:12px;color:var(--color-subtle);}
+
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--color-muted);margin-bottom:10px;}
+  .legend span{display:flex;align-items:center;gap:6px;}
+
+  .card{background:#fff;border:1px solid var(--color-border);border-radius:12px;}
+  .tbl-wrap{overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--color-border);vertical-align:top;}
+  thead th{font-size:12px;color:var(--color-subtle);font-weight:600;background:var(--color-surface-alt);}
+  tbody tr:last-child td{border-bottom:none;}
+  .grid th.comp{min-width:210px;}
+  .grid th .cname{font-size:14px;color:var(--color-ink);font-weight:700;display:block;}
+  .grid th .cpos{font-weight:500;}
+  .grid th .bulk{margin-top:6px;font-size:12px;padding:4px 8px;border-radius:6px;border:1px solid var(--color-border);background:#fff;color:var(--color-primary);font-weight:600;}
+  .grid td.emp{white-space:nowrap;position:sticky;left:0;background:#fff;}
+  .grid td.emp b{display:block;}
+  .grid td.emp small{color:var(--color-subtle);}
+  .cell{width:100%;text-align:left;border:1px solid transparent;background:none;border-radius:8px;padding:6px 8px;display:flex;flex-direction:column;gap:3px;}
+  .cell:hover:not(:disabled){border-color:var(--color-border);background:var(--color-surface-alt);}
+  .cell:disabled{cursor:default;}
+  .cell small{color:var(--color-subtle);font-size:12px;}
+
+  .chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;width:max-content;}
+  .chip::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;}
+  .chip.ok{color:var(--ok);background:var(--ok-bg);}
+  .chip.sched{color:var(--sched);background:var(--sched-bg);}
+  .chip.lock{color:var(--lock);background:var(--lock-bg);}
+  .chip.pend{color:var(--pend);background:var(--pend-bg);}
+  .chip.pend::before{animation:pulse 1s infinite;}
+  .chip.none{color:var(--none);background:var(--none-bg);}
+  @keyframes pulse{50%{opacity:.25}}
+
+  /* ---------- gaveta ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(22,28,45,.35);z-index:40;}
+  .drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:#fff;z-index:41;box-shadow:-12px 0 32px rgba(22,28,45,.15);display:flex;flex-direction:column;}
+  .drawer header{padding:18px 20px;border-bottom:1px solid var(--color-border);display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .drawer h2{font-family:var(--font-display);margin:0;font-size:19px;color:var(--color-primary);}
+  .drawer .x{background:none;border:none;font-size:22px;line-height:1;color:var(--color-subtle);}
+  .drawer .body{padding:18px 20px;overflow-y:auto;flex:1;}
+  .drawer footer{padding:14px 20px;border-top:1px solid var(--color-border);display:flex;gap:8px;justify-content:flex-end;}
+  dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0 0 18px;font-size:13px;}
+  dt{color:var(--color-subtle);}
+  dd{margin:0;font-weight:600;}
+  .sec{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--color-subtle);margin:18px 0 8px;}
+  .opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--color-border);border-radius:10px;padding:10px 12px;margin-bottom:8px;cursor:pointer;}
+  .opt:has(input:checked){border-color:var(--color-primary);background:var(--color-primary-soft);}
+  .opt input[type=radio]{margin-top:3px;}
+  .opt b{display:block;font-size:13px;}
+  .opt small{color:var(--color-subtle);font-size:12px;}
+  .opt input[type=date]{margin-top:6px;padding:6px 8px;border:1px solid var(--color-border);border-radius:6px;font-family:inherit;}
+  label.f{display:block;font-size:12px;color:var(--color-subtle);font-weight:600;margin:12px 0 4px;}
+  input.t,select.t{width:100%;padding:8px 10px;border:1px solid var(--color-border);border-radius:8px;font-family:inherit;font-size:13px;background:#fff;}
+  .hint{font-size:12px;color:var(--color-subtle);margin-top:4px;}
+  .portal{border:1px dashed var(--color-border);border-radius:10px;padding:12px;font-size:13px;background:var(--color-surface-alt);}
+  .portal .msg{background:#fff;border:1px solid var(--color-border);border-radius:8px;padding:10px;margin-top:6px;}
+  .mini{list-style:none;padding:0;margin:0;font-size:12px;}
+  .mini li{padding:6px 0;border-bottom:1px solid var(--color-border);color:var(--color-muted);}
+  .mini li:last-child{border-bottom:none;}
+
+  /* ---------- modal ---------- */
+  .modal{position:fixed;inset:0;display:grid;place-items:center;z-index:50;padding:16px;}
+  .modal .box{background:#fff;border-radius:14px;max-width:520px;width:100%;box-shadow:0 20px 50px rgba(22,28,45,.25);max-height:90vh;overflow-y:auto;}
+  .modal .box header{padding:18px 20px 0;}
+  .modal .box h3{margin:0;font-family:var(--font-display);color:var(--color-primary);font-size:18px;}
+  .modal .box .body{padding:12px 20px;}
+  .modal .box footer{padding:12px 20px 18px;display:flex;gap:8px;justify-content:flex-end;}
+  .summary{background:var(--color-surface-alt);border-radius:8px;padding:10px 12px;font-size:13px;}
+  .summary li{margin:3px 0;}
+
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--color-ink);color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:calc(100% - 32px);}
+
+  /* ---------- histórico / como funciona ---------- */
+  .filters{display:flex;gap:10px;flex-wrap:wrap;padding:12px;border-bottom:1px solid var(--color-border);}
+  .filters .t{width:auto;min-width:160px;}
+  .orig{font-size:11px;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--color-surface-alt);color:var(--color-muted);}
+  .orig.sql{background:var(--sched-bg);color:var(--sched);}
+  .how{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+  .how .card{padding:16px;}
+  .how h4{margin:0 0 6px;font-family:var(--font-display);color:var(--color-primary);}
+  .how p{margin:0;color:var(--color-muted);font-size:13px;line-height:1.5;}
+
+  .proto{margin-top:28px;border:1px dashed #c8cdd6;border-radius:10px;padding:12px 14px;font-size:12px;color:var(--color-subtle);display:flex;gap:16px;align-items:center;flex-wrap:wrap;}
+  .proto b{color:var(--color-accent);}
+  .proto label{display:flex;gap:6px;align-items:center;cursor:pointer;}
+
+  @media (max-width:820px){
+    .kpis{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .how{grid-template-columns:1fr;}
+  }
+  @media (max-width:560px){
+    .topbar{padding:10px 16px;}
+    main{padding:16px 16px 50px;}
+    .user-btn .uname{display:none;}
+    .head h1{font-size:20px;}
+  }
+  @media print{
+    .topbar,.tabs,.actions,.proto,.bulk,.banner{display:none !important;}
+    body{background:#fff;}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <nav class="crumbs" aria-label="Navegação">
+    <img class="logo" src="tecnolimplogo.png" alt="Tecnolimp">
+    <a href="#home" id="crumbCentral">← Central</a>
+    <span id="crumbRest"> / T.I. / Liberação de holerites</span>
+  </nav>
+  <div class="user">
+    <button class="user-btn" id="userBtn" aria-haspopup="true" aria-expanded="false">
+      <span class="avatar">YS</span><span class="uname">ygor.adm</span>
+    </button>
+    <div class="user-menu hidden" id="userMenu">
+      <div class="m">ygor.adm · área T.I.</div>
+      <a href="#home">Central de Relatórios</a>
+      <a href="#" onclick="toast('Protótipo: troca de senha é a tela padrão da Central.');return false;">Trocar senha</a>
+      <a href="#" onclick="toast('Protótipo: sair volta para o login da Central.');return false;">Sair</a>
+    </div>
+  </div>
+</header>
+
+<!-- ================= HOME DA CENTRAL ================= -->
+<main id="viewHome" class="hidden">
+  <div class="home">
+    <div style="text-align:center;margin-bottom:14px"><img src="tecnolimplogo.png" alt="Tecnolimp" style="height:34px;width:auto"></div>
+    <h1>Central de Relatórios Gerenciais</h1>
+    <div class="sub">Acesso rápido aos relatórios internos da Tecnolimp — rede interna.</div>
+    <div class="grp">RH</div>
+    <a class="link-btn" href="#" onclick="toast('Relatório já existente — fora deste protótipo.');return false;"><span>Relação de Eventos — Folha Demitidos</span><span>→</span></a>
+    <div class="grp">T.I.</div>
+    <a class="link-btn new" href="#painel"><span>Liberação de Holerites (RH 24h)</span><span>→</span></a>
+    <div class="hint" style="text-align:center;margin-top:16px">O card “T.I.” só aparece para quem tem permissão no slug <code>liberacao-holerites</code>.</div>
+  </div>
+</main>
+
+<!-- ================= RELATÓRIO ================= -->
+<main id="viewReport">
+  <div class="head">
+    <div>
+      <h1>Liberação de holerites — RH 24h</h1>
+      <div class="meta">Hoje: <b>13/10/2026</b> · Folhas lidas do Sapiens em <b id="lastSync">13/10/2026 08:42</b> por ygor.adm</div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="btnSync" title="Pede ao worker para reler a R044CAL e a USU_TLIBHOL">↻ Atualizar do Sapiens</button>
+      <button class="btn" onclick="window.print()">Imprimir</button>
+    </div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="painel" aria-selected="true">Painel</button>
+    <button class="tab" role="tab" data-tab="historico" aria-selected="false">Histórico</button>
+    <button class="tab" role="tab" data-tab="como" aria-selected="false">Como funciona</button>
+  </div>
+
+  <div id="bannerWorker" class="banner warn hidden" role="alert">
+    <span>⚠</span>
+    <div><b>O integrador com o Sapiens não respondeu.</b> <span id="pendCount"></span> pedido(s) aguardando há mais de 1 minuto.
+      Para urgência, use o SQL de contingência (<code>sapiens/sql_contingencia.sql</code>) e depois clique em “Atualizar do Sapiens” — a alteração entra no histórico como “fora do painel”.</div>
+  </div>
+
+  <!-- ---------- PAINEL ---------- -->
+  <section id="tabPainel">
+    <div class="kpis" id="kpis"></div>
+    <div class="legend">
+      <span><i class="chip ok">Liberado</i> aparece no portal</span>
+      <span><i class="chip sched">Agendado</i> aparece a partir da data</span>
+      <span><i class="chip lock">Bloqueado</i> não aparece (padrão)</span>
+      <span><i class="chip pend">Aplicando</i> enviando ao Sapiens</span>
+      <span><i class="chip none">Sem folha</i> mês não calculado</span>
+    </div>
+    <div class="card tbl-wrap">
+      <table class="grid" id="grid"></table>
+    </div>
+    <p class="hint">Clique numa célula para liberar, agendar ou bloquear. As 3 colunas são os meses do combo do portal (holerite / anterior / posterior). Empresa 8 entra quando tiver colaboradores.</p>
+  </section>
+
+  <!-- ---------- HISTÓRICO ---------- -->
+  <section id="tabHistorico" class="hidden">
+    <div class="card">
+      <div class="filters">
+        <select class="t" id="fEmp"><option value="">Todas as empresas</option></select>
+        <select class="t" id="fComp"><option value="">Todas as competências</option></select>
+        <input class="t" id="fTxt" placeholder="Buscar usuário ou observação">
+      </div>
+      <div class="tbl-wrap"><table id="hist"></table></div>
+    </div>
+  </section>
+
+  <!-- ---------- COMO FUNCIONA ---------- -->
+  <section id="tabComo" class="hidden">
+    <div class="banner info"><span>ℹ</span><div>Todo holerite nasce <b>bloqueado</b>. Ele só aparece no portal RH 24h quando a TI libera aqui, a pedido do RH. A trava fica no Sapiens (pré-seleção dos 15 modelos), então não dá para contornar pela URL do portal.</div></div>
+    <div class="how">
+      <div class="card"><h4>1. RH pede</h4><p>“Pode soltar setembro dia 04.” A TI abre a coluna do mês e escolhe <b>Agendar</b> (ou Liberar agora). Sem data informada, vale <b>1 dia antes do pagamento</b>.</p></div>
+      <div class="card"><h4>2. Painel envia</h4><p>O clique vira um pedido. O integrador na TECNOLIMP12 acorda, grava na tabela <code>USU_TLIBHOL</code> do Sapiens e relê as folhas. Nada fica rodando em ciclo.</p></div>
+      <div class="card"><h4>3. Portal obedece</h4><p>O agendamento não depende de nenhum processo: a data fica no Sapiens e o próprio holerite confere no dia. Recálculo depois de liberado continua visível, com o cálculo mais recente.</p></div>
+    </div>
+  </section>
+
+  <div class="proto">
+    <b>PROTÓTIPO</b> dados fictícios, nada é gravado.
+    <label><input type="checkbox" id="simOff"> Simular integrador fora do ar</label>
+    <button class="btn" id="btnReset" style="padding:4px 10px">Restaurar dados de exemplo</button>
+  </div>
+</main>
+
+<!-- ================= GAVETA ================= -->
+<div class="overlay hidden" id="overlay"></div>
+<aside class="drawer hidden" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+  <header>
+    <div><h2 id="dTitle"></h2><div class="hint" id="dSub"></div></div>
+    <button class="x" aria-label="Fechar" data-close>×</button>
+  </header>
+  <div class="body" id="dBody"></div>
+  <footer>
+    <button class="btn" data-close>Cancelar</button>
+    <button class="btn primary" id="dApply">Aplicar</button>
+  </footer>
+</aside>
+
+<!-- ================= MODAL ================= -->
+<div class="overlay hidden" id="mOverlay"></div>
+<div class="modal hidden" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="box">
+    <header><h3 id="mTitle"></h3></header>
+    <div class="body" id="mBody"></div>
+    <footer id="mFoot"></footer>
+  </div>
+</div>
+
+<div class="toast hidden" id="toast" role="status"></div>
+
+<script>
+const HOJE = "2026-10-13";
+const USER = "ygor.adm";
+const EMPRESAS = [
+  {emp:1, site:"69x", sufixo:"sem sufixo"},
+  {emp:3, site:"59x", sufixo:"E / P"},
+  {emp:4, site:"49x", sufixo:"S"},
+  {emp:5, site:"89x", sufixo:"D"},
+  {emp:6, site:"79x", sufixo:"L"},
+  {emp:7, site:"49x", sufixo:"S7"},
+  {emp:9, site:"69x", sufixo:"Y"},
+];
+const COMPS = [
+  {per:"2026-09-01", pos:1, nome:"set/2026", combo:"holerite"},
+  {per:"2026-08-01", pos:2, nome:"ago/2026", combo:"holerite_anterior"},
+  {per:"2026-07-01", pos:3, nome:"jul/2026", combo:"holerite_posterior"},
+];
+
+let state;
+function seed(){
+  const folha = {}, lib = {}, log = [];
+  const pag = {"2026-07-01":"2026-08-06","2026-08-01":"2026-09-04","2026-09-01":"2026-10-06"};
+  let cod = 480;
+  for (const c of [...COMPS].reverse()) for (const e of EMPRESAS) {
+    if (e.emp === 9) continue; // empresa 9 sem cálculos na R044CAL
+    folha[k(e.emp,c.per)] = {codcal: cod++, datpag: pag[c.per]};
+  }
+  folha[k(5,"2026-09-01")].datpag = "2026-10-15";
+  folha[k(6,"2026-09-01")].datpag = "2026-10-20";
+  // virada: tudo que já estava visível no portal em 13/10
+  for (const key in folha) {
+    const f = folha[key]; const [emp, per] = key.split("|");
+    if (f.datpag <= addDias(HOJE,1)) {
+      lib[key] = {sit:1, ini:addDias(f.datpag,-1), usu:"VIRADA", gra:"2026-10-13", obs:"Virada: já visível no portal"};
+      log.push({dt:"13/10/2026 08:30", usu:"VIRADA", emp:+emp, per, acao:"Liberado", de:"—", para:"desde "+br(addDias(f.datpag,-1)), orig:"sql", obs:"Virada da Fase 1"});
+    }
+  }
+  lib[k(5,"2026-09-01")] = {sit:1, ini:"2026-10-14", usu:"ygor.adm", gra:"2026-10-13", obs:"RH (Dayane): soltar dia 14"};
+  log.push({dt:"13/10/2026 08:51", usu:"ygor.adm", emp:5, per:"2026-09-01", acao:"Agendado", de:"Bloqueado", para:"a partir de 14/10/2026", orig:"painel", obs:"RH: soltar dia 14"});
+  lib[k(4,"2026-09-01")].sit = 0; lib[k(4,"2026-09-01")].obs = "Recálculo pedido pelo RH"; lib[k(4,"2026-09-01")].usu = "ygor.adm";
+  log.push({dt:"13/10/2026 09:10", usu:"ygor.adm", emp:4, per:"2026-09-01", acao:"Bloqueado", de:"Liberado", para:"Bloqueado", orig:"painel", obs:"Recálculo pedido pelo RH"});
+  log.reverse();
+  return {folha, lib, log, pend:{}};
+}
+
+/* ---------- utilidades ---------- */
+function k(emp, per){ return emp + "|" + per; }
+function addDias(iso, n){ const d = new Date(iso+"T12:00:00"); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+function br(iso){ if(!iso) return "—"; const [y,m,d] = iso.split("-"); return `${d}/${m}/${y}`; }
+function agora(){ const d = new Date(); return `13/10/2026 ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; }
+function compNome(per){ return COMPS.find(c=>c.per===per).nome; }
+function esc(s){ return String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function status(emp, per){
+  const key = k(emp,per);
+  if (state.pend[key]) return {cls:"pend", txt:"Aplicando", det:"enviando ao Sapiens…"};
+  const f = state.folha[key];
+  if (!f) return {cls:"none", txt:"Sem folha", det:"não calculada"};
+  const l = state.lib[key];
+  if (!l || l.sit === 0) return {cls:"lock", txt:"Bloqueado", det: l ? (l.obs || "bloqueado pela TI") : "pag. " + br(f.datpag)};
+  if (l.ini > HOJE) return {cls:"sched", txt:"Agendado", det:"a partir de " + br(l.ini)};
+  return {cls:"ok", txt:"Liberado", det:"desde " + br(l.ini)};
+}
+
+/* ---------- render ---------- */
+function render(){ renderKpis(); renderGrid(); renderHist(); renderBanner(); }
+
+function renderKpis(){
+  const atual = COMPS[0].per; let ok=0, sch=0, lock=0, none=0;
+  for (const e of EMPRESAS){ const s = status(e.emp, atual).cls;
+    if (s==="ok") ok++; else if (s==="sched") sch++; else if (s==="lock") lock++; else if (s==="none") none++; }
+  const prox = EMPRESAS.map(e=>state.lib[k(e.emp,atual)]).filter(l=>l&&l.sit===1&&l.ini>HOJE).map(l=>l.ini).sort()[0];
+  document.getElementById("kpis").innerHTML = `
+    <div class="kpi"><div class="l">Liberadas — ${COMPS[0].nome}</div><div class="v" style="color:var(--ok)">${ok}</div><div class="s">de ${EMPRESAS.length-none} empresas com folha</div></div>
+    <div class="kpi"><div class="l">Agendadas</div><div class="v" style="color:var(--sched)">${sch}</div><div class="s">${prox ? "próxima em "+br(prox) : "nenhuma pendente"}</div></div>
+    <div class="kpi"><div class="l">Bloqueadas</div><div class="v" style="color:var(--lock)">${lock}</div><div class="s">não aparecem no portal</div></div>
+    <div class="kpi"><div class="l">Sem folha calculada</div><div class="v" style="color:var(--none)">${none}</div><div class="s">nada a liberar</div></div>`;
+}
+
+function renderGrid(){
+  let h = `<thead><tr><th>Empresa</th>` + COMPS.map(c=>`
+    <th class="comp"><span class="cname">${c.nome}</span><span class="cpos">combo: ${c.combo}</span><br>
+      <button class="bulk" data-bulk="${c.per}">Todas as empresas ▾</button></th>`).join("") + `</tr></thead><tbody>`;
+  for (const e of EMPRESAS){
+    h += `<tr><td class="emp"><b>Empresa ${e.emp}</b><small>site ${e.site} · login ${esc(e.sufixo)}</small></td>`;
+    for (const c of COMPS){
+      const s = status(e.emp, c.per);
+      h += `<td><button class="cell" data-emp="${e.emp}" data-per="${c.per}" ${s.cls==="none"?"disabled":""}
+               aria-label="Empresa ${e.emp}, ${c.nome}: ${s.txt}">
+               <span class="chip ${s.cls}">${s.txt}</span><small>${esc(s.det)}</small></button></td>`;
+    }
+    h += `</tr>`;
+  }
+  document.getElementById("grid").innerHTML = h + `</tbody>`;
+}
+
+function renderHist(){
+  const fe = document.getElementById("fEmp").value, fc = document.getElementById("fComp").value,
+        ft = document.getElementById("fTxt").value.toLowerCase();
+  const rows = state.log.filter(r => (!fe || r.emp == fe) && (!fc || r.per === fc) &&
+               (!ft || (r.usu+" "+r.obs).toLowerCase().includes(ft)));
+  document.getElementById("hist").innerHTML = `<thead><tr><th>Data/hora</th><th>Usuário</th><th>Empresa</th><th>Competência</th><th>Ação</th><th>De → Para</th><th>Origem</th><th>Observação</th></tr></thead><tbody>` +
+    (rows.length ? rows.map(r=>`<tr><td style="white-space:nowrap">${r.dt}</td><td>${esc(r.usu)}</td><td>${r.emp}</td><td>${compNome(r.per)}</td>
+      <td><b>${r.acao}</b></td><td>${esc(r.de)} → ${esc(r.para)}</td>
+      <td><span class="orig ${r.orig==="sql"?"sql":""}">${r.orig==="sql"?"fora do painel":"painel"}</span></td><td>${esc(r.obs)}</td></tr>`).join("")
+     : `<tr><td colspan="8" style="text-align:center;color:var(--color-subtle);padding:24px">Nenhum registro com esses filtros.</td></tr>`) + `</tbody>`;
+}
+
+function renderBanner(){
+  const n = Object.values(state.pend).filter(p=>p.late).length;
+  document.getElementById("bannerWorker").classList.toggle("hidden", n===0);
+  document.getElementById("pendCount").textContent = n;
+}
+
+/* ---------- gaveta de uma célula ---------- */
+let cur = null;
+function openDrawer(emp, per){
+  cur = {emp:+emp, per};
+  const key = k(emp,per), f = state.folha[key], l = state.lib[key], s = status(emp,per);
+  const e = EMPRESAS.find(x=>x.emp==emp), c = COMPS.find(x=>x.per===per);
+  const padrao = addDias(f.datpag,-1);
+  const modelo = `FPFF${e.site[0]}9${c.pos}`;
+  document.getElementById("dTitle").textContent = `Empresa ${emp} · ${c.nome}`;
+  document.getElementById("dSub").innerHTML = `<span class="chip ${s.cls}">${s.txt}</span> ${esc(s.det)}`;
+  const hist = state.log.filter(r=>r.emp==emp && r.per===per).slice(0,4);
+  document.getElementById("dBody").innerHTML = `
+    <dl>
+      <dt>Modelo</dt><dd>${modelo} (site ${e.site})</dd>
+      <dt>Cálculo</dt><dd>CodCal ${f.codcal} · folha mensal</dd>
+      <dt>Pagamento</dt><dd>${br(f.datpag)}</dd>
+      <dt>Liberação</dt><dd>${l ? (l.sit ? "a partir de "+br(l.ini) : "bloqueado") : "nunca liberado"}</dd>
+      <dt>Último registro</dt><dd>${l ? esc(l.usu)+" em "+br(l.gra) : "—"}</dd>
+    </dl>
+    <div class="sec">O que fazer</div>
+    <label class="opt"><input type="radio" name="acao" value="agora" ${s.cls!=="ok"?"checked":""}>
+      <span><b>Liberar agora</b><small>Aparece no portal assim que o Sapiens receber (segundos).</small></span></label>
+    <label class="opt"><input type="radio" name="acao" value="agendar" ${s.cls==="sched"?"checked":""}>
+      <span><b>Agendar</b><small>Sem mudar a data, vale 1 dia antes do pagamento (${br(padrao)}).</small><br>
+      <input type="date" id="dData" value="${l && l.sit && l.ini>HOJE ? l.ini : (padrao>HOJE?padrao:addDias(HOJE,1))}" min="${addDias(HOJE,1)}"></span></label>
+    <label class="opt"><input type="radio" name="acao" value="bloquear" ${s.cls==="ok"?"checked":""}>
+      <span><b>Bloquear</b><small>Some do portal na próxima consulta. Use em recálculo ou erro.</small></span></label>
+    <label class="f" for="dObs">Observação (quem pediu / motivo)</label>
+    <input class="t" id="dObs" maxlength="60" placeholder="Ex.: RH (Dayane) pediu para soltar dia 04">
+    <div class="hint">Até 60 caracteres. Obrigatória para bloquear.</div>
+    <div class="sec">Como o colaborador vê</div>
+    <div class="portal">Portal RH 24h → combo “${c.combo}”
+      <div class="msg">${s.cls==="ok" ? "📄 Holerite de "+c.nome+" disponível." : "🔒 Holerite de "+c.nome+" ainda não liberado. Tente novamente após a data informada pelo RH."}</div></div>
+    <div class="sec">Últimos registros</div>
+    <ul class="mini">${hist.length ? hist.map(r=>`<li>${r.dt} · <b>${r.acao}</b> por ${esc(r.usu)}${r.obs?" — "+esc(r.obs):""}</li>`).join("") : "<li>Nenhum registro.</li>"}</ul>`;
+  show("overlay"); show("drawer");
+  document.getElementById("dApply").disabled = !!state.pend[k(emp,per)];
+  document.querySelector("#drawer .x").focus();
+}
+function closeDrawer(){ hide("overlay"); hide("drawer"); cur = null; }
+
+document.getElementById("dApply").addEventListener("click", () => {
+  const acao = document.querySelector("input[name=acao]:checked")?.value;
+  const obs = document.getElementById("dObs").value.trim();
+  if (!acao) return toast("Escolha uma ação.");
+  if (acao === "bloquear" && !obs) { document.getElementById("dObs").focus(); return toast("Informe o motivo do bloqueio."); }
+  const ini = acao === "agora" ? HOJE : acao === "agendar" ? document.getElementById("dData").value : null;
+  if (acao === "agendar" && (!ini || ini <= HOJE)) return toast("A data do agendamento precisa ser depois de hoje.");
+  const alvo = [{emp:cur.emp, per:cur.per}];
+  confirmar(acao, ini, obs, alvo, () => { closeDrawer(); enviar(acao, ini, obs, alvo); });
+});
+
+/* ---------- lote por competência ---------- */
+function openBulk(per){
+  const c = COMPS.find(x=>x.per===per);
+  const alvos = EMPRESAS.filter(e=>state.folha[k(e.emp,per)]).map(e=>({emp:e.emp, per}));
+  modal(`Todas as empresas · ${c.nome}`, `
+    <p class="hint" style="margin-top:0">Aplica a mesma ação às ${alvos.length} empresas com folha calculada em ${c.nome} (empresa sem folha é ignorada).</p>
+    <label class="opt"><input type="radio" name="bacao" value="padrao" checked>
+      <span><b>Agendar no padrão</b><small>Cada empresa libera 1 dia antes do próprio pagamento.</small></span></label>
+    <label class="opt"><input type="radio" name="bacao" value="agendar">
+      <span><b>Agendar na mesma data</b><small>Ex.: “solta dia 04”.</small><br><input type="date" id="bData" min="${addDias(HOJE,1)}" value="${addDias(HOJE,1)}"></span></label>
+    <label class="opt"><input type="radio" name="bacao" value="agora"><span><b>Liberar todas agora</b></span></label>
+    <label class="opt"><input type="radio" name="bacao" value="bloquear"><span><b>Bloquear todas</b></span></label>
+    <label class="f" for="bObs">Observação</label><input class="t" id="bObs" maxlength="60" placeholder="Quem pediu / motivo">`,
+    [["Cancelar", "btn", closeModal], ["Continuar", "btn primary", () => {
+      const a = document.querySelector("input[name=bacao]:checked").value, obs = document.getElementById("bObs").value.trim();
+      if (a === "bloquear" && !obs) return toast("Informe o motivo do bloqueio.");
+      const d = document.getElementById("bData").value;
+      if (a === "agendar" && (!d || d <= HOJE)) return toast("A data precisa ser depois de hoje.");
+      const acao = a === "padrao" ? "padrao" : a, ini = a === "agora" ? HOJE : a === "agendar" ? d : null;
+      // bloqueio feito de propósito pela TI (ex.: recálculo) não é desfeito pelo lote; libera-se pela célula
+      const lista = acao === "bloquear" ? alvos : alvos.filter(x => { const l = state.lib[k(x.emp,x.per)]; return !(l && l.sit === 0); });
+      const pulou = alvos.length - lista.length;
+      if (!lista.length) return toast("Todas as empresas estão bloqueadas pela TI — libere pela célula.");
+      confirmar(acao, ini, obs, lista, () => enviar(acao, ini, obs, lista),
+        pulou ? `${pulou} empresa(s) bloqueada(s) pela TI ficam de fora — libere pela própria célula.` : "");
+    }]]);
+}
+
+/* ---------- confirmação e envio ---------- */
+function descreve(acao, ini, alvo){
+  if (acao === "agora") return "Liberar agora";
+  if (acao === "bloquear") return "Bloquear";
+  if (acao === "padrao") return "Agendar 1 dia antes do pagamento";
+  return "Agendar para " + br(ini);
+}
+function confirmar(acao, ini, obs, alvos, ok, aviso){
+  const lista = alvos.map(a=>{
+    const f = state.folha[k(a.emp,a.per)];
+    const d = acao==="padrao" ? " → a partir de "+br(addDias(f.datpag,-1)) : "";
+    return `<li>Empresa ${a.emp} · ${compNome(a.per)}${d}</li>`; }).join("");
+  modal("Confirmar", `<p style="margin-top:0"><b>${descreve(acao, ini)}</b></p>
+    <ul class="summary">${lista}</ul>
+    ${aviso ? `<p class="hint" style="color:var(--lock)">⚠ ${esc(aviso)}</p>` : ""}
+    ${obs ? `<p class="hint">Obs.: ${esc(obs)}</p>` : ""}
+    <p class="hint">Fica registrado no histórico como <b>${USER}</b>.</p>`,
+    [["Voltar", "btn", closeModal], ["Confirmar", acao==="bloquear" ? "btn danger" : "btn primary", () => { closeModal(); ok(); }]]);
+}
+
+function enviar(acao, ini, obs, alvos){
+  const off = document.getElementById("simOff").checked;
+  for (const a of alvos){
+    const key = k(a.emp,a.per);
+    state.pend[key] = {acao, ini, obs, late:false, antes: status(a.emp, a.per).txt};
+    if (off) setTimeout(()=>{ if(state.pend[key]){ state.pend[key].late = true; render(); } }, 4000);
+    else setTimeout(()=>aplicar(key, a), 1600 + Math.random()*900);
+  }
+  render();
+  toast(off ? "Pedido enviado. (Simulação: integrador fora do ar — o aviso aparece em ~4 s, no real 1 min.)"
+            : `Pedido enviado (${alvos.length}). Aplicando no Sapiens…`);
+}
+
+function aplicar(key, a){
+  const p = state.pend[key]; if (!p) return;
+  const antes = p.antes;
+  const f = state.folha[key];
+  const ini = p.acao === "padrao" ? addDias(f.datpag,-1) : p.ini;
+  const old = state.lib[key];
+  state.lib[key] = p.acao === "bloquear"
+    ? {sit:0, ini: old ? old.ini : null, usu:USER, gra:HOJE, obs:p.obs}
+    : {sit:1, ini, usu:USER, gra:HOJE, obs:p.obs};
+  delete state.pend[key];
+  const depois = status(a.emp, a.per);
+  state.log.unshift({dt:agora(), usu:USER, emp:a.emp, per:a.per,
+    acao: p.acao==="bloquear" ? "Bloqueado" : depois.cls==="ok" ? "Liberado" : "Agendado",
+    de: antes, para: depois.cls==="lock" ? "Bloqueado" : depois.det, orig:"painel", obs:p.obs});
+  render();
+  if (!Object.keys(state.pend).length) toast("✓ Aplicado no Sapiens.");
+}
+
+/* ---------- atualizar do Sapiens ---------- */
+document.getElementById("btnSync").addEventListener("click", e => {
+  if (document.getElementById("simOff").checked) return toast("Integrador fora do ar: o pedido ficaria pendente.");
+  const b = e.currentTarget; b.disabled = true; b.textContent = "↻ Lendo Sapiens…";
+  setTimeout(()=>{
+    b.disabled = false; b.textContent = "↻ Atualizar do Sapiens";
+    document.getElementById("lastSync").textContent = agora();
+    toast("Folhas e liberações relidas do Sapiens. Nenhuma alteração fora do painel.");
+  }, 1500);
+});
+document.getElementById("simOff").addEventListener("change", e => {
+  if (!e.target.checked){ for (const key in state.pend){ const [emp,per] = key.split("|"); aplicar(key,{emp:+emp,per}); } }
+});
+document.getElementById("btnReset").addEventListener("click", ()=>{ state = seed(); render(); toast("Dados de exemplo restaurados."); });
+
+/* ---------- modal, toast, navegação ---------- */
+function modal(title, body, buttons){
+  document.getElementById("mTitle").textContent = title;
+  document.getElementById("mBody").innerHTML = body;
+  const foot = document.getElementById("mFoot"); foot.innerHTML = "";
+  for (const [txt, cls, fn] of buttons){ const b = document.createElement("button"); b.className = cls; b.textContent = txt; b.onclick = fn; foot.appendChild(b); }
+  show("mOverlay"); show("modal"); foot.lastChild.focus();
+}
+function closeModal(){ hide("mOverlay"); hide("modal"); }
+let tt; function toast(msg){ const t = document.getElementById("toast"); t.textContent = msg; show("toast"); clearTimeout(tt); tt = setTimeout(()=>hide("toast"), 3800); }
+function show(id){ document.getElementById(id).classList.remove("hidden"); }
+function hide(id){ document.getElementById(id).classList.add("hidden"); }
+
+function setTab(name){
+  document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected", t.dataset.tab===name));
+  for (const [id, n] of [["tabPainel","painel"],["tabHistorico","historico"],["tabComo","como"]])
+    document.getElementById(id).classList.toggle("hidden", n!==name);
+}
+function route(){
+  const h = location.hash.replace("#","") || "painel";
+  const home = h === "home";
+  document.getElementById("viewHome").classList.toggle("hidden", !home);
+  document.getElementById("viewReport").classList.toggle("hidden", home);
+  document.getElementById("crumbRest").classList.toggle("hidden", home);
+  document.getElementById("crumbCentral").textContent = home ? "Central" : "← Central";
+  if (!home) setTab(["painel","historico","como"].includes(h) ? h : "painel");
+  window.scrollTo(0,0);
+}
+
+document.addEventListener("click", e => {
+  const cell = e.target.closest(".cell"); if (cell && !cell.disabled) return openDrawer(cell.dataset.emp, cell.dataset.per);
+  const bulk = e.target.closest("[data-bulk]"); if (bulk) return openBulk(bulk.dataset.bulk);
+  if (e.target.closest("[data-close]") || e.target.id === "overlay") return closeDrawer();
+  if (e.target.id === "mOverlay") return closeModal();
+  const tab = e.target.closest(".tab"); if (tab) { location.hash = tab.dataset.tab; return; }
+  const ub = e.target.closest("#userBtn"), menu = document.getElementById("userMenu");
+  if (ub) { menu.classList.toggle("hidden"); ub.setAttribute("aria-expanded", !menu.classList.contains("hidden")); return; }
+  if (!e.target.closest("#userMenu")) menu.classList.add("hidden");
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape"){ closeModal(); closeDrawer(); } });
+["fEmp","fComp","fTxt"].forEach(id => document.getElementById(id).addEventListener("input", renderHist));
+document.getElementById("fEmp").innerHTML += EMPRESAS.map(e=>`<option value="${e.emp}">Empresa ${e.emp}</option>`).join("");
+document.getElementById("fComp").innerHTML += COMPS.map(c=>`<option value="${c.per}">${c.nome}</option>`).join("");
+window.addEventListener("hashchange", route);
+
+state = seed(); render(); route();
+</script>
+</body>
+</html>

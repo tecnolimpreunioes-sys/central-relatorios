@@ -1,0 +1,158 @@
+@=====================================================================@
+@ PRE-SELECAO PADRAO - HOLERITES RH 24h                                @
+@ Codigo identico nos 15 modelos. Mudam apenas os 3 parametros abaixo. @
+@=====================================================================@
+
+Definir Alfa   xSql;
+Definir Alfa   xNumEmp;
+Definir Alfa   xNumCad;
+Definir Alfa   aNumcad;
+Definir Alfa   aHolSite;
+Definir Alfa   aHolBusca;
+Definir Alfa   aHolCodCal;
+Definir Numero nHolAtras;
+Definir Numero nHolAviso;
+Definir Numero nHolEmp;
+Definir Numero nHolPos;
+Definir Numero nHolOk;
+Definir Numero nHolCodCal;
+Definir Numero nHolDia;
+Definir Numero nHolMes;
+Definir Numero nHolAno;
+Definir Numero xCadNum;
+Definir Data   dHolHoje;
+Definir Data   dHolComp;
+Definir Data   dHolLimite;
+Definir Cursor Cur_User;
+Definir Cursor Cur_R042AVI;
+Definir Cursor Cur_HolCal;
+
+@========================= PARAMETROS DO MODELO =========================@
+nHolAtras = 2;      @ posicao no combo: x91 = 1, x92 = 2, x93 = 3       @
+aHolSite  = "3";    @ empresas atendidas pelo site, separadas por virgula @
+nHolAviso = 1;      @ 1 = bloqueia quem esta em aviso previo, 0 = nao     @
+@========================================================================@
+
+nHolOk = 1;
+
+@--- 1. Identifica empresa e cadastro pelo login (cadastro + sufixo) ---@
+@ Sufixos: nenhum=1, E=3, P=3, S=4, D=5, L=6, S7=7, J=8, Y=9 @
+xNumCad = NomUsu;
+xNumCad = "36725E";   @ TESTE - REMOVER ANTES DE PRODUCAO @
+nHolEmp = 1;
+
+Cur_User.Sql "Select CodUsu,NomUsu \
+                From R999USU \
+               Where NomUsu = :xNumCad";
+Cur_User.AbrirCursor();
+Se (Cur_User.Achou)
+{
+   @ S7 primeiro: contem a letra S e seria confundido com a empresa 4 @
+   nHolPos = 0;
+   PosicaoAlfa("S7", xNumCad, nHolPos);
+   Se (nHolPos > 0) { nHolEmp = 7; DeletarAlfa(xNumCad, nHolPos, 2); }
+
+   Se (nHolEmp = 1) { PosicaoAlfa("S", xNumCad, nHolPos);
+                      Se (nHolPos > 0) { nHolEmp = 4; DeletarAlfa(xNumCad, nHolPos, 1); } }
+   Se (nHolEmp = 1) { PosicaoAlfa("E", xNumCad, nHolPos);
+                      Se (nHolPos > 0) { nHolEmp = 3; DeletarAlfa(xNumCad, nHolPos, 1); } }
+   Se (nHolEmp = 1) { PosicaoAlfa("P", xNumCad, nHolPos);
+                      Se (nHolPos > 0) { nHolEmp = 3; DeletarAlfa(xNumCad, nHolPos, 1); } }
+   Se (nHolEmp = 1) { PosicaoAlfa("D", xNumCad, nHolPos);
+                      Se (nHolPos > 0) { nHolEmp = 5; DeletarAlfa(xNumCad, nHolPos, 1); } }
+   Se (nHolEmp = 1) { PosicaoAlfa("L", xNumCad, nHolPos);
+                      Se (nHolPos > 0) { nHolEmp = 6; DeletarAlfa(xNumCad, nHolPos, 1); } }
+   Se (nHolEmp = 1) { PosicaoAlfa("J", xNumCad, nHolPos);
+                      Se (nHolPos > 0) { nHolEmp = 8; DeletarAlfa(xNumCad, nHolPos, 1); } }
+   Se (nHolEmp = 1) { PosicaoAlfa("Y", xNumCad, nHolPos);
+                      Se (nHolPos > 0) { nHolEmp = 9; DeletarAlfa(xNumCad, nHolPos, 1); } }
+}
+Senao
+  nHolOk = 0;
+Cur_User.FecharCursor();
+
+ENumEmp = nHolEmp;
+IntParaAlfa(nHolEmp, xNumEmp);
+
+@--- 2. O site so atende as empresas da sua lista ---@
+aHolBusca = "," + xNumEmp + ",";
+aHolSite  = "," + aHolSite + ",";
+nHolPos = 0;
+PosicaoAlfa(aHolBusca, aHolSite, nHolPos);
+Se (nHolPos = 0)
+  nHolOk = 0;
+
+@--- 3. Cadastro numerico (login fora do padrao nao emite) ---@
+xCadNum = 0;
+AlfaparaInt(xNumCad, xCadNum);
+Se (xCadNum = 0)
+  nHolOk = 0;
+IntParaAlfa(xCadNum, aNumcad);
+
+@--- 4. Aviso previo (conforme parametro do site) ---@
+Se ((nHolAviso = 1) e (nHolOk = 1))
+{
+  Cur_R042AVI.Sql "Select NumEmp,TipCol,NumCad,DatAvi \
+                     From R042AVI \
+                    Where NumEmp = :ENumEmp \
+                      And NumCad = :xCadNum \
+                      And MotCan <> 9";
+  Cur_R042AVI.AbrirCursor();
+  Se (Cur_R042AVI.Achou)
+    nHolOk = 0;
+  Cur_R042AVI.FecharCursor();
+}
+
+@--- 5. Competencia automatica: mes atual menos nHolAtras ---@
+dHolHoje   = DatSis;
+dHolLimite = dHolHoje + 1;   @ libera no dia anterior ao pagamento @
+
+DesmontaData(dHolHoje, nHolDia, nHolMes, nHolAno);
+nHolMes = nHolMes - nHolAtras;
+Enquanto (nHolMes < 1)
+{
+  nHolMes = nHolMes + 12;
+  nHolAno = nHolAno - 1;
+}
+MontaData(01, nHolMes, nHolAno, dHolComp);
+
+nHolCodCal = 0;
+Se (nHolOk = 1)
+{
+  Cur_HolCal.SQL "SELECT CodCal FROM R044CAL \
+                   WHERE NumEmp = :ENumEmp \
+                     AND TipCal = 11 \
+                     AND PerRef = :dHolComp \
+                     AND DatPag <= :dHolLimite \
+                   ORDER BY CodCal DESC";
+  Cur_HolCal.AbrirCursor();
+  Se (Cur_HolCal.Achou)
+    nHolCodCal = Cur_HolCal.CodCal;
+  Cur_HolCal.FecharCursor();
+}
+Se (nHolCodCal = 0)
+  nHolOk = 0;
+IntParaAlfa(nHolCodCal, aHolCodCal);
+
+@--- 6. Trava dupla: se algo falhou, filtros vazios e cancela ---@
+Se (nHolOk = 0)
+{
+  aHolCodCal = "0";
+  aNumcad    = "0";
+  Cancel(1);
+}
+
+@--- 7. Filtros do relatorio ---@
+xSql = "";
+xSql = xSql
+    + "R044CAL.NumEmp = " + xNumEmp
+    + " AND R044CAL.CodCal = " + aHolCodCal;
+InsClauSqlWhere("Detalhe_Calculo", xSql);
+
+xSql = "";
+xSql = xSql
+    + "R034FUN.NUMEMP = " + xNumEmp
+    + " AND R034FUN.TIPCOL = 1"
+    + " AND R034FUN.NUMCAD = " + aNumcad
+    + " AND R034FUN.SITAFA <> 7";
+InsClauSqlWhere("Detalhe_Colaborador", xSql);

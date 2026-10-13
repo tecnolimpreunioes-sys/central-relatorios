@@ -207,6 +207,61 @@
   .proto b{color:var(--color-accent);}
   .proto label{display:flex;gap:6px;align-items:center;cursor:pointer;}
 
+  /* ---------- carregamento (motion) ---------- */
+  .ld-wrap{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:16px;
+    background:rgba(240,244,248,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:ldIn .25s ease-out;}
+  .ld-wrap.out{animation:ldOut .35s ease-in forwards;}
+  .ld{background:#fff;border:1px solid var(--color-border);border-radius:18px;width:min(380px,100%);padding:28px 26px 22px;
+    box-shadow:0 24px 60px rgba(0,71,115,.18);text-align:center;animation:ldPop .35s cubic-bezier(.2,.9,.3,1.2);}
+  .ld-orb{position:relative;width:112px;height:112px;margin:0 auto 16px;}
+  .ld-orb svg{position:absolute;inset:0;width:100%;height:100%;}
+  .ld-orb .r1{animation:spin 1.3s linear infinite;transform-origin:50% 50%;}
+  .ld-orb .r2{animation:spin 2.1s linear infinite reverse;transform-origin:50% 50%;}
+  .ld-orb .halo{position:absolute;inset:22px;border-radius:50%;background:radial-gradient(circle,var(--color-primary-soft) 0%,transparent 70%);animation:breathe 1.6s ease-in-out infinite;}
+  .ld-orb img{position:absolute;left:50%;top:50%;width:50px;transform:translate(-50%,-50%);animation:logoPulse 1.6s ease-in-out infinite;}
+  .ld-orb .okc{opacity:0;}
+  .ld-orb .okc circle{stroke-dasharray:290;stroke-dashoffset:290;}
+  .ld-orb .okc path{stroke-dasharray:60;stroke-dashoffset:60;}
+  .ld.ok .r1,.ld.ok .r2{opacity:0;transition:opacity .2s;}
+  .ld.ok .okc{opacity:1;}
+  .ld.ok .okc circle{animation:draw .5s ease-out forwards;}
+  .ld.ok .okc path{animation:draw .35s .4s ease-out forwards;}
+  .ld.ok img{animation:none;opacity:0;transition:opacity .25s;}
+  .ld.warn .r1{animation-duration:3s;} .ld.warn .r1 circle{stroke:#d49a1f;}
+  .ld.warn .r2{animation-duration:4.5s;} .ld.warn .r2 circle{stroke:#e9c77d;}
+  .ld h3{font-family:var(--font-display);font-size:18px;color:var(--color-primary);margin:0;}
+  .ld .sub{font-size:13px;color:var(--color-subtle);margin-top:4px;min-height:18px;}
+  .ld.ok h3{color:var(--ok);} .ld.warn h3{color:var(--sched);}
+  .steps{list-style:none;margin:18px 0 0;padding:0;text-align:left;}
+  .steps li{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13px;color:var(--color-subtle);transition:color .25s;}
+  .steps li .ic{width:20px;height:20px;border-radius:50%;flex:none;display:grid;place-items:center;border:2px solid var(--color-border);transition:all .25s;}
+  .steps li.run{color:var(--color-ink);font-weight:600;}
+  .steps li.run .ic{border-color:var(--color-primary-soft);border-top-color:var(--color-primary);animation:spin .8s linear infinite;}
+  .steps li.done{color:var(--color-ink);}
+  .steps li.done .ic{background:var(--ok);border-color:var(--ok);animation:pop .3s ease-out;}
+  .steps li.done .ic::after{content:"";width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:translateY(-1px) rotate(45deg);}
+  .steps li.wait{color:var(--sched);font-weight:600;}
+  .steps li.wait .ic{border-color:#d49a1f;background:var(--sched-bg);}
+  .steps li.wait .ic::after{content:"!";font-size:11px;font-weight:800;color:var(--sched);}
+  .ld-bar{height:4px;border-radius:999px;background:var(--color-surface-alt);overflow:hidden;margin-top:16px;position:relative;}
+  .ld-bar i{position:absolute;top:0;bottom:0;left:0;border-radius:999px;background:linear-gradient(90deg,var(--color-primary),#2a7fb5);transition:width .4s ease;}
+  .ld-bar.indet i{width:35% !important;animation:slide 1.2s ease-in-out infinite;}
+  .ld.ok .ld-bar i{background:var(--ok);}
+  .ld.warn .ld-bar i{background:#d49a1f;}
+  .ld .acts{margin-top:16px;display:flex;justify-content:center;gap:8px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  @keyframes breathe{50%{transform:scale(1.18);opacity:.6;}}
+  @keyframes logoPulse{0%,100%{opacity:.7;transform:translate(-50%,-50%) scale(.94);}50%{opacity:1;transform:translate(-50%,-50%) scale(1);}}
+  @keyframes draw{to{stroke-dashoffset:0;}}
+  @keyframes pop{0%{transform:scale(.4);}70%{transform:scale(1.15);}100%{transform:scale(1);}}
+  @keyframes slide{0%{left:-35%;}100%{left:100%;}}
+  @keyframes ldIn{from{opacity:0;}}
+  @keyframes ldOut{to{opacity:0;}}
+  @keyframes ldPop{from{opacity:0;transform:translateY(10px) scale(.96);}}
+  @media (prefers-reduced-motion:reduce){
+    .ld-wrap *, .ld-wrap{animation-duration:.01ms !important;animation-iteration-count:1 !important;}
+  }
+
   @media (max-width:820px){
     .ov-legend{grid-template-columns:repeat(2,minmax(0,1fr));}
     .how{grid-template-columns:1fr;}
@@ -222,7 +277,7 @@
     .ov-s{display:block;margin:2px 0 0;}
   }
   @media print{
-    .topbar,.tabs,.actions,.proto,.bulk,.banner{display:none !important;}
+    .topbar,.tabs,.actions,.proto,.bulk,.banner,.ld-wrap{display:none !important;}
     body{background:#fff;}
   }
 </style>
@@ -352,6 +407,25 @@
     <header><h3 id="mTitle"></h3></header>
     <div class="body" id="mBody"></div>
     <footer id="mFoot"></footer>
+  </div>
+</div>
+
+<!-- ================= CARREGAMENTO ================= -->
+<div class="ld-wrap hidden" id="ldWrap">
+  <div class="ld" id="ld" role="status" aria-live="polite">
+    <div class="ld-orb" aria-hidden="true">
+      <div class="halo"></div>
+      <svg viewBox="0 0 100 100" class="r1"><circle cx="50" cy="50" r="46" fill="none" stroke="#004773" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="90 200"/></svg>
+      <svg viewBox="0 0 100 100" class="r2"><circle cx="50" cy="50" r="39" fill="none" stroke="#c4261d" stroke-width="3" stroke-linecap="round" stroke-dasharray="40 205"/></svg>
+      <svg viewBox="0 0 100 100" class="okc"><circle cx="50" cy="50" r="46" fill="none" stroke="#137a3d" stroke-width="3.5"/>
+        <path d="M33 51 l11 11 l23 -24" fill="none" stroke="#137a3d" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <img src="tecnolimp-simbolo.png" alt="">
+    </div>
+    <h3 id="ldTit"></h3>
+    <div class="sub" id="ldSub"></div>
+    <ul class="steps" id="ldSteps"></ul>
+    <div class="ld-bar indet" id="ldBar"><i></i></div>
+    <div class="acts hidden" id="ldActs"><button class="btn primary" id="ldOk">Entendi</button></div>
   </div>
 </div>
 
@@ -601,17 +675,66 @@ function confirmar(acao, ini, obs, alvos, ok, aviso){
     [["Voltar", "btn", closeModal], ["Confirmar", acao==="bloquear" ? "btn danger" : "btn primary", () => { closeModal(); ok(); }]]);
 }
 
+/* ---------- carregamento: etapas reais do pedido, check no fim ---------- */
+const loader = {
+  ativo:false, timers:[],
+  open(tit, sub, etapas){
+    this.timers.forEach(clearTimeout); this.timers = [];
+    this.ativo = true; this.n = etapas.length;
+    const w = document.getElementById("ldWrap");
+    w.classList.remove("out", "hidden");
+    document.getElementById("ld").className = "ld";
+    document.getElementById("ldTit").textContent = tit;
+    document.getElementById("ldSub").textContent = sub;
+    document.getElementById("ldSteps").innerHTML = etapas.map(e=>`<li><span class="ic"></span>${esc(e)}</li>`).join("");
+    document.getElementById("ldBar").classList.remove("indet");
+    hide("ldActs");
+    this.go(0);
+  },
+  go(i){
+    if (!this.ativo) return;
+    document.querySelectorAll("#ldSteps li").forEach((li,j)=>li.className = j < i ? "done" : j === i ? "run" : "");
+    document.querySelector("#ldBar i").style.width = Math.min(100, (i + .5) / this.n * 100) + "%";
+  },
+  later(ms, fn){ this.timers.push(setTimeout(fn, ms)); },
+  ok(tit, sub){
+    if (!this.ativo) return;
+    this.go(this.n);
+    document.getElementById("ld").classList.add("ok");
+    document.getElementById("ldTit").textContent = tit;
+    document.getElementById("ldSub").textContent = sub;
+    this.later(1300, ()=>this.close());
+  },
+  warn(tit, sub){
+    if (!this.ativo) return;
+    document.querySelector("#ldSteps li.run")?.classList.replace("run", "wait");
+    document.getElementById("ld").classList.add("warn");
+    document.getElementById("ldTit").textContent = tit;
+    document.getElementById("ldSub").textContent = sub;
+    show("ldActs"); document.getElementById("ldOk").focus();
+  },
+  close(){
+    this.ativo = false; this.timers.forEach(clearTimeout); this.timers = [];
+    const w = document.getElementById("ldWrap"); w.classList.add("out");
+    setTimeout(()=>{ if (!this.ativo) w.classList.add("hidden"); }, 350);
+  },
+};
+document.getElementById("ldOk").addEventListener("click", ()=>loader.close());
+
 function enviar(acao, ini, obs, alvos){
   const off = document.getElementById("simOff").checked;
+  const quem = alvos.length === 1 ? `Empresa ${alvos[0].emp} · ${compNome(alvos[0].per)}` : `${alvos.length} empresas · ${compNome(alvos[0].per)}`;
+  loader.open(descreve(acao, ini), quem, ["Pedido registrado no painel", "Gravando na USU_TLIBHOL (Sapiens)", "Confirmando no portal"]);
+  loader.later(500, ()=>loader.go(1));
   for (const a of alvos){
     const key = k(a.emp,a.per);
     state.pend[key] = {acao, ini, obs, late:false, antes: status(a.emp, a.per).txt};
-    if (off) setTimeout(()=>{ if(state.pend[key]){ state.pend[key].late = true; render(); } }, 4000);
+    // simulação: no real o aviso aparece após 1 min sem resposta
+    if (off) setTimeout(()=>{ if(state.pend[key]){ state.pend[key].late = true; render();
+      loader.warn("Integrador sem resposta", "O pedido ficou na fila e entra assim que ele voltar. Urgente? Use o SQL de contingência."); } }, 4000);
     else setTimeout(()=>aplicar(key, a), 1600 + Math.random()*900);
   }
   render();
-  toast(off ? "Pedido enviado. (Simulação: integrador fora do ar — o aviso aparece em ~4 s, no real 1 min.)"
-            : `Pedido enviado (${alvos.length}). Aplicando no Sapiens…`);
 }
 
 function aplicar(key, a){
@@ -629,18 +752,23 @@ function aplicar(key, a){
     acao: p.acao==="bloquear" ? "Bloqueado" : depois.cls==="ok" ? "Liberado" : "Agendado",
     de: antes, para: depois.cls==="lock" ? "Bloqueado" : depois.det, orig:"painel", obs:p.obs});
   render();
-  if (!Object.keys(state.pend).length) toast("✓ Aplicado no Sapiens.");
+  if (Object.keys(state.pend).length) return;
+  if (loader.ativo) { loader.go(2); loader.later(450, ()=>loader.ok("Aplicado no Sapiens", "Já vale no portal RH 24h.")); }
+  else toast("✓ Aplicado no Sapiens.");
 }
 
 /* ---------- atualizar do Sapiens ---------- */
-document.getElementById("btnSync").addEventListener("click", e => {
-  if (document.getElementById("simOff").checked) return toast("Integrador fora do ar: o pedido ficaria pendente.");
-  const b = e.currentTarget; b.disabled = true; b.textContent = "↻ Lendo Sapiens…";
-  setTimeout(()=>{
-    b.disabled = false; b.textContent = "↻ Atualizar do Sapiens";
+document.getElementById("btnSync").addEventListener("click", () => {
+  loader.open("Atualizando do Sapiens", "O integrador relê as folhas e as liberações.",
+    ["Pedido enviado à TECNOLIMP12", "Lendo folhas calculadas (R044CAL)", "Lendo liberações (USU_TLIBHOL)"]);
+  if (document.getElementById("simOff").checked)
+    return loader.later(2500, ()=>loader.warn("Integrador sem resposta", "Nada foi alterado. Tente de novo em alguns minutos."));
+  loader.later(600, ()=>loader.go(1));
+  loader.later(1300, ()=>loader.go(2));
+  loader.later(2000, ()=>{
     document.getElementById("lastSync").textContent = agora();
-    toast("Folhas e liberações relidas do Sapiens. Nenhuma alteração fora do painel.");
-  }, 1500);
+    loader.ok("Painel atualizado", "Nenhuma alteração fora do painel.");
+  });
 });
 document.getElementById("simOff").addEventListener("change", e => {
   if (!e.target.checked){ for (const key in state.pend){ const [emp,per] = key.split("|"); aplicar(key,{emp:+emp,per}); } }

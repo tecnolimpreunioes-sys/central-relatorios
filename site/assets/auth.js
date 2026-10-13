@@ -186,13 +186,26 @@
     });
   }
 
-  // Protege um relatório: login + permissão no banco para o slug
+  // Protege um relatório: permissão no banco para o slug (relatório de acesso
+  // livre abre sem login e resolve com perfil null) + trilha com a área atual
   function protegerRelatorio(slug) {
-    return exigirLogin().then(function (p) {
-      return rpc("pode_ver_relatorio", { p_slug: slug }).then(function (ok) {
-        if (!ok) { location.href = ROOT + "index.html?sem_acesso=" + encodeURIComponent(slug); return new Promise(function () {}); }
-        return p;
+    return sessaoValida().then(function (s) {
+      return rpc("relatorio_contexto", { p_slug: slug }).then(function (ctx) {
+        ctx = ctx || {};
+        if (!ctx.pode_ver) {
+          if (s) location.href = ROOT + "index.html?sem_acesso=" + encodeURIComponent(slug);
+          else irLogin();
+          return new Promise(function () {});
+        }
+        preencherTrilha(ctx);
+        return s ? exigirLogin() : null;
       });
+    });
+  }
+  function preencherTrilha(ctx) {
+    document.querySelectorAll("a.cb-area").forEach(function (a) {
+      a.href = ROOT + "area.html?a=" + encodeURIComponent(ctx.area_slug);
+      a.textContent = ctx.area_nome;
     });
   }
 
@@ -219,6 +232,11 @@
 
   // Menu do usuário (avatar + nome + atalhos). el = elemento container.
   function montarMenuUsuario(el, p) {
+    if (!p) { // visitante em relatório de acesso livre
+      el.innerHTML = '<a class="tc-user-btn" style="padding:6px 14px;text-decoration:none" href="' + ROOT + 'login.html?next=' +
+        encodeURIComponent(caminhoAtual()) + '">Entrar</a>';
+      return;
+    }
     var primeiroNome = (p.nome || p.login).split(" ")[0];
     el.innerHTML =
       '<div class="tc-user">' +

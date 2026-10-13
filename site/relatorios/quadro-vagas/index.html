@@ -177,7 +177,7 @@
 <body>
 <nav class="cbar" aria-label="Navegação da Central">
   <a class="cb-link" href="../../index.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Central de Relatórios</a>
-  <span class="cb-sep cb-area">/</span><a class="cb-link cb-area" href="../../area.html?a=ti">T.I.</a>
+  <span class="cb-sep cb-area">/</span><a class="cb-link cb-area" href="../../area.html?a=operacional">Operacional</a>
   <span class="cb-sp"></span><div id="user-slot"></div>
 </nav>
 <div class="wrap">
@@ -362,8 +362,9 @@ window.QVPagina = (function () {
 })();
 </script>
 <script id="qv-boot">
-// Produção: grava a solicitação na fila (central.qv_solicitacoes); o worker da
-// TECNOLIMP12 consulta o Oracle e devolve o resultado na mesma linha.
+// Produção: grava a solicitação na fila (central.qv_solicitar); o worker da
+// TECNOLIMP12 consulta o Oracle e devolve o resultado na mesma linha
+// (central.qv_consultar). Funciona com ou sem login (relatório de acesso livre).
 (function () {
   "use strict";
   var INTERVALO = 2000, AVISO_FILA = 20000, LIMITE = 180000;
@@ -371,11 +372,10 @@ window.QVPagina = (function () {
 
   function gerarViaFila(f, progresso) {
     var inicio = Date.now();
-    return TC.db("qv_solicitacoes?select=id", { method: "POST", body: f, prefer: "return=representation" }).then(function (rows) {
-      var id = rows[0].id;
+    return TC.rpc("qv_solicitar", { p_empresas: f.empresas, p_locais: f.locais }).then(function (id) {
       progresso("enviado");
       function consultar() {
-        return TC.db("qv_solicitacoes?select=status,mensagem,resultado&id=eq." + id).then(function (r) {
+        return TC.rpc("qv_consultar", { p_id: id }).then(function (r) {
           var s = r && r[0];
           if (!s) throw new Error("Solicitação não encontrada.");
           if (s.status === "concluido") return s.resultado;

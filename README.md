@@ -13,14 +13,14 @@ Cada usuário vê só as áreas/relatórios liberados pelo administrador; a perm
 | Relatório | Área | Pasta | Dados |
 |---|---|---|---|
 | Relação de Eventos — Folha Demitidos | RH | `site/relatorios/eventos/` | Sync agendado Oracle → Supabase |
-| Quadro de Vagas (FPRF307) | T.I. | `site/relatorios/quadro-vagas/` | **Sob demanda**: worker consulta o Oracle ao clicar em Gerar |
+| Quadro de Vagas (FPRF307) | Operacional (**acesso livre**, sem login) | `site/relatorios/quadro-vagas/` | **Sob demanda**: worker consulta o Oracle ao clicar em Gerar |
 
 ### Quadro de Vagas (FPRF307)
 Formulário por local e cargo para impressão e preenchimento à caneta.
 - **Filtros:** Empresa (`3`, `1,3`, `1-5`) e Local (`3.111.1.1` ou `3.111==` = o local e todos abaixo). Data sempre a do dia.
 - **Conteúdo:** totais gerais (colaboradores = autorizado + efetivo), local (nome, código, endereço), cargo, quadro **Autorizado × Efetivo** (competência do mês atual, como no Senior) e linhas em branco: uma por colaborador ativo; cargos do quadro do mês sem colaborador (vagas em aberto, posto novo) também saem, com uma linha por vaga autorizada.
 - **Saídas:** prévia na tela igual ao papel, **Imprimir** e **Exportar Excel** (`quadro de vagas - dd-mm-aaaa.xlsx`, A4 paisagem, cabeçalho repetido, "Página X de Y", cada local em página nova).
-- **Fluxo:** tela grava em `central.qv_solicitacoes` → worker da TECNOLIMP12 (`sync/quadro-vagas/`) consulta o Oracle e grava o resultado → tela exibe. Resultado só com quantidades (sem dados pessoais); retenção de 7 dias.
+- **Fluxo:** tela chama `central.qv_solicitar` (grava em `central.qv_solicitacoes`, com ou sem login) → worker da TECNOLIMP12 (`sync/quadro-vagas/`) consulta o Oracle e grava o resultado → tela acompanha por `central.qv_consultar`. Sem login: até 10 gerações abertas ao mesmo tempo. Resultado só com quantidades (sem dados pessoais); retenção de 7 dias.
 - Documentação técnica completa: [`docs/quadro-de-vagas-documentacao-tecnica.pdf`](docs/quadro-de-vagas-documentacao-tecnica.pdf).
 
 ## Estrutura
@@ -28,7 +28,7 @@ Formulário por local e cargo para impressão e preenchimento à caneta.
 |---|---|
 | `site/` | Frontend estático (HTML/CSS/JS, sem build). `assets/config.js` = único ponto com URL/chave do Supabase |
 | `site/assets/vendor/` | Bibliotecas servidas localmente (ExcelJS 4.4.0) |
-| `migrations/` | SQL do schema `central`: base (001), proteção do Painel de Eventos (002), carga inicial da produção (003), login por usuário de rede (004) e Quadro de Vagas (005) |
+| `migrations/` | SQL do schema `central`: base (001), proteção do Painel de Eventos (002), carga inicial da produção (003), login por usuário de rede (004), Quadro de Vagas (005) e relatórios de acesso livre (006) |
 | `sync/quadro-vagas/` | Worker Python da TECNOLIMP12 (fila → Oracle → resultado) e instalação no Agendador — ver `LEIAME.md` |
 | `supabase/functions/central-admin-usuarios/` | Edge Function: criar usuário e redefinir senha |
 | `painel-redirect/` | Página que redireciona o endereço antigo do painel para a Central |
@@ -60,3 +60,4 @@ O `config.js` versionado aponta para o HML. O pacote de produção troca só ess
 2. Cadastrar em Administração › Relatórios (`url = relatorios/<pasta>/`) ou na própria migration.
 3. Policies dos dados com `central.pode_ver_relatorio('<slug>')`.
 4. Precisa consultar o Oracle sob demanda? Reaproveitar o padrão do Quadro de Vagas (fila + worker).
+5. Área e **Exige login** de cada relatório: Administração › Configurações (`relatorios.publico`). Sem login, a página abre para qualquer pessoa e aparece em "Acesso livre" na tela inicial; os dados do relatório só funcionam sem login se forem servidos por RPC `security definer` liberada para `anon` (ex.: `qv_solicitar`/`qv_consultar`).

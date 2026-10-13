@@ -81,14 +81,28 @@
   .banner.info{background:var(--color-primary-soft);color:var(--color-primary);border:1px solid #c8dae8;}
   .banner code{background:rgba(255,255,255,.7);padding:1px 5px;border-radius:4px;}
 
-  .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px;}
-  .kpi{background:#fff;border:1px solid var(--color-border);border-radius:12px;padding:14px 16px;}
-  .kpi .l{font-size:12px;color:var(--color-subtle);font-weight:600;}
-  .kpi .v{font-family:var(--font-display);font-size:26px;font-weight:800;margin-top:2px;}
-  .kpi .s{font-size:12px;color:var(--color-subtle);}
-
-  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--color-muted);margin-bottom:10px;}
-  .legend span{display:flex;align-items:center;gap:6px;}
+  /* resumo do mês atual = legenda + filtro */
+  .overview{padding:16px 18px;margin-bottom:14px;}
+  .ov-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+  .ov-t{font-family:var(--font-display);font-weight:800;font-size:16px;color:var(--color-ink);}
+  .ov-s{font-size:12px;color:var(--color-subtle);margin-left:8px;}
+  .ov-pct{font-size:13px;color:var(--color-muted);}
+  .ov-pct b{font-family:var(--font-display);font-size:20px;color:var(--ok);margin-right:4px;}
+  .bar{display:flex;height:8px;border-radius:999px;overflow:hidden;background:var(--none-bg);gap:2px;}
+  .bar i{display:block;height:100%;transition:flex-grow .5s ease;}
+  .bar .ok{background:var(--ok);} .bar .sched{background:#d49a1f;} .bar .lock{background:var(--lock);}
+  .bar .pend{background:var(--pend);} .bar .none{background:#c3c8d1;}
+  .ov-legend{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:12px;}
+  .lg{display:flex;gap:10px;align-items:center;text-align:left;background:none;border:1px solid transparent;border-radius:10px;padding:8px 10px;color:var(--color-ink);}
+  .lg:hover{background:var(--color-surface-alt);}
+  .lg[aria-pressed="true"]{border-color:currentColor;background:var(--color-surface-alt);}
+  .lg .n{font-family:var(--font-display);font-weight:800;font-size:22px;min-width:22px;line-height:1;}
+  .lg .d{display:flex;flex-direction:column;font-size:12px;color:var(--color-subtle);line-height:1.35;}
+  .lg .d b{font-size:13px;}
+  .lg.ok .n,.lg.ok b{color:var(--ok);} .lg.sched .n,.lg.sched b{color:var(--sched);}
+  .lg.lock .n,.lg.lock b{color:var(--lock);} .lg.none .n,.lg.none b{color:var(--none);}
+  .lg.ok[aria-pressed="true"]{border-color:var(--ok);} .lg.sched[aria-pressed="true"]{border-color:#d49a1f;}
+  .lg.lock[aria-pressed="true"]{border-color:var(--lock);} .lg.none[aria-pressed="true"]{border-color:var(--none);}
 
   .card{background:#fff;border:1px solid var(--color-border);border-radius:12px;}
   .tbl-wrap{overflow-x:auto;}
@@ -96,17 +110,39 @@
   th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--color-border);vertical-align:top;}
   thead th{font-size:12px;color:var(--color-subtle);font-weight:600;background:var(--color-surface-alt);}
   tbody tr:last-child td{border-bottom:none;}
-  .grid th.comp{min-width:210px;}
-  .grid th .cname{font-size:14px;color:var(--color-ink);font-weight:700;display:block;}
-  .grid th .cpos{font-weight:500;}
-  .grid th .bulk{margin-top:6px;font-size:12px;padding:4px 8px;border-radius:6px;border:1px solid var(--color-border);background:#fff;color:var(--color-primary);font-weight:600;}
-  .grid td.emp{white-space:nowrap;position:sticky;left:0;background:#fff;}
+  /* cabeçalho da grade: discreto, mas marcado */
+  .grid thead th{background:linear-gradient(#f3f7fa,#eaf1f6);border-bottom:2px solid #cfdfeb;vertical-align:bottom;padding:12px;}
+  .grid thead th:first-child{border-top-left-radius:12px;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--color-primary);}
+  .grid thead th:last-child{border-top-right-radius:12px;}
+  .grid th.comp{min-width:200px;}
+  .grid th.comp.cur{box-shadow:inset 0 3px 0 var(--color-primary);}
+  .ch{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;}
+  .grid th .cname{font-family:var(--font-display);font-size:16px;color:var(--color-primary);font-weight:800;display:block;}
+  .grid th .cpos{font-weight:500;font-size:12px;color:var(--color-subtle);display:flex;align-items:center;gap:6px;}
+  .tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;background:var(--color-primary);color:#fff;border-radius:4px;padding:1px 6px;}
+  .grid th .bulk{font-size:12px;padding:4px 9px;border-radius:6px;border:1px solid #c8dae8;background:#fff;color:var(--color-primary);font-weight:600;white-space:nowrap;}
+  .grid th .bulk:hover{background:var(--color-primary);color:#fff;border-color:var(--color-primary);}
+  .grid tbody tr:hover td{background:#fafbfc;}
+  .grid td.emp{white-space:nowrap;position:sticky;left:0;background:#fff;z-index:1;}
   .grid td.emp b{display:block;}
-  .grid td.emp small{color:var(--color-subtle);}
-  .cell{width:100%;text-align:left;border:1px solid transparent;background:none;border-radius:8px;padding:6px 8px;display:flex;flex-direction:column;gap:3px;}
-  .cell:hover:not(:disabled){border-color:var(--color-border);background:var(--color-surface-alt);}
+  .grid td.emp small{color:var(--color-subtle);font-size:11px;}
+  .cell{width:100%;text-align:left;border:1px solid transparent;background:none;border-radius:8px;padding:6px 8px;display:flex;flex-direction:column;gap:3px;transition:opacity .2s;}
+  .cell:hover:not(:disabled){border-color:var(--color-border);background:#fff;box-shadow:0 2px 8px rgba(22,28,45,.06);}
   .cell:disabled{cursor:default;}
   .cell small{color:var(--color-subtle);font-size:12px;}
+  .cell.dim{opacity:.22;}
+  .grid td.enter{animation:fadeIn 1.4s ease;}
+  @keyframes fadeIn{from{background:var(--color-primary-soft);}}
+  .foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center;padding:10px 12px;border-top:1px solid var(--color-border);font-size:12px;color:var(--color-subtle);}
+  .foot a{font-weight:600;text-decoration:none;}
+
+  /* prévia do portal na gaveta */
+  .pv{border:1px solid var(--color-border);border-radius:10px;overflow:hidden;font-size:13px;}
+  .pv .pv-h{background:var(--color-surface-alt);padding:8px 12px;font-size:12px;color:var(--color-subtle);border-bottom:1px solid var(--color-border);}
+  .pv .pv-r{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-bottom:1px solid var(--color-border);}
+  .pv .pv-r:last-child{border-bottom:none;}
+  .pv .pv-r.sel{background:var(--color-primary-soft);font-weight:600;}
+  .pv .soon{color:var(--color-subtle);font-weight:600;}
 
   .chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;width:max-content;}
   .chip::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;}
@@ -172,7 +208,7 @@
   .proto label{display:flex;gap:6px;align-items:center;cursor:pointer;}
 
   @media (max-width:820px){
-    .kpis{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .ov-legend{grid-template-columns:repeat(2,minmax(0,1fr));}
     .how{grid-template-columns:1fr;}
   }
   @media (max-width:560px){
@@ -180,6 +216,10 @@
     main{padding:16px 16px 50px;}
     .user-btn .uname{display:none;}
     .head h1{font-size:20px;}
+    .grid td.emp small{display:none;}
+    .grid th.comp{min-width:168px;}
+    .ch{flex-direction:column;align-items:flex-start;}
+    .ov-s{display:block;margin:2px 0 0;}
   }
   @media print{
     .topbar,.tabs,.actions,.proto,.bulk,.banner{display:none !important;}
@@ -249,18 +289,14 @@
 
   <!-- ---------- PAINEL ---------- -->
   <section id="tabPainel">
-    <div class="kpis" id="kpis"></div>
-    <div class="legend">
-      <span><i class="chip ok">Liberado</i> aparece no portal</span>
-      <span><i class="chip sched">Agendado</i> aparece a partir da data</span>
-      <span><i class="chip lock">Bloqueado</i> não aparece (padrão)</span>
-      <span><i class="chip pend">Aplicando</i> enviando ao Sapiens</span>
-      <span><i class="chip none">Sem folha</i> mês não calculado</span>
+    <div class="card overview" id="overview"></div>
+    <div class="card">
+      <div class="tbl-wrap"><table class="grid" id="grid"></table></div>
+      <div class="foot">
+        <span>O portal mostra só os <b>3 meses mais recentes</b>: quando uma folha nova é calculada, ela entra à esquerda e o mês mais antigo sai.</span>
+        <a href="#historico">Meses anteriores no Histórico →</a>
+      </div>
     </div>
-    <div class="card tbl-wrap">
-      <table class="grid" id="grid"></table>
-    </div>
-    <p class="hint">Clique numa célula para liberar, agendar ou bloquear. As 3 colunas são os meses do combo do portal (holerite / anterior / posterior). Empresa 8 entra quando tiver colaboradores.</p>
   </section>
 
   <!-- ---------- HISTÓRICO ---------- -->
@@ -281,13 +317,16 @@
     <div class="how">
       <div class="card"><h4>1. RH pede</h4><p>“Pode soltar setembro dia 04.” A TI abre a coluna do mês e escolhe <b>Agendar</b> (ou Liberar agora). Sem data informada, vale <b>1 dia antes do pagamento</b>.</p></div>
       <div class="card"><h4>2. Painel envia</h4><p>O clique vira um pedido. O integrador na TECNOLIMP12 acorda, grava na tabela <code>USU_TLIBHOL</code> do Sapiens e relê as folhas. Nada fica rodando em ciclo.</p></div>
-      <div class="card"><h4>3. Portal obedece</h4><p>O agendamento não depende de nenhum processo: a data fica no Sapiens e o próprio holerite confere no dia. Recálculo depois de liberado continua visível, com o cálculo mais recente.</p></div>
+      <div class="card"><h4>3. Portal obedece</h4><p>O agendamento não depende de nenhum processo: a data fica no Sapiens e o próprio holerite confere no dia. O colaborador nunca vê data: até sair, aparece só <b>🔒 Em breve</b>.</p></div>
     </div>
+    <div class="card" style="padding:16px;margin-top:12px"><h4 style="margin:0 0 6px;font-family:var(--font-display);color:var(--color-primary)">Por que só 3 meses no painel?</h4>
+      <p style="margin:0;color:var(--color-muted);font-size:13px;line-height:1.5">O combo do portal tem 3 posições (atual, anterior e há 2 meses). Mês fora dessa janela não aparece para ninguém, então não há o que liberar. O painel desliza junto: nunca vira uma tabela de 12 colunas. O que aconteceu com meses antigos fica no Histórico.</p></div>
   </section>
 
   <div class="proto">
     <b>PROTÓTIPO</b> dados fictícios, nada é gravado.
     <label><input type="checkbox" id="simOff"> Simular integrador fora do ar</label>
+    <button class="btn" id="btnVirada" style="padding:4px 10px">Simular folha do mês seguinte calculada</button>
     <button class="btn" id="btnReset" style="padding:4px 10px">Restaurar dados de exemplo</button>
   </div>
 </main>
@@ -330,14 +369,20 @@ const EMPRESAS = [
   {emp:7, site:"49x", sufixo:"S7"},
   {emp:9, site:"69x", sufixo:"Y"},
 ];
-const COMPS = [
-  {per:"2026-09-01", pos:1, nome:"set/2026", combo:"holerite"},
-  {per:"2026-08-01", pos:2, nome:"ago/2026", combo:"holerite_anterior"},
-  {per:"2026-07-01", pos:3, nome:"jul/2026", combo:"holerite_posterior"},
+// janela do portal: sempre as 3 competências mais recentes com folha (posição 1 = atual)
+const POS = [
+  {combo:"holerite",           rot:"Atual no portal"},
+  {combo:"holerite_anterior",  rot:"Mês anterior"},
+  {combo:"holerite_posterior", rot:"Há 2 meses"},
 ];
+const MESES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const MESES_LONGOS = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+let COMPS;
+function janela(pers){ COMPS = pers.map((per,i)=>({per, pos:i+1, nome:compNome(per), combo:POS[i].combo, rot:POS[i].rot})); }
 
 let state;
 function seed(){
+  janela(["2026-09-01","2026-08-01","2026-07-01"]);
   const folha = {}, lib = {}, log = [];
   const pag = {"2026-07-01":"2026-08-06","2026-08-01":"2026-09-04","2026-09-01":"2026-10-06"};
   let cod = 480;
@@ -360,7 +405,7 @@ function seed(){
   lib[k(4,"2026-09-01")].sit = 0; lib[k(4,"2026-09-01")].obs = "Recálculo pedido pelo RH"; lib[k(4,"2026-09-01")].usu = "ygor.adm";
   log.push({dt:"13/10/2026 09:10", usu:"ygor.adm", emp:4, per:"2026-09-01", acao:"Bloqueado", de:"Liberado", para:"Bloqueado", orig:"painel", obs:"Recálculo pedido pelo RH"});
   log.reverse();
-  return {folha, lib, log, pend:{}};
+  return {folha, lib, log, pend:{}, filtro:null, novas:null};
 }
 
 /* ---------- utilidades ---------- */
@@ -368,7 +413,9 @@ function k(emp, per){ return emp + "|" + per; }
 function addDias(iso, n){ const d = new Date(iso+"T12:00:00"); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
 function br(iso){ if(!iso) return "—"; const [y,m,d] = iso.split("-"); return `${d}/${m}/${y}`; }
 function agora(){ const d = new Date(); return `13/10/2026 ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`; }
-function compNome(per){ return COMPS.find(c=>c.per===per).nome; }
+function compNome(per){ const [y,m] = per.split("-"); return `${MESES[m-1]}/${y}`; }
+function compLongo(per){ const [y,m] = per.split("-"); return `${MESES_LONGOS[m-1]}/${y}`; }
+function curta(iso){ const [,m,d] = iso.split("-"); return `${d}/${m}`; }
 function esc(s){ return String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
 function status(emp, per){
@@ -377,36 +424,54 @@ function status(emp, per){
   const f = state.folha[key];
   if (!f) return {cls:"none", txt:"Sem folha", det:"não calculada"};
   const l = state.lib[key];
-  if (!l || l.sit === 0) return {cls:"lock", txt:"Bloqueado", det: l ? (l.obs || "bloqueado pela TI") : "pag. " + br(f.datpag)};
-  if (l.ini > HOJE) return {cls:"sched", txt:"Agendado", det:"a partir de " + br(l.ini)};
-  return {cls:"ok", txt:"Liberado", det:"desde " + br(l.ini)};
+  if (!l || l.sit === 0) return {cls:"lock", txt:"Bloqueado", det: l ? (l.obs || "bloqueado pela TI") : "pagamento " + curta(f.datpag)};
+  if (l.ini > HOJE) return {cls:"sched", txt:"Agendado", det:"a partir de " + curta(l.ini)};
+  return {cls:"ok", txt:"Liberado", det:"desde " + curta(l.ini)};
 }
 
 /* ---------- render ---------- */
-function render(){ renderKpis(); renderGrid(); renderHist(); renderBanner(); }
+function render(){ renderOverview(); renderGrid(); renderHist(); renderBanner(); }
 
-function renderKpis(){
-  const atual = COMPS[0].per; let ok=0, sch=0, lock=0, none=0;
-  for (const e of EMPRESAS){ const s = status(e.emp, atual).cls;
-    if (s==="ok") ok++; else if (s==="sched") sch++; else if (s==="lock") lock++; else if (s==="none") none++; }
+// resumo do mês atual: barra de proporção + legenda que também filtra a grade
+const LEG = [
+  {cls:"ok",    txt:"Liberado",  d:"aparece no portal"},
+  {cls:"sched", txt:"Agendado",  d:"sai na data marcada"},
+  {cls:"lock",  txt:"Bloqueado", d:"padrão: “Em breve”"},
+  {cls:"none",  txt:"Sem folha", d:"mês não calculado"},
+];
+function renderOverview(){
+  const atual = COMPS[0].per, n = {ok:0, sched:0, lock:0, pend:0, none:0};
+  for (const e of EMPRESAS) n[status(e.emp, atual).cls]++;
+  const com = EMPRESAS.length - n.none;
   const prox = EMPRESAS.map(e=>state.lib[k(e.emp,atual)]).filter(l=>l&&l.sit===1&&l.ini>HOJE).map(l=>l.ini).sort()[0];
-  document.getElementById("kpis").innerHTML = `
-    <div class="kpi"><div class="l">Liberadas — ${COMPS[0].nome}</div><div class="v" style="color:var(--ok)">${ok}</div><div class="s">de ${EMPRESAS.length-none} empresas com folha</div></div>
-    <div class="kpi"><div class="l">Agendadas</div><div class="v" style="color:var(--sched)">${sch}</div><div class="s">${prox ? "próxima em "+br(prox) : "nenhuma pendente"}</div></div>
-    <div class="kpi"><div class="l">Bloqueadas</div><div class="v" style="color:var(--lock)">${lock}</div><div class="s">não aparecem no portal</div></div>
-    <div class="kpi"><div class="l">Sem folha calculada</div><div class="v" style="color:var(--none)">${none}</div><div class="s">nada a liberar</div></div>`;
+  const det = {ok:`de ${com} com folha`, sched: prox ? `próxima em ${curta(prox)}` : "nenhuma na fila"};
+  document.getElementById("overview").innerHTML = `
+    <div class="ov-head">
+      <div><span class="ov-t">${compLongo(atual)}</span><span class="ov-s">mês atual no portal · clique num status para destacá-lo na grade</span></div>
+      <div class="ov-pct"><b>${com ? Math.round(n.ok/com*100) : 0}%</b>liberado</div>
+    </div>
+    <div class="bar" role="img" aria-label="${n.ok} liberadas, ${n.sched} agendadas, ${n.lock} bloqueadas, ${n.none} sem folha">
+      ${["ok","sched","pend","lock","none"].map(c=>`<i class="${c}" style="flex-grow:${n[c]}"></i>`).join("")}
+    </div>
+    <div class="ov-legend">${LEG.map(x=>`
+      <button class="lg ${x.cls}" data-filtro="${x.cls}" aria-pressed="${state.filtro===x.cls}">
+        <span class="n">${n[x.cls]}</span><span class="d"><b>${x.txt}</b>${det[x.cls] || x.d}</span></button>`).join("")}
+    </div>`;
 }
 
 function renderGrid(){
-  let h = `<thead><tr><th>Empresa</th>` + COMPS.map(c=>`
-    <th class="comp"><span class="cname">${c.nome}</span><span class="cpos">combo: ${c.combo}</span><br>
-      <button class="bulk" data-bulk="${c.per}">Todas as empresas ▾</button></th>`).join("") + `</tr></thead><tbody>`;
+  let h = `<thead><tr><th>Empresa</th>` + COMPS.map((c,i)=>`
+    <th class="comp ${i===0?"cur":""}"><div class="ch">
+      <div><span class="cname">${c.nome}</span><span class="cpos">${i===0?'<span class="tag">atual</span>':""}${c.rot}</span></div>
+      <button class="bulk" data-bulk="${c.per}" title="Aplicar a mesma ação a todas as empresas" aria-label="Todas as empresas em ${c.nome}">Todas ▾</button>
+    </div></th>`).join("") + `</tr></thead><tbody>`;
   for (const e of EMPRESAS){
     h += `<tr><td class="emp"><b>Empresa ${e.emp}</b><small>site ${e.site} · login ${esc(e.sufixo)}</small></td>`;
     for (const c of COMPS){
       const s = status(e.emp, c.per);
-      h += `<td><button class="cell" data-emp="${e.emp}" data-per="${c.per}" ${s.cls==="none"?"disabled":""}
-               aria-label="Empresa ${e.emp}, ${c.nome}: ${s.txt}">
+      const dim = state.filtro && s.cls !== state.filtro ? "dim" : "";
+      h += `<td class="${state.novas===c.per?"enter":""}"><button class="cell ${dim}" data-emp="${e.emp}" data-per="${c.per}" ${s.cls==="none"?"disabled":""}
+               aria-label="Empresa ${e.emp}, ${c.nome}: ${s.txt}" ${s.cls==="pend"?'title="Enviando ao Sapiens"':""}>
                <span class="chip ${s.cls}">${s.txt}</span><small>${esc(s.det)}</small></button></td>`;
     }
     h += `</tr>`;
@@ -447,6 +512,7 @@ function openDrawer(emp, per){
     <dl>
       <dt>Modelo</dt><dd>${modelo} (site ${e.site})</dd>
       <dt>Cálculo</dt><dd>CodCal ${f.codcal} · folha mensal</dd>
+      <dt>No portal</dt><dd>${c.rot} (combo ${c.combo})</dd>
       <dt>Pagamento</dt><dd>${br(f.datpag)}</dd>
       <dt>Liberação</dt><dd>${l ? (l.sit ? "a partir de "+br(l.ini) : "bloqueado") : "nunca liberado"}</dd>
       <dt>Último registro</dt><dd>${l ? esc(l.usu)+" em "+br(l.gra) : "—"}</dd>
@@ -462,9 +528,12 @@ function openDrawer(emp, per){
     <label class="f" for="dObs">Observação (quem pediu / motivo)</label>
     <input class="t" id="dObs" maxlength="60" placeholder="Ex.: RH (Dayane) pediu para soltar dia 04">
     <div class="hint">Até 60 caracteres. Obrigatória para bloquear.</div>
-    <div class="sec">Como o colaborador vê</div>
-    <div class="portal">Portal RH 24h → combo “${c.combo}”
-      <div class="msg">${s.cls==="ok" ? "📄 Holerite de "+c.nome+" disponível." : "🔒 Holerite de "+c.nome+" ainda não liberado. Tente novamente após a data informada pelo RH."}</div></div>
+    <div class="sec">Como o colaborador da empresa ${emp} vê hoje</div>
+    <div class="pv"><div class="pv-h">Portal RH 24h · Holerite</div>
+      ${COMPS.map(x=>{ const v = status(emp, x.per).cls === "ok";
+        return `<div class="pv-r ${x.per===per?"sel":""}"><span>${compLongo(x.per)}</span>${v ? "<span>📄 Ver holerite</span>" : '<span class="soon">🔒 Em breve</span>'}</div>`; }).join("")}
+    </div>
+    <div class="hint">Agendado ou bloqueado aparece igual: “Em breve”, sem data.</div>
     <div class="sec">Últimos registros</div>
     <ul class="mini">${hist.length ? hist.map(r=>`<li>${r.dt} · <b>${r.acao}</b> por ${esc(r.usu)}${r.obs?" — "+esc(r.obs):""}</li>`).join("") : "<li>Nenhum registro.</li>"}</ul>`;
   show("overlay"); show("drawer");
@@ -576,7 +645,24 @@ document.getElementById("btnSync").addEventListener("click", e => {
 document.getElementById("simOff").addEventListener("change", e => {
   if (!e.target.checked){ for (const key in state.pend){ const [emp,per] = key.split("|"); aplicar(key,{emp:+emp,per}); } }
 });
-document.getElementById("btnReset").addEventListener("click", ()=>{ state = seed(); render(); toast("Dados de exemplo restaurados."); });
+document.getElementById("btnReset").addEventListener("click", ()=>{ state = seed(); filtrosHist(); render(); toast("Dados de exemplo restaurados."); });
+
+// folha do mês seguinte calculada: entra à esquerda bloqueada, o mês mais antigo sai do portal e do painel
+document.getElementById("btnVirada").addEventListener("click", ()=>{
+  const nova = addMes(COMPS[0].per, 1), sai = COMPS[2].per;
+  const pag = addDias(addMes(nova, 1), 4);
+  for (const e of EMPRESAS) if (e.emp !== 9) state.folha[k(e.emp,nova)] = {codcal: 600 + e.emp, datpag: pag};
+  janela([nova, COMPS[0].per, COMPS[1].per]);
+  state.novas = nova; state.filtro = null;
+  filtrosHist(); render(); state.novas = null;
+  toast(`Folha de ${compNome(nova)} calculada: entrou bloqueada. ${compNome(sai)} saiu da janela (segue no Histórico).`);
+});
+function addMes(per, n){ const [y,m] = per.split("-").map(Number); const d = new Date(y, m-1+n, 1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-01`; }
+function filtrosHist(){
+  const pers = [...new Set([...COMPS.map(c=>c.per), ...state.log.map(r=>r.per)])].sort().reverse();
+  document.getElementById("fComp").innerHTML = `<option value="">Todas as competências</option>` + pers.map(p=>`<option value="${p}">${compNome(p)}</option>`).join("");
+}
 
 /* ---------- modal, toast, navegação ---------- */
 function modal(title, body, buttons){
@@ -610,6 +696,8 @@ function route(){
 document.addEventListener("click", e => {
   const cell = e.target.closest(".cell"); if (cell && !cell.disabled) return openDrawer(cell.dataset.emp, cell.dataset.per);
   const bulk = e.target.closest("[data-bulk]"); if (bulk) return openBulk(bulk.dataset.bulk);
+  const lg = e.target.closest("[data-filtro]");
+  if (lg) { state.filtro = state.filtro === lg.dataset.filtro ? null : lg.dataset.filtro; renderOverview(); renderGrid(); return; }
   if (e.target.closest("[data-close]") || e.target.id === "overlay") return closeDrawer();
   if (e.target.id === "mOverlay") return closeModal();
   const tab = e.target.closest(".tab"); if (tab) { location.hash = tab.dataset.tab; return; }
@@ -620,10 +708,9 @@ document.addEventListener("click", e => {
 document.addEventListener("keydown", e => { if (e.key === "Escape"){ closeModal(); closeDrawer(); } });
 ["fEmp","fComp","fTxt"].forEach(id => document.getElementById(id).addEventListener("input", renderHist));
 document.getElementById("fEmp").innerHTML += EMPRESAS.map(e=>`<option value="${e.emp}">Empresa ${e.emp}</option>`).join("");
-document.getElementById("fComp").innerHTML += COMPS.map(c=>`<option value="${c.per}">${c.nome}</option>`).join("");
 window.addEventListener("hashchange", route);
 
-state = seed(); render(); route();
+state = seed(); filtrosHist(); render(); route();
 </script>
 </body>
 </html>

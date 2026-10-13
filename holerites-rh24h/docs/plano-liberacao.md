@@ -4,7 +4,7 @@ Status: **decisões aprovadas** (13/10/2026). Fase 1 com código pronto, aguarda
 
 ## Requisito (definido pelo Ygor)
 - Todo holerite **bloqueado por padrão**; a **TI** libera (a pedido do RH). Não depender do RH executar nada.
-- Portal continua igual: combo com os 3 meses mais recentes; mês não liberado mostra aviso.
+- Portal continua igual: combo com os 3 meses mais recentes; mês não liberado (bloqueado ou agendado) mostra só "🔒 Em breve", sem data.
 - Precisa suportar **agendamento** (RH avisa antes: "solta dia 04").
 - Ferramenta da TI: painel na intranet (Central de Relatórios, área T.I.).
 
@@ -44,7 +44,7 @@ painel mostra "aplicado" ou "erro"        3) marca o pedido aplicado/erro       
 5. **Painel** `relatorios/liberacao-holerites/` na Central, **só TI** (decisão 5): grade empresa × 3 competências
    (🔒 bloqueado / 🕒 agendado / ✅ liberado / ⏳ pedido pendente), botões Liberar / Agendar / Bloquear / Atualizar, histórico. Permissão por slug + RLS.
 6. **SQL de contingência** (TI, Oracle): `sapiens/sql_contingencia.sql` — consultar, liberar agora, agendar, bloquear, virada.
-7. **index.html**: mensagem "Holerite deste mês ainda não liberado".
+7. **index.html**: mensagem "🔒 Em breve" (colaborador nunca vê a data de liberação).
 
 ## Fases
 | Fase | Entrega | Valor sozinha |

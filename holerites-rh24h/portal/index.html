@@ -608,7 +608,7 @@
 
         // Carregar nome do usuário
 
-        // Tenta o holerite do mês; se ainda não liberado (antes de D-1), usa o anterior
+        // Tenta o holerite do mês; se ainda não liberado pela TI, usa o anterior
         function carregarNomeUsuario(chaves) {
           const chave = chaves.shift();
           if (!chave || !empresa?.[chave]) return;
@@ -821,7 +821,7 @@
           } catch (error) {
             console.error("Erro ao carregar o PDF do holerite:", error);
             $("#holerite").html(
-              '<div class="alert alert-warning" role="alert">Holerite ainda não disponível para este mês (liberado 1 dia antes da data de pagamento). Se persistir, fale com o RH.</div>'
+              '<div class="alert alert-secondary text-center fw-semibold" role="status">🔒 Em breve</div>'
             );
           }
         }

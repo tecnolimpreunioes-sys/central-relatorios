@@ -67,6 +67,8 @@
   .cfg-card h2{margin:0;font-family:var(--font-display);font-size:18px;}
   .row-inline{display:flex;gap:10px;align-items:flex-end;}
   .row-inline .field{flex:1;}
+  .cfg-card.largo{max-width:900px;margin-top:16px;}
+  .cfg-card .tbl select.input{min-width:150px;padding-top:6px;padding-bottom:6px;}
   @media (max-width:860px){
     .kpis{grid-template-columns:repeat(2,minmax(0,1fr));}
     .tbl .hide-sm{display:none;}
@@ -133,6 +135,12 @@
       </form>
       <div class="alert alert-info">Mínimo de 8 caracteres, com letras e números. Alterar a senha padrão não muda a senha de quem já criou a própria.</div>
     </div>
+    <div class="card cfg-card largo">
+      <h2>Relatórios: local e acesso</h2>
+      <p class="muted" style="margin:0">Área em que cada relatório aparece e se ele exige login. Sem login, o relatório aparece em “Acesso livre” na tela inicial e abre para qualquer pessoa que entrar na Central. As alterações são salvas na hora.</p>
+      <div class="scroll"><table class="tbl"><thead><tr><th>Relatório</th><th>Área</th><th>Exige login</th></tr></thead><tbody id="cfg-rels"></tbody></table></div>
+      <div class="alert alert-info">Relatórios que leem dados próprios do banco precisam estar preparados para acesso sem login (fale com a T.I. antes de liberar).</div>
+    </div>
   </section>
 </main>
 
@@ -168,7 +176,7 @@
       renderTudo();
     }).catch(function(e){ TC.toast("Erro ao carregar: " + e.message, "err"); });
   }
-  function renderTudo(){ renderKpis(); renderUsuarios(); renderAreas(); renderRels(); }
+  function renderTudo(){ renderKpis(); renderUsuarios(); renderAreas(); renderRels(); renderCfgRels(); }
   function area(id){ return D.areas.find(function(a){ return a.id === id; }) || {}; }
 
   function renderKpis(){
@@ -406,7 +414,7 @@
       var a = area(r.area_id);
       return '<tr><td><div class="pess"><span class="mini-ico" style="--c:' + esc(a.cor) + '">' + TCIcone("documento", 18) + '</span><div><b>' + esc(r.nome) + '</b><span>' + esc(r.categoria) + '</span></div></div></td>' +
         '<td>' + esc(a.nome) + '</td><td class="hide-sm"><code>' + esc(r.url) + '</code></td><td class="hide-sm">' + usuariosDoRel(r) + ' <span class="muted">+ admins</span></td>' +
-        '<td>' + (r.ativo ? '<span class="tag tag-new">Publicado</span>' : '<span class="tag tag-off">Oculto</span>') + '</td>' +
+        '<td>' + (r.ativo ? '<span class="tag tag-new">Publicado</span>' : '<span class="tag tag-off">Oculto</span>') + (r.publico ? ' <span class="tag">Livre</span>' : '') + '</td>' +
         '<td class="acoes"><button class="btn btn-ghost btn-sm" data-editar-r="' + r.id + '">Editar</button></td></tr>';
     }).join("") || '<tr><td colspan="6"><div class="empty">Nenhum relatório encontrado.</div></td></tr>';
   }
@@ -459,6 +467,28 @@
   }
 
   // ---------- configurações ----------
+  function renderCfgRels(){
+    document.getElementById("cfg-rels").innerHTML = D.rels.map(function(r){
+      return '<tr><td><b>' + esc(r.nome) + '</b>' + (r.ativo ? '' : ' <span class="tag tag-off">Oculto</span>') + '</td>' +
+        '<td><select class="input" data-cfg-area="' + r.id + '" aria-label="Área de ' + esc(r.nome) + '">' + D.areas.map(function(a){
+          return '<option value="' + a.id + '"' + (a.id === r.area_id ? " selected" : "") + '>' + esc(a.nome) + '</option>'; }).join("") + '</select></td>' +
+        '<td><label class="switch"><input type="checkbox" data-cfg-login="' + r.id + '"' + (r.publico ? "" : " checked") + '><span class="tr"></span>' +
+        (r.publico ? "Não (acesso livre)" : "Sim") + '</label></td></tr>';
+    }).join("") || '<tr><td colspan="3"><div class="empty">Nenhum relatório cadastrado.</div></td></tr>';
+  }
+  document.getElementById("cfg-rels").addEventListener("change", function(e){
+    var t = e.target, id = t.dataset.cfgArea || t.dataset.cfgLogin;
+    if (!id) return;
+    var body = t.dataset.cfgArea ? { area_id: t.value } : { publico: !t.checked };
+    var r = D.rels.find(function(x){ return x.id === id; }) || {};
+    if (body.publico && !confirm("Liberar “" + r.nome + "” para qualquer pessoa, sem login?")) { t.checked = true; return; }
+    TC.db("relatorios?id=eq." + id, { method: "PATCH", prefer: "return=minimal", body: body })
+      .then(function(){
+        Object.assign(r, body); renderAreas(); renderRels(); renderCfgRels();
+        TC.toast(t.dataset.cfgArea ? "Área do relatório alterada." : (body.publico ? "Relatório liberado sem login." : "Relatório volta a exigir login."));
+      })
+      .catch(function(err){ TC.toast(err.message, "err"); renderCfgRels(); });
+  });
   document.getElementById("cfg-ver").addEventListener("click", function(){
     var i = document.getElementById("cfg-senha"); i.type = i.type === "password" ? "text" : "password";
     this.textContent = i.type === "password" ? "Mostrar" : "Ocultar";

@@ -119,6 +119,11 @@
     </div>
   </section>
 
+  <section id="sec-livres" hidden>
+    <div class="sec-h"><h2>Acesso livre</h2><span>abre sem login</span></div>
+    <div class="recentes" id="livres"></div>
+  </section>
+
   <section id="sec-recentes" hidden>
     <div class="sec-h"><h2>Acessados recentemente</h2><span>neste computador</span></div>
     <div class="recentes" id="recentes"></div>
@@ -144,7 +149,7 @@
     document.getElementById("aviso").innerHTML = '<div class="alert alert-err" style="margin-bottom:16px">Você não tem acesso a esse relatório. Se precisar dele, peça a liberação ao administrador da Central.</div>';
   }
 
-  var estado = { vitrine: [], perfil: null, areas: [], relatorios: [] };
+  var estado = { vitrine: [], perfil: null, areas: [], relatorios: [], livres: [] };
 
   function saudacao(){
     var h = new Date().getHours();
@@ -272,13 +277,23 @@
     document.getElementById("sec-recentes").hidden = false;
   }
 
+  // ---------- acesso livre (quem não entrou) ----------
+  function renderLivres(){
+    if (!estado.livres.length) return;
+    document.getElementById("livres").innerHTML = estado.livres.map(function(r){
+      return '<a class="rec" style="--c:' + esc(r.area_cor) + '" href="' + esc(r.url) + '"><span class="res-ico">' + TCIcone(r.area_icone, 18) + '</span>' +
+        '<span><div class="res-t">' + esc(r.nome) + '</div><div class="res-s">' + esc(r.area_nome) + ' · ' + esc(r.categoria) + '</div></span></a>';
+    }).join("");
+    document.getElementById("sec-livres").hidden = false;
+  }
+
   // ---------- carga ----------
   var vitrine = TC.rpc("vitrine_areas").then(function(v){ estado.vitrine = v || []; });
   var usuario = TC.sessaoValida().then(function(s){
     if (!s) return null;
     return TC.perfil().catch(function(){ return null; });
   }).then(function(p){
-    if (!p || !p.ativo) return null;
+    if (!p || !p.ativo) return TC.rpc("relatorios_publicos").then(function(l){ estado.livres = l || []; }, function(){}).then(function(){ return null; });
     if (p.must_change_password) { location.href = "trocar-senha.html"; return new Promise(function(){}); }
     estado.perfil = p;
     TC.montarMenuUsuario(document.getElementById("user-slot"), p);
@@ -289,7 +304,7 @@
   });
   Promise.all([vitrine, usuario]).then(function(){
     renderAreas();
-    if (estado.perfil) { renderHeroLogado(); renderRecentes(); }
+    if (estado.perfil) { renderHeroLogado(); renderRecentes(); } else renderLivres();
   }).catch(function(){
     document.getElementById("areas").innerHTML = '<div class="empty card" style="grid-column:1/-1"><strong>Não foi possível carregar a Central</strong>Verifique sua conexão com a rede interna e tente novamente.</div>';
   });

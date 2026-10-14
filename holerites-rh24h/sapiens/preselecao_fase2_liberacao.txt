@@ -173,7 +173,8 @@ Se (nHolOk = 1)
 @--- 7. Trava dupla: se algo falhou, filtros vazios e cancela ---@
 Se (nHolOk = 0)
 {
-  Mensagem(Retorna, "Holerite nao emitido: " + aHolMotivo);   @ TESTE - REMOVER ANTES DE PRODUCAO @
+  aHolMotivo = "Holerite nao emitido: " + aHolMotivo;
+  Mensagem(Retorna, aHolMotivo);   @ TESTE - REMOVER ANTES DE PRODUCAO @
   aHolCodCal = "0";
   aNumcad    = "0";
   Cancel(1);

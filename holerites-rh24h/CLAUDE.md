@@ -34,6 +34,7 @@ Empresa 8: quando entrar, incluir `8` no `aHolSite` do site que a atender.
 - Sem alias de tabela em cursor; JOIN/UNION sem garantia (Senior SQL 2); preferir dois cursores simples a subquery.
 - "Consistir Modelo" varre literais por `TABELA.CAMPO`: em cursor de tabela sem relacionamento, escrever campos sem prefixo.
 - `IntParaAlfa` não aceita campo de cursor direto: passar por variável Numero.
+- `Mensagem(Retorna, ...)` não aceita expressão (`"txt" + var` → "falta )"): montar o texto numa variável Alfa antes.
 - Escrita: `ExecSql "UPDATE ... WHERE X = :vVar";` com binds (exemplo oficial Senior, regra 611).
 - `Cancel(1)` na pré-seleção = não emite. Rodar com login admin não emite (não é colaborador) — testar com a linha de override.
 - R044CAL: `PerRef` sempre dia 01; `DatPag` = pagamento; `TipCal = 11` folha mensal.

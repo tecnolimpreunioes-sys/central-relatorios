@@ -11,6 +11,7 @@ Definir Alfa   aNumcad;
 Definir Alfa   aHolSite;
 Definir Alfa   aHolBusca;
 Definir Alfa   aHolCodCal;
+Definir Alfa   aHolMotivo;
 Definir Numero nHolAtras;
 Definir Numero nHolAviso;
 Definir Numero nHolEmp;
@@ -35,6 +36,7 @@ nHolAviso = 1;      @ 1 = bloqueia quem esta em aviso previo, 0 = nao     @
 @========================================================================@
 
 nHolOk = 1;
+aHolMotivo = "";
 
 @--- 1. Identifica empresa e cadastro pelo login (cadastro + sufixo) ---@
 @ Sufixos: nenhum=1, E=3, P=3, S=4, D=5, L=6, S7=7, J=8, Y=9 @
@@ -69,7 +71,10 @@ Se (Cur_User.Achou)
                       Se (nHolPos > 0) { nHolEmp = 9; DeletarAlfa(xNumCad, nHolPos, 1); } }
 }
 Senao
+{
   nHolOk = 0;
+  aHolMotivo = "login nao encontrado na R999USU";
+}
 Cur_User.FecharCursor();
 
 ENumEmp = nHolEmp;
@@ -81,13 +86,19 @@ aHolSite  = "," + aHolSite + ",";
 nHolPos = 0;
 PosicaoAlfa(aHolBusca, aHolSite, nHolPos);
 Se (nHolPos = 0)
+{
   nHolOk = 0;
+  aHolMotivo = "empresa " + xNumEmp + " nao atendida por este modelo (aHolSite)";
+}
 
 @--- 3. Cadastro numerico (login fora do padrao nao emite) ---@
 xCadNum = 0;
 AlfaparaInt(xNumCad, xCadNum);
 Se (xCadNum = 0)
+{
   nHolOk = 0;
+  aHolMotivo = "login fora do padrao cadastro + sufixo";
+}
 IntParaAlfa(xCadNum, aNumcad);
 
 @--- 4. Aviso previo (conforme parametro do site) ---@
@@ -100,7 +111,10 @@ Se ((nHolAviso = 1) e (nHolOk = 1))
                       And MotCan <> 9";
   Cur_R042AVI.AbrirCursor();
   Se (Cur_R042AVI.Achou)
+  {
     nHolOk = 0;
+    aHolMotivo = "colaborador em aviso previo";
+  }
   Cur_R042AVI.FecharCursor();
 }
 
@@ -129,8 +143,11 @@ Se (nHolOk = 1)
     nHolCodCal = Cur_HolCal.CodCal;
   Cur_HolCal.FecharCursor();
 }
-Se (nHolCodCal = 0)
+Se ((nHolCodCal = 0) e (nHolOk = 1))
+{
   nHolOk = 0;
+  aHolMotivo = "sem folha mensal calculada na competencia";
+}
 IntParaAlfa(nHolCodCal, aHolCodCal);
 
 @--- 6. Liberacao manual pela TI (USU_TLIBHOL) ---@
@@ -146,13 +163,17 @@ Se (nHolOk = 1)
                      AND USU_DatIni <= :dHolHoje";
   Cur_HolLib.AbrirCursor();
   Se (Cur_HolLib.NaoAchou)
+  {
     nHolOk = 0;
+    aHolMotivo = "nao liberado pela TI (USU_TLIBHOL)";
+  }
   Cur_HolLib.FecharCursor();
 }
 
 @--- 7. Trava dupla: se algo falhou, filtros vazios e cancela ---@
 Se (nHolOk = 0)
 {
+  Mensagem(Retorna, "Holerite nao emitido: " + aHolMotivo);   @ TESTE - REMOVER ANTES DE PRODUCAO @
   aHolCodCal = "0";
   aNumcad    = "0";
   Cancel(1);

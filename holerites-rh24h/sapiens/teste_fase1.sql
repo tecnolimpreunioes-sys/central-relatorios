@@ -1,6 +1,7 @@
 -- =====================================================================
 -- Teste da Fase 1 - bloco 6 no FPFF996 (usuario de teste 628S7 = cadastro 628, empresa 7 ServiPlus)
--- Rodar no SQL Developer, um bloco por vez, e emitir o FPFF996 entre eles.
+-- Rodar no ORACLE (Sapiens) - DBeaver/SQL Developer -, NUNCA no Supabase. Um bloco por vez
+-- (selecionar o bloco e executar) e emitir o FPFF996 entre eles.
 -- &emp  = empresa do usuario de teste (7)
 -- &cad  = cadastro do usuario de teste (628)
 -- &comp = competencia que o bloco 5 do FPFF996 calcula (01/08/2026 se nHolAtras = 2)
@@ -76,6 +77,3 @@ COMMIT;
 DELETE FROM USU_TLIBHOL
  WHERE USU_NumEmp = &&emp AND USU_PerRef = TO_DATE('&&comp','DD/MM/YYYY') AND USU_UsuLib = 'TESTE';
 COMMIT;
-UNDEFINE emp
-UNDEFINE cad
-UNDEFINE comp

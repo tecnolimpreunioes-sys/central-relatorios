@@ -17,6 +17,7 @@ Definir Numero nHolAviso;
 Definir Numero nHolEmp;
 Definir Numero nHolPos;
 Definir Numero nHolOk;
+Definir Numero nHolSemCalc;
 Definir Numero nHolCodCal;
 Definir Numero nHolDia;
 Definir Numero nHolMes;
@@ -28,6 +29,7 @@ Definir Cursor Cur_User;
 Definir Cursor Cur_R042AVI;
 Definir Cursor Cur_HolCal;
 Definir Cursor Cur_HolLib;
+Definir Cursor Cur_HolVer;
 
 @========================= PARAMETROS DO MODELO =========================@
 nHolAtras = 3;      @ posicao no combo: x91 = 1, x92 = 2, x93 = 3       @
@@ -36,6 +38,7 @@ nHolAviso = 1;      @ 1 = bloqueia quem esta em aviso previo, 0 = nao     @
 @========================================================================@
 
 nHolOk = 1;
+nHolSemCalc = 0;
 aHolMotivo = "";
 
 @--- 1. Identifica empresa e cadastro pelo login (cadastro + sufixo) ---@
@@ -149,6 +152,25 @@ Se ((nHolCodCal = 0) e (nHolOk = 1))
 }
 IntParaAlfa(nHolCodCal, aHolCodCal);
 
+@--- 5b. Colaborador sem calculo no mes (admitido depois, por exemplo) ---@
+@ O portal mostra "Sem holerite" em vez de "Em breve": avisa pela marca SEMHOLERITE @
+Se (nHolOk = 1)
+{
+  Cur_HolVer.SQL "SELECT NumCad FROM R046VER \
+                   WHERE NumEmp = :ENumEmp \
+                     AND CodCal = :nHolCodCal \
+                     AND TipCol = 1 \
+                     AND NumCad = :xCadNum";
+  Cur_HolVer.AbrirCursor();
+  Se (Cur_HolVer.NaoAchou)
+  {
+    nHolOk = 0;
+    nHolSemCalc = 1;
+    aHolMotivo = "colaborador sem calculo nesta competencia";
+  }
+  Cur_HolVer.FecharCursor();
+}
+
 @--- 6. Liberacao manual pela TI (USU_TLIBHOL) ---@
 @ Padrao bloqueado: so emite se houver linha da empresa + competencia  @
 @ com SitLib = 1 e DatIni ja alcancada. DatIni e sempre gravada pelo    @
@@ -170,6 +192,11 @@ Se (nHolOk = 1)
 }
 
 @--- 7. Trava dupla: se algo falhou, filtros vazios e cancela ---@
+Se (nHolSemCalc = 1)
+{
+  aHolMotivo = "SEMHOLERITE";
+  Mensagem(Erro, aHolMotivo);
+}
 Se (nHolOk = 0)
 {
   aHolCodCal = "0";

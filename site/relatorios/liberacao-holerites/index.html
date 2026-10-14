@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Liberação de Holerites</title>
+<link rel="icon" href="../../assets/favicon-tecnolimp.ico" sizes="16x16 32x32 48x48">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="painel.css">
+<script src="../../assets/config.js"></script>
+<script src="../../assets/auth.js"></script>
+</head>
+<body>
+
+<nav class="cbar" aria-label="Navegação da Central">
+  <a class="cb-link" href="../../index.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Central de Relatórios</a>
+  <span class="cb-sep cb-area">/</span><a class="cb-link cb-area" href="../../area.html?a=ti">T.I.</a>
+  <span class="cb-sp"></span><div id="user-slot"></div>
+</nav>
+
+<main id="viewReport">
+  <div class="head">
+    <div>
+      <h1>Liberação de holerites — RH 24h</h1>
+      <div class="meta">Hoje: <b id="hoje">—</b> · Folhas lidas do Sapiens em <b id="lastSync">—</b></div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="btnSync" title="Pede ao integrador para reler a R044CAL e a USU_TLIBHOL">↻ Atualizar do Sapiens</button>
+      <button class="btn" id="btnPrint">Imprimir</button>
+    </div>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="painel" aria-selected="true">Painel</button>
+    <button class="tab" role="tab" data-tab="historico" aria-selected="false">Histórico</button>
+    <button class="tab" role="tab" data-tab="como" aria-selected="false">Como funciona</button>
+  </div>
+
+  <div id="bannerWorker" class="banner warn hidden" role="alert">
+    <span>⚠</span>
+    <div><b>O integrador com o Sapiens não respondeu.</b> <span id="pendCount"></span> pedido(s) aguardando há mais de 1 minuto.
+      Para urgência, use o SQL de contingência e depois clique em “Atualizar do Sapiens” — a alteração entra no histórico como “fora do painel”.</div>
+  </div>
+
+  <!-- ---------- PAINEL ---------- -->
+  <section id="tabPainel">
+    <div class="card overview" id="overview"></div>
+    <div class="card">
+      <div class="tbl-wrap"><table class="grid" id="grid"><tbody><tr><td class="carregando">Carregando…</td></tr></tbody></table></div>
+      <div class="foot">
+        <span>O portal mostra só os <b>3 meses mais recentes</b>: quando uma folha nova é calculada, ela entra à esquerda e o mês mais antigo sai.</span>
+        <a href="#historico">Meses anteriores no Histórico →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- HISTÓRICO ---------- -->
+  <section id="tabHistorico" class="hidden">
+    <div class="card">
+      <div class="filters">
+        <select class="t" id="fEmp" aria-label="Empresa"><option value="">Todas as empresas</option></select>
+        <select class="t" id="fComp" aria-label="Competência"><option value="">Todas as competências</option></select>
+        <input class="t" id="fTxt" placeholder="Buscar usuário ou observação" aria-label="Buscar">
+      </div>
+      <div class="tbl-wrap"><table id="hist"></table></div>
+    </div>
+  </section>
+
+  <!-- ---------- COMO FUNCIONA ---------- -->
+  <section id="tabComo" class="hidden">
+    <div class="banner info"><span>ℹ</span><div>Todo holerite nasce <b>bloqueado</b>. Ele só aparece no portal RH 24h quando a TI libera aqui, a pedido do RH. A trava fica no Sapiens (pré-seleção dos 15 modelos), então não dá para contornar pela URL do portal.</div></div>
+    <div class="how">
+      <div class="card"><h4>1. RH pede</h4><p>“Pode soltar setembro dia 04.” A TI abre a coluna do mês e escolhe <b>Agendar</b> (ou Liberar agora). No lote “Todas no padrão”, cada empresa libera <b>1 dia antes do pagamento</b>.</p></div>
+      <div class="card"><h4>2. Painel envia</h4><p>O clique vira um pedido. O integrador na TECNOLIMP12 grava na tabela <code>USU_TLIBHOL</code> do Sapiens e relê as folhas. Nada fica rodando em ciclo.</p></div>
+      <div class="card"><h4>3. Portal obedece</h4><p>O agendamento não depende de nenhum processo: a data fica no Sapiens e o próprio holerite confere no dia. O colaborador nunca vê data: até sair, aparece só <b>🔒 Em breve</b>.</p></div>
+    </div>
+    <div class="card" style="padding:16px;margin-top:12px"><h4 style="margin:0 0 6px;font-family:var(--font-display);color:var(--color-primary)">Por que só 3 meses no painel?</h4>
+      <p style="margin:0;color:var(--color-muted);font-size:13px;line-height:1.5">O combo do portal tem 3 posições (atual, anterior e há 2 meses). Mês fora dessa janela não aparece para ninguém, então não há o que liberar. Quando a folha do mês corrente já foi calculada, ela aparece como “Próxima” para a TI poder agendar antes.</p></div>
+  </section>
+</main>
+
+<!-- ================= GAVETA ================= -->
+<div class="overlay hidden" id="overlay"></div>
+<aside class="drawer hidden" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+  <header>
+    <div><h2 id="dTitle"></h2><div class="hint" id="dSub"></div></div>
+    <button class="x" aria-label="Fechar" data-close>×</button>
+  </header>
+  <div class="body" id="dBody"></div>
+  <footer>
+    <button class="btn" data-close>Cancelar</button>
+    <button class="btn primary" id="dApply">Aplicar</button>
+  </footer>
+</aside>
+
+<!-- ================= MODAL ================= -->
+<div class="overlay hidden" id="mOverlay"></div>
+<div class="modal hidden" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="box">
+    <header><h3 id="mTitle"></h3></header>
+    <div class="body" id="mBody"></div>
+    <footer id="mFoot"></footer>
+  </div>
+</div>
+
+<!-- ================= CARREGAMENTO ================= -->
+<div class="ld-wrap hidden" id="ldWrap">
+  <div class="ld" id="ld" role="status" aria-live="polite">
+    <div class="ld-orb" aria-hidden="true">
+      <div class="halo"></div>
+      <svg viewBox="0 0 100 100" class="r1"><circle cx="50" cy="50" r="46" fill="none" stroke="#004773" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="90 200"/></svg>
+      <svg viewBox="0 0 100 100" class="r2"><circle cx="50" cy="50" r="39" fill="none" stroke="#c4261d" stroke-width="3" stroke-linecap="round" stroke-dasharray="40 205"/></svg>
+      <svg viewBox="0 0 100 100" class="okc"><circle cx="50" cy="50" r="46" fill="none" stroke="#137a3d" stroke-width="3.5"/>
+        <path d="M33 51 l11 11 l23 -24" fill="none" stroke="#137a3d" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <img src="tecnolimp-simbolo.png" alt="">
+    </div>
+    <h3 id="ldTit"></h3>
+    <div class="sub" id="ldSub"></div>
+    <ul class="steps" id="ldSteps"></ul>
+    <div class="ld-bar" id="ldBar"><i></i></div>
+    <div class="acts hidden" id="ldActs"><button class="btn primary" id="ldOk">Entendi</button></div>
+  </div>
+</div>
+
+<script src="painel.js"></script>
+</body>
+</html>

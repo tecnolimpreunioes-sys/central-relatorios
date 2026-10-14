@@ -14,6 +14,7 @@ Cada usuário vê só as áreas/relatórios liberados pelo administrador; a perm
 |---|---|---|---|
 | Relação de Eventos — Folha Demitidos | RH | `site/relatorios/eventos/` | Sync agendado Oracle → Supabase |
 | Quadro de Vagas (FPRF307) | Operacional (**acesso livre**, sem login) | `site/relatorios/quadro-vagas/` | **Sob demanda**: worker consulta o Oracle ao clicar em Gerar |
+| Liberação de Holerites (RH 24h) | T.I. (**sempre pede senha**) | `site/relatorios/liberacao-holerites/` | **Sob demanda**: clique vira pedido (`lh_solicitar`); integrador `sync/liberacao-holerites/` grava na USU_TLIBHOL e relê o Sapiens |
 
 ### Quadro de Vagas (FPRF307)
 Formulário por local e cargo para impressão e preenchimento à caneta.

@@ -1,6 +1,6 @@
 # Plano — Liberação manual de holerites (RH 24h)
 
-Status: **decisões aprovadas** (13/10/2026). Fase 1 com código pronto, aguardando teste no FPFF996.
+Status: **decisões aprovadas** (13/10/2026). `USU_TLIBHOL` criada e **bloco 6 validado no FPFF996** (14/10, usuário 628S7, T1–T5 ok).
 
 ## Requisito (definido pelo Ygor)
 - Todo holerite **bloqueado por padrão**; a **TI** libera (a pedido do RH). Não depender do RH executar nada.

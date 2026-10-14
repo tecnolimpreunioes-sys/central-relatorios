@@ -14,7 +14,7 @@ Contexto de continuidade. Ler este arquivo inteiro antes de agir; detalhe do pla
 | 2. Supabase (espelho + fila + log + RLS) | **Aplicada e testada no HML** (14/10): `migrations/007_liberacao_holerites.sql` (+ `migrations/testes/`). Falta a VM. Obs.: o conector Supabase não aplica SQL com `delete` (pede confirmação) — esse trecho vai pelo SQL Editor |
 | 3. Integrador Python (TECNOLIMP12) | **Pronto e testado sem Oracle** (14/10): `sync/liberacao-holerites/` (teste ponta a ponta com Sapiens falso + funções reais). Falta: usuário Oracle dedicado (`sapiens/usuario_integrador.sql`), `--diagnostico`/`--leitura` na TECNOLIMP12 depois que a `USU_TLIBHOL` existir |
 | Portal `index.html` (meses automáticos + 5 correções) | **Pronto**: `portal/index.html`, aguardando publicação |
-| 2. Liberação manual (padrão bloqueado, TI libera) | **Decisões aprovadas 13/10** — `docs/plano-liberacao.md`. Código da Fase 1 pronto e **não testado**: `sapiens/preselecao_fase2_liberacao.txt` (bloco 6), `sapiens/USU_TLIBHOL.md`, `sapiens/sql_contingencia.sql`, roteiro executável `sapiens/teste_fase1.sql`. Teste da Fase 2 no FPFF996 com o usuário **628S7** (empresa 7 ServiPlus, parâmetros do site 49x: `aHolSite "4,7"`, ago/2026); `USU_TLIBHOL` criada e conferida em 14/10. Protótipo do painel: `prototipos/liberacao-holerites.html` |
+| 2. Liberação manual (padrão bloqueado, TI libera) | **Bloco 6 validado no FPFF996 em 14/10** (T1–T5 ok com o 628S7: sem linha / agendado amanhã / bloqueado não emitem; liberado hoje emite). Decisões: `docs/plano-liberacao.md`. Arquivos: `sapiens/preselecao_fase2_liberacao.txt` (bloco 6), `sapiens/USU_TLIBHOL.md`, `sapiens/sql_contingencia.sql`, roteiro executável `sapiens/teste_fase1.sql`. Teste da Fase 2 no FPFF996 com o usuário **628S7** (empresa 7 ServiPlus, parâmetros do site 49x: `aHolSite "4,7"`, ago/2026); `USU_TLIBHOL` criada e conferida em 14/10. Protótipo do painel: `prototipos/liberacao-holerites.html` |
 
 ## Parâmetros por modelo (pré-seleção genérica, só 3 linhas mudam)
 | Site | `aHolSite` | `nHolAviso` |
@@ -51,5 +51,5 @@ Empresa 8: quando entrar, incluir `8` no `aHolSite` do site que a atender.
 - Empresa 9 sem cálculos na R044CAL.
 
 ## Próximo passo
-Personalização da `USU_TLIBHOL` confirmada no Sapiens → `teste_fase1.sql` + bloco 6 no FPFF996 (Juliana) → usuário Oracle dedicado → integrador na TECNOLIMP12 (`--diagnostico`, `--leitura`) → Fase 4 (painel) → virada → 15 modelos.
+Usuário Oracle dedicado → integrador na TECNOLIMP12 (`--diagnostico`, `--leitura`) → Fase 4 (painel) → virada → 15 modelos.
 Sync **sem ciclo fixo** (decisão 6): worker sob demanda, só quando a TI clica no painel.

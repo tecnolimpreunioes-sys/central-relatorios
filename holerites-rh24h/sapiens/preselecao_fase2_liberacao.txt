@@ -30,7 +30,7 @@ Definir Cursor Cur_HolLib;
 
 @========================= PARAMETROS DO MODELO =========================@
 nHolAtras = 2;      @ posicao no combo: x91 = 1, x92 = 2, x93 = 3       @
-aHolSite  = "3";    @ empresas atendidas pelo site, separadas por virgula @
+aHolSite  = "4,7";  @ empresas atendidas pelo site, separadas por virgula @
 nHolAviso = 1;      @ 1 = bloqueia quem esta em aviso previo, 0 = nao     @
 @========================================================================@
 
@@ -39,7 +39,7 @@ nHolOk = 1;
 @--- 1. Identifica empresa e cadastro pelo login (cadastro + sufixo) ---@
 @ Sufixos: nenhum=1, E=3, P=3, S=4, D=5, L=6, S7=7, J=8, Y=9 @
 xNumCad = NomUsu;
-xNumCad = "36725E";   @ TESTE - REMOVER ANTES DE PRODUCAO @
+xNumCad = "628S7";    @ TESTE - REMOVER ANTES DE PRODUCAO @
 nHolEmp = 1;
 
 Cur_User.Sql "Select CodUsu,NomUsu \

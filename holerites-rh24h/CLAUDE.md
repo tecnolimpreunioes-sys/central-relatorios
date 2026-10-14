@@ -13,7 +13,8 @@ Contexto de continuidade. Ler este arquivo inteiro antes de agir; detalhe do pla
 | 1. Competência automática + liberação D-1 do pagamento | **Concluída e validada** no FPFF996 (Juliana 36725E, emp. 3, ago/2026, líquido 463,99). Código: `sapiens/preselecao_fase1_validada.txt`. Falta replicar nos 15 em PRD |
 | 2. Supabase (espelho + fila + log + RLS) | **Aplicada e testada no HML** (14/10): `migrations/007_liberacao_holerites.sql` (+ `migrations/testes/`). Falta a VM. Obs.: o conector Supabase não aplica SQL com `delete` (pede confirmação) — esse trecho vai pelo SQL Editor |
 | 3. Integrador Python (TECNOLIMP12) | **Pronto e testado sem Oracle** (14/10): `sync/liberacao-holerites/` (teste ponta a ponta com Sapiens falso + funções reais). Falta: usuário Oracle dedicado (`sapiens/usuario_integrador.sql`), `--diagnostico`/`--leitura` na TECNOLIMP12 depois que a `USU_TLIBHOL` existir |
-| Portal `index.html` (meses automáticos + 5 correções) | **Pronto**: `portal/index.html`, aguardando publicação |
+| Portal `index.html` | **Validado no piloto (14/10)**: próximo mês "Em breve", 3 meses do portal com selo "Em breve" / "Sem holerite", pedidos em fila |
+| Piloto ServiPlus (4) + Servinews (7) | **Validado em produção (14/10)**: modelos 491/492/493 com o bloco 6 + virada. Demais empresas prontas em `sapiens/producao/` (12 pré-seleções + `virada_demais_empresas.sql`) |
 | 2. Liberação manual (padrão bloqueado, TI libera) | **Bloco 6 validado no FPFF996 em 14/10** (T1–T5 ok com o 628S7: sem linha / agendado amanhã / bloqueado não emitem; liberado hoje emite). Decisões: `docs/plano-liberacao.md`. Arquivos: `sapiens/preselecao_fase2_liberacao.txt` (bloco 6), `sapiens/USU_TLIBHOL.md`, `sapiens/sql_contingencia.sql`, roteiro executável `sapiens/teste_fase1.sql`. Teste da Fase 2 no FPFF996 com o usuário **628S7** (empresa 7 ServiPlus, parâmetros do site 49x: `aHolSite "4,7"`, ago/2026); `USU_TLIBHOL` criada e conferida em 14/10. Protótipo do painel: `prototipos/liberacao-holerites.html` |
 
 ## Parâmetros por modelo (pré-seleção genérica, só 3 linhas mudam)
@@ -55,5 +56,5 @@ Empresa 8: quando entrar, incluir `8` no `aHolSite` do site que a atender.
 - Empresa 9 sem cálculos na R044CAL.
 
 ## Próximo passo
-Usuário Oracle dedicado → integrador na TECNOLIMP12 (`--diagnostico`, `--leitura`) → Fase 4 (painel) → virada → 15 modelos.
+Replicar para Tecnolimp, Pontual, DRA e Deltalimp (virada + colar no mesmo dia) → usuário Oracle dedicado → integrador na TECNOLIMP12 → Fase 4 (painel).
 Sync **sem ciclo fixo** (decisão 6): worker sob demanda, só quando a TI clica no painel.

@@ -67,3 +67,5 @@ reset role;
 
 \echo '--- 8. nao pode virar acesso livre'
 update central.relatorios set publico = true where slug='liberacao-holerites';
+\echo '--- 9. outro relatorio continua podendo ser livre (deve dar UPDATE sem erro)'
+update central.relatorios set publico = true where slug = 'quadro-vagas';

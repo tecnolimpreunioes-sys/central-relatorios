@@ -12,6 +12,7 @@ Contexto de continuidade. Ler este arquivo inteiro antes de agir; detalhe do pla
 |---|---|
 | 1. Competência automática + liberação D-1 do pagamento | **Concluída e validada** no FPFF996 (Juliana 36725E, emp. 3, ago/2026, líquido 463,99). Código: `sapiens/preselecao_fase1_validada.txt`. Falta replicar nos 15 em PRD |
 | 2. Supabase (espelho + fila + log + RLS) | **Aplicada e testada no HML** (14/10): `migrations/007_liberacao_holerites.sql` (+ `migrations/testes/`). Falta a VM. Obs.: o conector Supabase não aplica SQL com `delete` (pede confirmação) — esse trecho vai pelo SQL Editor |
+| 3. Integrador Python (TECNOLIMP12) | **Pronto e testado sem Oracle** (14/10): `sync/liberacao-holerites/` (teste ponta a ponta com Sapiens falso + funções reais). Falta: usuário Oracle dedicado (`sapiens/usuario_integrador.sql`), `--diagnostico`/`--leitura` na TECNOLIMP12 depois que a `USU_TLIBHOL` existir |
 | Portal `index.html` (meses automáticos + 5 correções) | **Pronto**: `portal/index.html`, aguardando publicação |
 | 2. Liberação manual (padrão bloqueado, TI libera) | **Decisões aprovadas 13/10** — `docs/plano-liberacao.md`. Código da Fase 1 pronto e **não testado**: `sapiens/preselecao_fase2_liberacao.txt` (bloco 6), `sapiens/USU_TLIBHOL.md`, `sapiens/sql_contingencia.sql`, roteiro executável `sapiens/teste_fase1.sql`. Protótipo do painel: `prototipos/liberacao-holerites.html` |
 
@@ -39,6 +40,7 @@ Empresa 8: quando entrar, incluir `8` no `aHolSite` do site que a atender.
 
 ## Regras Tecnolimp que se aplicam
 - Oracle/Sapiens só leitura; frontend nunca acessa Oracle; escrita no Senior só por web service — exceção para a `USU_TLIBHOL` depende de aprovação (decisão 1 do plano).
+- Relatório da Central sempre nasce com a opção "pede senha?" (006); este **sempre pede** (trigger `lh_exige_login` + `lh_pode` ignora acesso livre): cada ação registra o usuário.
 - Painéis internos moram na **Central de Relatórios** (`central.apps.tecnolimp.local`, schema `central`, login por usuário de rede). Skills: `tecnolimp-contexto-base`, `relatorio-web-tecnolimp`, `tecnolimp-infra`.
 - Respostas: diagnóstico → solução → "Resumo para o gestor" (3-5 linhas). Ao concluir: `finalizar-projeto-tecnolimp` (Registro Semanal).
 
@@ -48,5 +50,5 @@ Empresa 8: quando entrar, incluir `8` no `aHolSite` do site que a atender.
 - Empresa 9 sem cálculos na R044CAL.
 
 ## Próximo passo
-Ygor validar o protótipo → criar `USU_TLIBHOL` pelo Sapiens → colar bloco 6 no FPFF996 e rodar o roteiro de teste do plano (Juliana) → virada → 15 modelos.
+Personalização da `USU_TLIBHOL` confirmada no Sapiens → `teste_fase1.sql` + bloco 6 no FPFF996 (Juliana) → usuário Oracle dedicado → integrador na TECNOLIMP12 (`--diagnostico`, `--leitura`) → Fase 4 (painel) → virada → 15 modelos.
 Sync **sem ciclo fixo** (decisão 6): worker sob demanda, só quando a TI clica no painel.

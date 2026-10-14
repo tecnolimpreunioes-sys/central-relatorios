@@ -282,13 +282,25 @@ select id, 'liberacao-holerites', 'Liberação de Holerites (RH 24h)',
 from central.areas where slug = 'ti'
 on conflict (slug) do nothing;
 
--- a tela de Administração não deixa marcar este relatório como "acesso livre" (só quando a 006 já existe)
+-- "Pede senha?" (006): este relatório sempre pede. Administração › Configurações mostra
+-- a mensagem abaixo se alguém tentar liberar sem login. Só vale quando a 006 já existe.
+create or replace function central.lh_exige_login()
+returns trigger language plpgsql set search_path = central, pg_temp as $$
+begin
+  if new.slug = 'liberacao-holerites' and new.publico then
+    raise exception 'A Liberação de Holerites sempre pede senha: cada ação fica registrada com o usuário.';
+  end if;
+  return new;
+end $$;
+revoke all on function central.lh_exige_login() from public, anon, authenticated;
+
 do $$
 begin
   if exists(select 1 from information_schema.columns
-            where table_schema = 'central' and table_name = 'relatorios' and column_name = 'publico')
-     and not exists(select 1 from pg_constraint where conname = 'relatorios_lh_nao_publico') then
-    alter table central.relatorios add constraint relatorios_lh_nao_publico
-      check (not (slug = 'liberacao-holerites' and publico));
+            where table_schema = 'central' and table_name = 'relatorios' and column_name = 'publico') then
+    alter table central.relatorios drop constraint if exists relatorios_lh_nao_publico;
+    drop trigger if exists relatorios_lh_exige_login on central.relatorios;
+    create trigger relatorios_lh_exige_login before insert or update on central.relatorios
+      for each row execute function central.lh_exige_login();
   end if;
 end $$;

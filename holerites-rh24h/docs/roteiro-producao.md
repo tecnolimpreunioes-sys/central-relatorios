@@ -15,17 +15,30 @@ Fazer na ordem. Cada etapa tem um **Conferir** e só se avança com ele ok.
 ---
 
 ## 1. Supabase PROD — migration 007
-Copiar `1-supabase-vm/007_liberacao_holerites.sql` para a VM (`~/`) e rodar **na VM** (o SQL Editor do Studio não tem permissão no schema `central`):
+Extrair o zip na **Área de Trabalho** (deve existir `Desktop\liberacao-holerites-producao\1-supabase-vm\007_liberacao_holerites.sql`; se o Windows criar a pasta duas vezes, mover a de dentro para a Área de Trabalho).
+
+**PowerShell do Windows** — copiar para a VM Ubuntu e entrar nela:
+```powershell
+scp "$env:USERPROFILE\Desktop\liberacao-holerites-producao\1-supabase-vm\007_liberacao_holerites.sql" admtecnolimp@supabase.tecnolimp.local:~/
+ssh admtecnolimp@supabase.tecnolimp.local
+```
+(OneDrive: trocar `Desktop` por `OneDrive\Desktop`.) Pede a senha do `admtecnolimp` duas vezes (scp e ssh).
+
+**VM Ubuntu** (já dentro do ssh):
 ```bash
+ls -l ~/007_liberacao_holerites.sql
 sudo docker exec -i supabase-db psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 < ~/007_liberacao_holerites.sql
 ```
-**Conferir** (mesmo comando com `-c`, ou no Studio):
-```sql
-select slug, publico from central.relatorios where slug = 'liberacao-holerites';  -- 1 linha, publico = false
-select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
- where n.nspname = 'central' and p.proname like 'lh\_%';                          -- 10
+Na tela: uma sequência de `CREATE TABLE`, `CREATE FUNCTION`, `GRANT`, `INSERT 0 1`, `DO`, sem `ERROR`.
+
+**Conferir** (VM Ubuntu):
+```bash
+sudo docker exec -i supabase-db psql -U supabase_admin -d postgres -c "select slug, publico from central.relatorios where slug = 'liberacao-holerites';"
+sudo docker exec -i supabase-db psql -U supabase_admin -d postgres -c "select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'central' and p.proname like 'lh\_%';"
+sudo /usr/local/sbin/backup-supabase.sh
+exit
 ```
-Sem linha no 1º select = não existe a área `ti` na PROD: avisar antes de seguir.
+Esperado: 1 linha com `publico = f`; contagem `10`. `0 rows` no primeiro = não existe a área `ti` na PROD: avisar antes de seguir.
 
 ## 2. Integrador → PROD (TECNOLIMP12)
 1. Substituir na pasta `C:\Automações\08 - Liberação holerite` os arquivos de `2-integrador/` (**não** existe `credenciais.bat` no zip; o seu fica).
@@ -46,11 +59,15 @@ Sem linha no 1º select = não existe a área `ti` na PROD: avisar antes de segu
 **Conferir:** o diagnóstico mostra `Privilégios na USU_TLIBHOL (TEC_LIBHOL): INSERT, SELECT, UPDATE`; o `--espelhar` termina sem erro (na PROD vazia, as linhas da virada entram como "fora do painel" — esperado).
 
 ## 3. Painel na Central (tecnolimp15)
-Copiar só a pasta nova (não mexe no `config.js` da PROD):
-```bat
-robocopy "<zip>\3-site\relatorios\liberacao-holerites" "C:\Sites\central\relatorios\liberacao-holerites" /E
+Levar o zip para a **Área de Trabalho da tecnolimp15** e extrair.
+
+**tecnolimp15 — PowerShell como Administrador** (copia só a pasta nova; o `config.js` da PROD não é tocado):
+```powershell
+robocopy "$env:USERPROFILE\Desktop\liberacao-holerites-producao\3-site\relatorios\liberacao-holerites" "C:\Sites\central\relatorios\liberacao-holerites" /E
+Get-ChildItem "C:\Sites\central\relatorios\liberacao-holerites"
 ```
-**Conferir:** `http://central.apps.tecnolimp.local/relatorios/liberacao-holerites/` com seu login → mesmas folhas/liberações do HML (6 empresas, set/ago/jul liberados, out "Próxima" bloqueada).
+Na tela: 4 arquivos (`index.html`, `painel.css`, `painel.js`, `tecnolimp-simbolo.png`).
+**Conferir:** de outra máquina, Ctrl+F5 em `http://central.apps.tecnolimp.local/relatorios/liberacao-holerites/` com seu login → 6 empresas, set/ago/jul liberados, out "Próxima" bloqueada.
 Quem mais da TI precisa usar: Administração › acesso à área T.I. (ou ao relatório). Ninguém fora disso vê o painel.
 
 ## 4. Serviço no Agendador (TECNOLIMP12)

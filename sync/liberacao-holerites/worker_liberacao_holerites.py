@@ -206,7 +206,8 @@ class Fila:
 
     def rpc(self, nome, **corpo):
         r = self.s.post(self.url + "rpc/" + nome, json=corpo, timeout=60)
-        r.raise_for_status()
+        if not r.ok:  # mostra a mensagem do Supabase, não só o código HTTP
+            raise requests.HTTPError(f"{r.status_code} em {nome}: {r.text[:500]}", response=r)
         return r.json() if r.content else None
 
     def proximo(self):

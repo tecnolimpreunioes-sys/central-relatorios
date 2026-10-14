@@ -210,7 +210,7 @@ create or replace function central.lh_espelhar(p_desde date, p_folhas jsonb, p_l
 returns integer language plpgsql volatile security definer set search_path = central, pg_temp as $$
 declare a jsonb; r record; n int := 0;
 begin
-  delete from central.lh_folhas;
+  delete from central.lh_folhas where true;   -- 'where' exigido pelo safeupdate do Supabase (chamada via API)
   insert into central.lh_folhas(num_emp, per_ref, cod_cal, dat_pag, lido_em)
   select (f->>'emp')::smallint, (f->>'per')::date, (f->>'codcal')::int, (f->>'datpag')::date, now()
   from jsonb_array_elements(coalesce(p_folhas, '[]'::jsonb)) f;

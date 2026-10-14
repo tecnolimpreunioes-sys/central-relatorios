@@ -24,7 +24,7 @@ painel mostra "aplicado" ou "erro"        3) marca o pedido aplicado/erro       
                                               Portal RH 24h ◀── pré-seleção dos 15 modelos (bloco 6)
 ```
 - **Agendamento não precisa de processo rodando**: a data "a partir de" fica gravada na `USU_TLIBHOL` e a própria pré-seleção compara com a data do dia.
-- O worker só trabalha quando chega pedido (assinatura Realtime na tabela `pedido`; sem polling). Se ele estiver fora, o pedido fica "pendente" e o painel avisa após 1 min → TI usa o SQL de contingência.
+- O worker só toca o Oracle quando chega pedido. Ele consulta a fila `lh_pedidos` a cada poucos segundos (consulta barata ao Supabase, mesmo padrão do Quadro de Vagas). Se ele estiver fora, o pedido fica "pendente" e o painel avisa após 1 min → TI usa o SQL de contingência.
 
 ## Peças
 1. **`USU_TLIBHOL`** (tabela de usuário criada pelo Sapiens, como a USU_TFALCOB) — chave empresa + competência.
@@ -36,8 +36,10 @@ painel mostra "aplicado" ou "erro"        3) marca o pedido aplicado/erro       
 2. **Bloco 6 da pré-seleção** (igual nos 15): `sapiens/preselecao_fase2_liberacao.txt`. Bloco 5 deixa de filtrar DatPag
    e pega o CodCal mais recente da competência (TipCal 11); bloco 6 só emite se existir linha com
    `USU_SitLib = 1 AND USU_DatIni <= hoje`. Cursor simples, campos sem prefixo de tabela.
-3. **Supabase** (schema próprio, migrations versionadas, RLS): `liberacao` (espelho do estado na USU_TLIBHOL),
-   `liberacao_log` (auditoria), `folha` (espelho R044CAL: empresa, competência, CodCal, DatPag), `pedido` (fila de cliques).
+3. **Supabase** — `migrations/007_liberacao_holerites.sql` (schema `central`, como os demais relatórios da Central; testada em Postgres local com
+   `migrations/testes/`): `lh_folhas` (espelho R044CAL), `lh_liberacoes` (espelho USU_TLIBHOL), `lh_pedidos` (fila de cliques), `lh_log` (auditoria).
+   Navegador só lê (RLS por `lh_pode()` = login + slug `liberacao-holerites`, nunca acesso livre) e escreve só por `lh_solicitar` (valida tudo).
+   Worker (service_role): `lh_proximo` → grava no Oracle → `lh_concluir` (espelho + log "painel") → `lh_espelhar` (diferenças = "fora do painel") → `lh_manutencao`.
 4. **Worker Python** na TECNOLIMP12 (serviço, ocioso até chegar pedido): aplica na `USU_TLIBHOL` (idempotente, binds),
    relê R044CAL e USU_TLIBHOL para o Supabase. Diferença entre USU_TLIBHOL e o espelho = alteração feita por SQL de
    contingência → registra no log como "fora do painel". Usuário Oracle próprio com grant só na `USU_TLIBHOL`; `service_role` só no worker.

@@ -11,6 +11,7 @@ Contexto de continuidade. Ler este arquivo inteiro antes de agir; detalhe do pla
 | Fase | Situação |
 |---|---|
 | 1. Competência automática + liberação D-1 do pagamento | **Concluída e validada** no FPFF996 (Juliana 36725E, emp. 3, ago/2026, líquido 463,99). Código: `sapiens/preselecao_fase1_validada.txt`. Falta replicar nos 15 em PRD |
+| 2. Supabase (espelho + fila + log + RLS) | **Migration pronta e testada local**: `migrations/007_liberacao_holerites.sql` (+ `migrations/testes/`). Falta aplicar no HML (projeto pausado) e na VM |
 | Portal `index.html` (meses automáticos + 5 correções) | **Pronto**: `portal/index.html`, aguardando publicação |
 | 2. Liberação manual (padrão bloqueado, TI libera) | **Decisões aprovadas 13/10** — `docs/plano-liberacao.md`. Código da Fase 1 pronto e **não testado**: `sapiens/preselecao_fase2_liberacao.txt` (bloco 6), `sapiens/USU_TLIBHOL.md`, `sapiens/sql_contingencia.sql`, roteiro executável `sapiens/teste_fase1.sql`. Protótipo do painel: `prototipos/liberacao-holerites.html` |
 

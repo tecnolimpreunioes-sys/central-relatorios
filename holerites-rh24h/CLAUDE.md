@@ -57,5 +57,6 @@ Empresa 8: quando entrar, incluir `8` no `aHolSite` do site que a atender.
 - Empresa 9 sem cálculos na R044CAL.
 
 ## Próximo passo
-Replicar para Tecnolimp, Pontual, DRA e Deltalimp (virada + colar no mesmo dia) → usuário Oracle dedicado → integrador na TECNOLIMP12 → Fase 4 (painel).
+HML validado ponta a ponta em 14/10 (painel → fila → integrador com `TEC_LIBHOL` → `USU_TLIBHOL`, agendar e bloquear). Virada das 6 empresas feita.
+Produção: seguir `docs/roteiro-producao.md` (migration na VM → integrador PROD → painel no IIS → serviço → pré-seleção de Pontual/Tecnolimp/Deltalimp/DRA → teste final).
 Sync **sem ciclo fixo** (decisão 6): worker sob demanda, só quando a TI clica no painel.

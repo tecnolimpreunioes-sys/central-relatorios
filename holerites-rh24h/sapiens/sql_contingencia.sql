@@ -61,8 +61,10 @@ COMMIT;
 
 -- =====================================================================
 -- VIRADA (uma vez, ANTES de publicar o bloco 6 nos 15 modelos)
--- Registra como liberado tudo que hoje ja aparece no portal
--- (regra antiga: folha mensal com DatPag <= amanha, ultimos 3 meses).
+-- Registra como liberado tudo que hoje ja aparece no portal.
+-- Os modelos de producao mostram os 3 meses FIXOS (set/ago/jul), sem regra de
+-- pagamento: libera toda folha mensal da janela, a partir de hoje no maximo.
+-- Piloto so com as empresas 4 e 7: producao/virada_empresas_4_7.sql
 -- =====================================================================
 -- V1. Conferencia: competencias com mais de um calculo mensal
 --     (a regra nova usa o CodCal mais recente, sem olhar DatPag)
@@ -76,12 +78,11 @@ HAVING COUNT(*) > 1;
 
 -- V2. Registrar
 INSERT INTO USU_TLIBHOL (USU_NumEmp, USU_PerRef, USU_DatIni, USU_SitLib, USU_UsuLib, USU_DatGra, USU_ObsLib)
-SELECT c.NumEmp, c.PerRef, TRUNC(MAX(c.DatPag)) - 1, 1, 'VIRADA', TRUNC(SYSDATE), 'Virada: ja visivel no portal'
+SELECT c.NumEmp, c.PerRef, LEAST(TRUNC(MAX(c.DatPag)) - 1, TRUNC(SYSDATE)), 1, 'VIRADA', TRUNC(SYSDATE), 'Virada: ja visivel no portal'
   FROM R044CAL c
  WHERE c.TipCal = 11
    AND c.PerRef >= ADD_MONTHS(TRUNC(SYSDATE,'MM'), -3)
    AND c.PerRef <  TRUNC(SYSDATE,'MM')
-   AND c.DatPag <= TRUNC(SYSDATE) + 1
    AND NOT EXISTS (SELECT 1 FROM USU_TLIBHOL l
                     WHERE l.USU_NumEmp = c.NumEmp AND l.USU_PerRef = c.PerRef)
  GROUP BY c.NumEmp, c.PerRef;

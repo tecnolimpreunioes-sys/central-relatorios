@@ -332,8 +332,13 @@ def diagnostico():
                     "FROM all_tab_columns WHERE table_name = :t GROUP BY owner", t=t)
         linhas = cur.fetchall()
         print(f"{t}: " + ("; ".join(f"[{o}] {c}" for o, c in linhas) if linhas else "(não encontrada ou sem acesso)"))
-    cur.execute("SELECT privilege FROM all_tab_privs WHERE table_name = 'USU_TLIBHOL' AND grantee = USER")
-    print("Privilégios na USU_TLIBHOL (usuário dedicado):", ", ".join(r[0] for r in cur.fetchall()) or "(nenhum grant explícito)")
+    # grant direto ou via role (filtrar só por grantee = USER esconde o que veio por role)
+    cur.execute("SELECT DISTINCT USER, privilege FROM all_tab_privs WHERE table_name = 'USU_TLIBHOL' "
+                "AND (grantee = USER OR grantee IN (SELECT role FROM session_roles))")
+    linhas = cur.fetchall()
+    cur.execute("SELECT USER FROM dual")
+    print(f"Privilégios na USU_TLIBHOL ({cur.fetchone()[0]}):",
+          ", ".join(sorted(r[1] for r in linhas)) or "(nenhum grant visível; é o dono ou veio por outro caminho)")
     desde = inicio_janela()
     print(f"Janela desde {desde:%m/%Y}: {len(sap.folhas(desde))} folha(s), {len(sap.liberacoes(desde))} liberação(ões)")
     sap.fechar()

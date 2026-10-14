@@ -8,7 +8,8 @@
 -- chega pedido; a fila em si é barata (mesmo padrão do Quadro de Vagas).
 -- Alteração feita direto no Oracle (SQL de contingência) aparece no
 -- histórico como "fora do painel" na próxima leitura.
--- Requer 001, 004 e 006. Aplicar no HML e na VM.
+-- Requer 001 e 004 (não depende da 005/006). Fica no schema central, como os
+-- demais relatórios da Central (prefixo lh_). Aplicar no HML e na VM.
 -- =====================================================================
 
 -- ---------- tabelas ----------
@@ -75,10 +76,16 @@ returns date language sql stable set search_path = central, pg_temp as $$
   select (now() at time zone 'America/Sao_Paulo')::date;
 $$;
 
--- painel só com login (nunca acesso livre) e permissão no slug
+-- painel só com login e permissão explícita (admin, área T.I. ou o próprio relatório).
+-- Não usa pode_ver_relatorio de propósito: ela aceita "acesso livre" (006), e aqui isso nunca vale.
 create or replace function central.lh_pode()
 returns boolean language sql stable security definer set search_path = central, pg_temp as $$
-  select auth.uid() is not null and central.usuario_ok() and central.pode_ver_relatorio('liberacao-holerites');
+  select auth.uid() is not null and central.usuario_ok() and exists(
+    select 1 from central.relatorios r join central.areas a on a.id = r.area_id
+    where r.slug = 'liberacao-holerites' and r.ativo and a.ativo
+      and ( central.eh_admin()
+         or exists(select 1 from central.acessos_area aa where aa.usuario_id = auth.uid() and aa.area_id = r.area_id)
+         or exists(select 1 from central.acessos_relatorio ar where ar.usuario_id = auth.uid() and ar.relatorio_id = r.id)));
 $$;
 
 -- texto da situação, igual ao painel: "Bloqueado" / "a partir de dd/mm/aaaa" / "desde dd/mm/aaaa"
@@ -275,9 +282,12 @@ select id, 'liberacao-holerites', 'Liberação de Holerites (RH 24h)',
 from central.areas where slug = 'ti'
 on conflict (slug) do nothing;
 
+-- a tela de Administração não deixa marcar este relatório como "acesso livre" (só quando a 006 já existe)
 do $$
 begin
-  if not exists(select 1 from pg_constraint where conname = 'relatorios_lh_nao_publico') then
+  if exists(select 1 from information_schema.columns
+            where table_schema = 'central' and table_name = 'relatorios' and column_name = 'publico')
+     and not exists(select 1 from pg_constraint where conname = 'relatorios_lh_nao_publico') then
     alter table central.relatorios add constraint relatorios_lh_nao_publico
       check (not (slug = 'liberacao-holerites' and publico));
   end if;

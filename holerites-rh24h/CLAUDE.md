@@ -17,13 +17,14 @@ Contexto de continuidade. Ler este arquivo inteiro antes de agir; detalhe do pla
 | 2. Liberação manual (padrão bloqueado, TI libera) | **Bloco 6 validado no FPFF996 em 14/10** (T1–T5 ok com o 628S7: sem linha / agendado amanhã / bloqueado não emitem; liberado hoje emite). Decisões: `docs/plano-liberacao.md`. Arquivos: `sapiens/preselecao_fase2_liberacao.txt` (bloco 6), `sapiens/USU_TLIBHOL.md`, `sapiens/sql_contingencia.sql`, roteiro executável `sapiens/teste_fase1.sql`. Teste da Fase 2 no FPFF996 com o usuário **628S7** (empresa 7 ServiPlus, parâmetros do site 49x: `aHolSite "4,7"`, ago/2026); `USU_TLIBHOL` criada e conferida em 14/10. Protótipo do painel: `prototipos/liberacao-holerites.html` |
 
 ## Parâmetros por modelo (pré-seleção genérica, só 3 linhas mudam)
-| Site | `aHolSite` | `nHolAviso` |
-|---|---|---|
-| 49x | "4,7" | 1 |
-| 59x | "3" | 1 |
-| 69x | "1,9" | 1 |
-| 79x | "6" | 0 |
-| 89x | "5" | 0 |
+Chamar os grupos de modelos **pelo nome da empresa** (pedido do Ygor), não por "49x".
+| Modelos | Empresas (R030EMP) | `aHolSite` | `nHolAviso` |
+|---|---|---|---|
+| FPFF491/492/493 | ServiPlus (4) + ServiPlus Terceirizados / Servinews (7) | "4,7" | 1 |
+| FPFF591/592/593 | Pontual (3) | "3" | 1 |
+| FPFF691/692/693 | Tecnolimp (1) (+ 9, que não existe na R030EMP) | "1,9" | 1 |
+| FPFF791/792/793 | Deltalimp (6) | "6" | 0 |
+| FPFF891/892/893 | DRA (5) | "5" | 0 |
 `nHolAtras` = último dígito do modelo (1/2/3). Buscar por `nHolAtras =`, `aHolSite  =`, `nHolAviso =`. Linha `TESTE - REMOVER` só existe no 996 — apagar em PRD.
 Empresa 8: quando entrar, incluir `8` no `aHolSite` do site que a atender.
 
@@ -47,6 +48,8 @@ Empresa 8: quando entrar, incluir `8` no `aHolSite` do site que a atender.
 
 ## Pendências conhecidas
 - Portal em HTTP sem TLS (risco LGPD) e ~23 s por requisição — fora do escopo, registrado.
+- Conector do Senior: tratar como **um relatório por vez por sessão**. No portal, pedidos de holerite (e do nome) passam por uma fila (`filaHolerite`); em paralelo, os meses seguintes falhavam e apareciam como "Em breve".
+- Produção hoje mostra set/ago/jul **fixos** (manutenção mensal manual, sem regra de pagamento): a virada libera toda folha desses 3 meses.
 - Política de aviso prévio difere entre sites (79x/89x não bloqueiam).
 - Empresa 9 sem cálculos na R044CAL.
 

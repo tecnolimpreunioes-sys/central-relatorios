@@ -613,16 +613,24 @@
         // Variável global para armazenar o PDF como blob
         let pdfBlob = null;
         let pdfBlobHolerite = null; // Novo blob para holerite
+        // O conector do Senior gera um relatório por vez por sessão: pedidos de holerite em fila, nunca juntos
+        let filaHolerite = Promise.resolve();
 
         // Carregar nome do usuário
 
         // Tenta o holerite do mês; se ainda não liberado pela TI, usa o anterior
         function carregarNomeUsuario(chaves) {
           const chave = chaves.shift();
-          if (!chave || !empresa?.[chave]) return;
+          if (!chave || !empresa?.[chave]) {
+            $("Nome").html(""); // nenhum mês liberado: tira a animação de carregando
+            return;
+          }
+          filaHolerite = filaHolerite.then(function () {
+            return new Promise(function (fim) {
           $.get(
             `${base}/rubiweb/conector?ACAO=ENTRANCEREL&SIS=FP&NOME=${empresa[chave]}`
           )
+            .always(fim)
             .done(function (data) {
               const doc = new DOMParser().parseFromString(data, "text/html");
               const divElement = doc.querySelector(".E004");
@@ -639,6 +647,8 @@
               console.error("Erro ao buscar dados do usuário.", error);
               carregarNomeUsuario(chaves);
             });
+            });
+          });
         }
         carregarNomeUsuario(["holerite", "holerite_anterior", "holerite_posterior"]);
 
@@ -796,7 +806,7 @@
         function buscarHolerite(chave) {
           if (!(chave in MESES_HOLERITE)) return Promise.resolve(null);
           if (!consultasHolerite[chave]) {
-            consultasHolerite[chave] = (async function () {
+            const consulta = filaHolerite.then(async function () {
               if (chave === "proximo" || !empresa?.[chave]) return null;
               try {
                 const response = await fetch(
@@ -810,7 +820,9 @@
                 console.error("Erro ao consultar o holerite:", error);
                 return null;
               }
-            })();
+            });
+            filaHolerite = consulta;
+            consultasHolerite[chave] = consulta;
           }
           return consultasHolerite[chave];
         }

@@ -73,17 +73,19 @@
   .vazio-c{color:var(--border-strong);}
 
   /* folha 1: resumo */
-  .r-tit{font-family:'Nunito',system-ui,sans-serif;font-size:13px;font-weight:800;color:var(--brand);text-transform:uppercase;letter-spacing:.05em;margin:0 0 3mm;}
-  .tab-resumo td{padding:4px 7px;vertical-align:middle;}
+  .r-tit{font-family:'Nunito',system-ui,sans-serif;font-size:17px;font-weight:800;color:var(--brand);text-transform:uppercase;letter-spacing:.05em;margin:0 0 3mm;}
+  .tab-resumo{font-size:14.5px;}
+  .tab-resumo th{font-size:11.5px;padding:5px 8px;}
+  .tab-resumo td{padding:4.5px 8px;vertical-align:middle;}
   .tab-resumo tbody tr:nth-child(even) td{background:#f6f8fa;}
   .tab-resumo .ord{width:6%;color:var(--text-muted);font-variant-numeric:tabular-nums;}
   .tab-resumo .g{font-weight:700;width:24%;}
   .tab-resumo .post{font-weight:700;width:9%;}
   .tab-resumo .pct{width:9%;color:var(--text-secondary);}
   .tab-resumo tfoot td{font-weight:700;border-top:2px solid var(--brand);border-bottom:0;background:none;}
-  .pill{display:inline-block;margin:1px 4px 1px 0;padding:1px 6px;border-radius:3px;font-size:10px;background:var(--e-050);color:var(--e);border-left:3px solid var(--e);white-space:nowrap;}
+  .pill{display:inline-block;margin:1px 5px 1px 0;padding:2px 7px;border-radius:3px;font-size:12.5px;background:var(--e-050);color:var(--e);border-left:3px solid var(--e);white-space:nowrap;}
   .pill b{color:var(--text-primary);font-weight:700;margin-left:3px;}
-  .legenda{margin-top:3mm;font-size:9.5px;color:var(--text-muted);}
+  .legenda{margin-top:3mm;font-size:11px;color:var(--text-muted);}
 
   /* blocos de gestor: nunca divididos entre folhas */
   .bloco{margin-bottom:5mm;}
@@ -273,7 +275,8 @@
     var geral = lista.reduce(function(s, g){ return s + g.total; }, 0), h = [];
     h.push('<div class="r-tit">Resumo por gestor</div><table class="tab-resumo"><thead><tr><th class="ord">#</th><th class="g">Gestor</th>' +
       '<th>Empresas (postos)</th><th class="num post">Postos</th><th class="num pct">% total</th></tr></thead><tbody>');
-    lista.forEach(function(g, i){
+    // ordem do maior para o menor % do total (empate: nome)
+    lista.slice().sort(function(a, b){ return b.total - a.total || a.nome.localeCompare(b.nome, 'pt-BR'); }).forEach(function(g, i){
       var pills = EMPRESAS.filter(function(e){ return g.empresas[e.id]; }).map(function(e){
         return '<span class="pill e-' + e.id + '">' + e.nome + '<b>' + fmt(g.empresas[e.id].total) + '</b></span>';
       }).join('');
@@ -283,7 +286,7 @@
     });
     h.push('</tbody><tfoot><tr><td></td><td>Total</td><td></td><td class="num">' + fmt(geral) +
       '</td><td class="num">100%</td></tr></tfoot></table>' +
-      '<div class="legenda">Gestores em ordem alfabética. Telefone, e-mail, IMR e supervisor não constam deste relatório. Fonte: abas ' +
+      '<div class="legenda">Gestores do maior para o menor % do total; as folhas de detalhe seguem a ordem alfabética. Telefone, e-mail, IMR e supervisor não constam deste relatório. Fonte: abas ' +
       esc(dados.abas.join(', ')) + '.</div>');
     return h.join('');
   }
@@ -292,8 +295,13 @@
   function medir(med, html){
     med.innerHTML = '<div class="bloco">' + html + '</div>';
     var el = med.firstChild, alt = el.getBoundingClientRect().height, zoom = 1;
-    if (alt > med._util){ zoom = Math.floor(med._util / alt * 1000) / 1000; alt = alt * zoom; }
-    return { html:html, alt:alt + 5 * MM, zoom:zoom };
+    // o zoom não é exatamente linear (arredonda fonte/linha): reaplica e remede até caber
+    for (var i = 0; i < 6 && alt > med._util; i++){
+      zoom = Math.floor(zoom * med._util / alt * 995) / 1000;
+      el.style.zoom = zoom;
+      alt = el.getBoundingClientRect().height;
+    }
+    return { html:html, alt:alt + 5 * MM * zoom, zoom:zoom };
   }
 
   function render(){

@@ -29,7 +29,7 @@ Relatório para impressão a partir da planilha mensal de contratos por gestores
 - Colunas localizadas pelo cabeçalho (`GESTOR`, `C.CUSTO`, `CONTRATO`/`INSTITUIÇÃO`, `QTD`, `COORDENADOR`); abas ocultas e outras abas são ignoradas.
 - Grafias diferentes do mesmo nome ficam em `ALIAS_GESTOR`/`ALIAS_COORD` no próprio `index.html`.
 - Folhas A4 montadas na própria página (a prévia é igual ao papel): **nenhum gestor é dividido entre folhas**; se um gestor não couber em uma folha, o bloco é reduzido para caber.
-- Folha 1 = resumo por gestor (empresas com postos, total e %); filtro por gestor e opção "cada gestor em folha separada".
+- Folha 1 = resumo por gestor em fonte maior, do maior para o menor % do total (empresas com postos, total e %); filtro por gestor e opção "cada gestor em folha separada".
 
 ## Estrutura
 | Pasta | Conteúdo |

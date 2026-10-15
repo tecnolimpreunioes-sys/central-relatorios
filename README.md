@@ -14,6 +14,7 @@ Cada usuário vê só as áreas/relatórios liberados pelo administrador; a perm
 |---|---|---|---|
 | Relação de Eventos — Folha Demitidos | RH | `site/relatorios/eventos/` | Sync agendado Oracle → Supabase |
 | Quadro de Vagas (FPRF307) | Operacional (**acesso livre**, sem login) | `site/relatorios/quadro-vagas/` | **Sob demanda**: worker consulta o Oracle ao clicar em Gerar |
+| Contratos por Gestor | T.I. (login da Central) | `site/relatorios/contratos-gestores/` | Planilha `CONTRATOS_GESTORES_<MÊS>-<ANO>.xlsx` lida no navegador (nada é enviado) |
 
 ### Quadro de Vagas (FPRF307)
 Formulário por local e cargo para impressão e preenchimento à caneta.
@@ -23,12 +24,19 @@ Formulário por local e cargo para impressão e preenchimento à caneta.
 - **Fluxo:** tela chama `central.qv_solicitar` (grava em `central.qv_solicitacoes`, com ou sem login) → worker da TECNOLIMP12 (`sync/quadro-vagas/`) consulta o Oracle e grava o resultado → tela acompanha por `central.qv_consultar`. Sem login: até 10 gerações abertas ao mesmo tempo. Resultado só com quantidades (sem dados pessoais); retenção de 7 dias.
 - Documentação técnica completa: [`docs/quadro-de-vagas-documentacao-tecnica.pdf`](docs/quadro-de-vagas-documentacao-tecnica.pdf).
 
+### Contratos por Gestor
+Relatório para impressão a partir da planilha mensal de contratos por gestores: junta as abas Tecnolimp, Serviplus, Pontual e Seed **por gestor** (ex.: NILCELI aparece com o bloco Tecnolimp e o bloco Pontual), sem telefone, e-mail, IMR e supervisor.
+- Colunas localizadas pelo cabeçalho (`GESTOR`, `C.CUSTO`, `CONTRATO`/`INSTITUIÇÃO`, `QTD`, `COORDENADOR`); abas ocultas e outras abas são ignoradas.
+- Nomes corrigidos ficam em `ALIAS_GESTOR`/`ALIAS_COORD`/`ALIAS_SUP` no próprio `index.html` (ex.: gestora CAROLAINE → ITELVÂNIA; coordenadora DANIELLE/DANIELE ROMÃO → DANIELLE ROMÃO; a gestora DANIELLE não muda).
+- Folhas A4 montadas na própria página (a prévia é igual ao papel): **nenhum gestor é dividido entre folhas**; se um gestor não couber em uma folha, o bloco é reduzido para caber.
+- Folhas de resumo (fonte maior, do maior para o menor % do total; empresas com postos, total e %): **por gestor**, **por coordenador** e **por supervisor** (só nos resumos; "Sob demanda / Fulano" conta para Fulano, N/A ou vazio = sem supervisor). Cada uma pode ser ligada/desligada, assim como o detalhe por gestor; filtro por gestor e opção "cada gestor em folha separada".
+
 ## Estrutura
 | Pasta | Conteúdo |
 |---|---|
 | `site/` | Frontend estático (HTML/CSS/JS, sem build). `assets/config.js` = único ponto com URL/chave do Supabase |
 | `site/assets/vendor/` | Bibliotecas servidas localmente (ExcelJS 4.4.0) |
-| `migrations/` | SQL do schema `central`: base (001), proteção do Painel de Eventos (002), carga inicial da produção (003), login por usuário de rede (004), Quadro de Vagas (005) e relatórios de acesso livre (006) |
+| `migrations/` | SQL do schema `central`: base (001), proteção do Painel de Eventos (002), carga inicial da produção (003), login por usuário de rede (004), Quadro de Vagas (005), relatórios de acesso livre (006) e cadastro do Contratos por Gestor (007) |
 | `sync/quadro-vagas/` | Worker Python da TECNOLIMP12 (fila → Oracle → resultado) e instalação no Agendador — ver `LEIAME.md` |
 | `supabase/functions/central-admin-usuarios/` | Edge Function: criar usuário e redefinir senha |
 | `painel-redirect/` | Página que redireciona o endereço antigo do painel para a Central |

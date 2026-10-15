@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contratos por Gestor</title>
+<link rel="icon" href="../../assets/favicon-tecnolimp.ico" sizes="16x16 32x32 48x48">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
+<script src="../../assets/config.js"></script>
+<script src="../../assets/auth.js"></script>
+<script src="../../assets/vendor/exceljs-4.4.0.min.js"></script>
+<style>
+  /* barra da Central (login único) */
+  .cbar{max-width:1000px;margin:0 auto 16px;display:flex;align-items:center;gap:10px;font-size:13px;}
+  .cbar a.cb-link{display:inline-flex;align-items:center;gap:6px;color:#66707f;text-decoration:none;font-weight:500;}
+  .cbar a.cb-link:hover{color:#004773;text-decoration:underline;}
+  .cbar .cb-sep{color:#cbd2dc;}
+  .cbar .cb-sp{flex:1;}
+  .tc-user{position:relative;}
+  .tc-user-btn{display:flex;align-items:center;gap:8px;border:1px solid #e4e7ec;background:#fff;border-radius:999px;padding:3px 10px 3px 3px;font:inherit;font-weight:600;color:#161c2d;cursor:pointer;}
+  .tc-avatar{width:28px;height:28px;border-radius:50%;background:#004773;color:#fff;display:grid;place-items:center;font-size:11.5px;font-weight:700;}
+  .tc-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:230px;background:#fff;border:1px solid #e4e7ec;border-radius:12px;box-shadow:0 10px 28px -10px rgba(0,42,69,.25);padding:6px;z-index:30;}
+  .tc-menu-head{padding:8px 12px;border-bottom:1px solid #e4e7ec;margin-bottom:4px;display:flex;flex-direction:column;}
+  .tc-menu-head span{color:#66707f;font-size:12px;}
+  .tc-menu a,.tc-menu button{display:block;width:100%;text-align:left;padding:8px 12px;border-radius:8px;color:#161c2d;text-decoration:none;font:inherit;background:none;border:0;cursor:pointer;}
+  .tc-menu a:hover,.tc-menu button:hover{background:#eaf1f6;}
+  .tc-menu .tc-sair{color:#c4261d;}
+  @media (max-width:560px){ .tc-user-nome,.cb-area{display:none;} }
+
+  :root{
+    --brand:#004773; --brand-600:#00385c; --brand-050:#eaf1f6; --brand-100:#d5e4ee;
+    --text-primary:#161c2d; --text-secondary:#3c4858; --text-muted:#66707f;
+    --surface:#f7f8fa; --surface-raised:#ffffff; --border:#e4e7ec; --border-strong:#cbd2dc;
+    --focus:#1f6690; --critical:#c4261d;
+    color-scheme: light;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  body{margin:0;background:var(--surface);color:var(--text-primary);font-family:'Inter',system-ui,sans-serif;padding:24px 16px;}
+  .wrap{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:16px;}
+  h1{font-family:'Nunito',system-ui,sans-serif;font-size:20px;font-weight:800;margin:4px 0 2px;}
+  .subtitle{font-size:13px;color:var(--text-secondary);}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+  .brand-logo{height:26px;width:auto;display:block;}
+
+  /* controles */
+  .filtros{background:var(--surface-raised);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;}
+  .campo{display:flex;flex-direction:column;gap:4px;min-width:170px;}
+  .campo label,.campo .rot{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);font-weight:600;}
+  .campo select{font:inherit;font-size:14px;color:var(--text-primary);background:#fff;border:1px solid var(--border-strong);border-radius:8px;padding:8px 10px;}
+  .campo select:focus-visible{outline:2px solid var(--focus);outline-offset:1px;}
+  .campo .check{display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-secondary);cursor:pointer;}
+  .acoes{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto;}
+  .btn{font:inherit;font-size:13.5px;font-weight:600;border-radius:8px;padding:9px 16px;cursor:pointer;border:1px solid var(--border-strong);background:#fff;color:var(--text-primary);display:inline-flex;align-items:center;gap:6px;}
+  .btn:hover:not(:disabled){border-color:var(--brand);color:var(--brand);}
+  .btn.primario{background:var(--brand);border-color:var(--brand);color:#fff;}
+  .btn.primario:hover:not(:disabled){background:var(--brand-600);color:#fff;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .btn:focus-visible{outline:2px solid var(--focus);outline-offset:2px;}
+  .drop{border:2px dashed var(--border-strong);border-radius:10px;background:#fff;padding:28px 16px;text-align:center;color:var(--text-secondary);font-size:14px;cursor:pointer;}
+  .drop.sobre{border-color:var(--brand);background:var(--brand-050);}
+  .drop small{display:block;color:var(--text-muted);margin-top:4px;font-size:12px;}
+  .status{font-size:13px;color:var(--text-secondary);}
+  .status.erro{color:var(--critical);}
+
+  /* relatório: folhas A4 montadas no JS (prévia = papel) */
+  .folhas{display:flex;flex-direction:column;gap:20px;overflow-x:auto;}
+  .pagina{width:210mm;min-height:297mm;margin:0 auto;padding:12mm 10mm;background:#fff;border:1px solid var(--border);box-shadow:0 6px 20px -14px rgba(0,42,69,.3);flex:none;}
+  .vazio{color:var(--text-muted);text-align:center;padding:48px 16px;font-size:14px;background:#fff;border:1px solid var(--border);border-radius:10px;width:100%;}
+  .medidor{position:absolute;left:-10000px;top:0;width:190mm;visibility:hidden;}
+
+  /* cores por empresa (texto escuro sobre tinta clara) */
+  .e-TECNOLIMP{--e:#004773;--e-050:#e6eef3;}
+  .e-SERVIPLUS{--e:#0b6e4f;--e-050:#e5f3ed;}
+  .e-PONTUAL{--e:#a3470b;--e-050:#fcefe3;}
+  .e-SEED{--e:#5b2bb5;--e-050:#efe9fb;}
+
+  .pcab{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:2px solid var(--brand);padding-bottom:6px;margin-bottom:5mm;}
+  .pcab img{height:18px;display:block;}
+  .pcab .tit{font-family:'Nunito',system-ui,sans-serif;font-weight:800;font-size:15px;color:var(--brand);}
+  .pcab .ref{font-size:11px;color:var(--text-muted);text-align:right;line-height:1.35;}
+  .pcab .ref b{color:var(--text-primary);}
+
+  table{width:100%;border-collapse:collapse;font-size:11px;}
+  th,td{padding:3px 7px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top;}
+  th{font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);font-weight:600;border-bottom:1px solid var(--border-strong);}
+  .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .cc{font-variant-numeric:tabular-nums;color:var(--text-secondary);width:18%;}
+  .coord{width:17%;}
+  .qtd{width:7%;}
+  .vazio-c{color:var(--border-strong);}
+
+  /* folha 1: resumo */
+  .r-tit{font-family:'Nunito',system-ui,sans-serif;font-size:17px;font-weight:800;color:var(--brand);text-transform:uppercase;letter-spacing:.05em;margin:0 0 3mm;}
+  .tab-resumo{font-size:14.5px;}
+  .tab-resumo th{font-size:11.5px;padding:5px 8px;}
+  .tab-resumo td{padding:4.5px 8px;vertical-align:middle;}
+  .tab-resumo tbody tr:nth-child(even) td{background:#f6f8fa;}
+  .tab-resumo .ord{width:6%;color:var(--text-muted);font-variant-numeric:tabular-nums;}
+  .tab-resumo .g{font-weight:700;width:31%;}
+  .tab-resumo tr.sem td{color:var(--text-muted);font-style:italic;}
+  .tab-resumo .post{font-weight:700;width:9%;}
+  .tab-resumo .pct{width:9%;color:var(--text-secondary);}
+  .tab-resumo tfoot td{font-weight:700;border-top:2px solid var(--brand);border-bottom:0;background:none;}
+  .pill{display:inline-block;margin:1px 5px 1px 0;padding:2px 7px;border-radius:3px;font-size:12.5px;background:var(--e-050);color:var(--e);border-left:3px solid var(--e);white-space:nowrap;}
+  .pill b{color:var(--text-primary);font-weight:700;margin-left:3px;}
+  .legenda{margin-top:3mm;font-size:11px;color:var(--text-muted);}
+
+  /* blocos de gestor: nunca divididos entre folhas */
+  .bloco{margin-bottom:5mm;}
+  .gestor-cab{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--brand);color:#fff;padding:5px 9px;border-radius:3px;}
+  .gestor-cab .nome{font-family:'Nunito',system-ui,sans-serif;font-weight:800;font-size:14px;letter-spacing:.02em;}
+  .gestor-cab .tot{font-size:11px;white-space:nowrap;}
+  .gestor-cab .tot b{font-size:13px;}
+  .empresa{margin-top:2.5mm;}
+  .empresa-cab{display:flex;justify-content:space-between;gap:8px;font-size:11px;font-weight:700;color:var(--e);background:var(--e-050);padding:3px 9px;border-left:4px solid var(--e);}
+  .empresa-cab span{font-weight:500;color:var(--text-secondary);}
+
+  @page{size:A4 portrait;margin:12mm 10mm;}
+  @media print{
+    body{background:#fff;padding:0;}
+    .no-print{display:none !important;}
+    .wrap{max-width:none;gap:0;}
+    .folhas{display:block;overflow:visible;}
+    .pagina{width:auto;min-height:0;padding:0;border:0;box-shadow:none;break-after:page;page-break-after:always;}
+    .pagina:last-child{break-after:auto;page-break-after:auto;}
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  }
+</style>
+</head>
+<body>
+<nav class="cbar no-print" aria-label="Navegação da Central">
+  <a class="cb-link" href="../../index.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Central de Relatórios</a>
+  <span class="cb-sep cb-area">/</span><a class="cb-link cb-area" href="../../area.html?a=ti">T.I.</a>
+  <span class="cb-sp"></span><div id="user-slot"></div>
+</nav>
+<div class="wrap">
+  <header class="topbar no-print">
+    <div>
+      <img class="brand-logo" src="../../assets/tecnolimplogo.png" alt="Tecnolimp">
+      <h1>Contratos por Gestor</h1>
+      <div class="subtitle">Agrupa as abas Tecnolimp, Serviplus, Pontual e Seed por gestor. Telefone, e-mail e IMR não aparecem; supervisor só nos resumos. A planilha é lida só no seu navegador.</div>
+    </div>
+  </header>
+
+  <label class="drop no-print" id="drop">
+    <input type="file" id="arquivo" accept=".xlsx" hidden>
+    <strong>Selecione ou arraste a planilha de contratos por gestores (.xlsx)</strong>
+    <small id="nomeArquivo">Ex.: CONTRATOS_GESTORES_SETEMBRO-2026.xlsx</small>
+  </label>
+
+  <div class="filtros no-print" id="controles" hidden>
+    <div class="campo">
+      <label for="fGestor">Gestor</label>
+      <select id="fGestor"><option value="">Todos</option></select>
+    </div>
+    <div class="campo">
+      <span class="rot">Impressão</span>
+      <label class="check"><input type="checkbox" id="fResGestor" checked> Resumo por gestor</label>
+      <label class="check"><input type="checkbox" id="fResCoord" checked> Resumo por coordenador</label>
+      <label class="check"><input type="checkbox" id="fResSup" checked> Resumo por supervisor</label>
+      <label class="check"><input type="checkbox" id="fDetalhe" checked> Detalhe por gestor</label>
+      <label class="check"><input type="checkbox" id="fQuebra"> Cada gestor em folha separada</label>
+    </div>
+    <div class="acoes">
+      <button class="btn primario" id="btnImprimir" type="button">Imprimir</button>
+    </div>
+  </div>
+  <div class="status no-print" id="status" role="status"></div>
+
+  <main class="folhas" id="folha"><div class="vazio">Carregue a planilha para gerar o relatório.</div></main>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  // Ordem das empresas no relatório; a aba é reconhecida pelo nome (ex.: "PONTUAL.26").
+  var EMPRESAS = [
+    { id:'TECNOLIMP', nome:'Tecnolimp', chaves:['TECNOLIMP'] },
+    { id:'SERVIPLUS', nome:'Serviplus', chaves:['SERVIPLUS','SERVPLUS'] },
+    { id:'PONTUAL',   nome:'Pontual',   chaves:['PONTUAL'] },
+    { id:'SEED',      nome:'Seed',      chaves:['SEED'] }
+  ];
+  // Mesma pessoa grafada de formas diferentes entre as abas.
+  var ALIAS_GESTOR = { FRANCIELI:'FRANCIELLI', FRANCIELE:'FRANCIELLI', NILCELLI:'NILCELI', CAROLAINE:'ITELVÂNIA', CAROLINE:'ITELVÂNIA' };
+  var ALIAS_COORD = { EDLAINE:'EDILAINE', DANIELLE:'DANIELLE ROMÃO', DANIELE:'DANIELLE ROMÃO', 'DANIELE ROMAO':'DANIELLE ROMÃO', 'DANIELLE ROMAO':'DANIELLE ROMÃO' };
+  var ALIAS_SUP = { 'JURANDIR / ENCARREGADO':'JURANDIR (ENCARREGADO)', 'KATIA - LONDRINA':'KATIA' };
+
+  // "SOB DEMANDA / FABIO" conta para FABIO; N/A e vazio = sem supervisor; "EQUIPE ..." = equipe de supervisão.
+  function supervisor(s){
+    var n = norm(s).replace(/^SOB DEMANDA\s*[\/\-]?\s*/, '');
+    if (!n || n === 'N/A' || n === '-') return '';
+    if (n.indexOf('EQUIPE') === 0) return 'EQUIPE DE SUPERVISÃO';
+    return ALIAS_SUP[n] || n;
+  }
+
+  var $ = function(id){ return document.getElementById(id); };
+  var dados = null; // { ref, gestores:[{nome, total, empresas:{ID:{linhas,total}}}] }
+
+  function norm(s){
+    return String(s == null ? '' : s).normalize('NFD').replace(/[̀-ͯ]/g,'')
+      .replace(/\s+/g,' ').trim().toUpperCase();
+  }
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+  }
+  function limpa(s){ // tira aspas soltas dos códigos colados ("3.2.60==","3.2.61==")
+    return String(s).replace(/[\u0096\u0097\u2013\u2014]/g,'-').replace(/[\u0000-\u001f\u0080-\u009f]/g,' ').replace(/["'\u201c\u201d\u2018\u2019]/g,'').replace(/\s*,\s*/g,', ').replace(/\s*-\s*/g,' - ').replace(/\s+/g,' ').trim();
+  }
+  function fmt(n){ return Number(n || 0).toLocaleString('pt-BR'); }
+
+  function valor(cell){
+    if (cell.isMerged && cell.master && cell.master !== cell) cell = cell.master;
+    var v = cell.value;
+    if (v == null) return '';
+    if (typeof v === 'object'){
+      if (v.richText) return v.richText.map(function(t){ return t.text; }).join('');
+      if ('result' in v) return v.result == null ? '' : v.result;
+      if (v.formula || v.sharedFormula) return '';
+      if (v.text != null) return v.text;
+      if (v.error) return '';
+    }
+    return v;
+  }
+
+  function empresaDaAba(nome){
+    var n = norm(nome);
+    for (var i = 0; i < EMPRESAS.length; i++)
+      if (EMPRESAS[i].chaves.some(function(k){ return n.indexOf(k) === 0; })) return EMPRESAS[i].id;
+    return null;
+  }
+
+  function colunas(ws){
+    for (var r = 1; r <= Math.min(ws.rowCount, 15); r++){
+      var row = ws.getRow(r), map = {};
+      row.eachCell({ includeEmpty:false }, function(cell, c){
+        var t = norm(valor(cell));
+        if (t === 'GESTOR') map.gestor = c;
+        else if (t.indexOf('CUSTO') >= 0) map.cc = c;
+        else if (t.indexOf('CONTRATO') === 0 || t.indexOf('INSTITUI') === 0) map.contrato = c;
+        else if (t === 'QTD' || t.indexOf('QTD') === 0) map.qtd = c;
+        else if (t.indexOf('COORDENADOR') === 0) map.coord = c;
+        else if (t.indexOf('SUPERVISOR') === 0) map.sup = c;
+      });
+      if (map.gestor && map.contrato && map.qtd){ map.inicio = r + 1; return map; }
+    }
+    return null;
+  }
+
+  function ler(wb, nomeArquivo){
+    var porGestor = {}, abas = [];
+    wb.eachSheet(function(ws){
+      var emp = empresaDaAba(ws.name);
+      if (!emp || ws.state === 'hidden' || ws.state === 'veryHidden') return;
+      var col = colunas(ws);
+      if (!col) return;
+      abas.push(ws.name);
+      var atual = '';
+      for (var r = col.inicio; r <= ws.rowCount; r++){
+        var row = ws.getRow(r);
+        var g = norm(valor(row.getCell(col.gestor)));
+        if (g) atual = ALIAS_GESTOR[g] || g;
+        var contrato = String(valor(row.getCell(col.contrato))).trim();
+        if (!contrato || !atual) continue;
+        var q = Number(valor(row.getCell(col.qtd))) || 0;
+        var coord = col.coord ? norm(valor(row.getCell(col.coord))) : '';
+        coord = ALIAS_COORD[coord] || coord;
+        var gest = porGestor[atual] || (porGestor[atual] = { nome:atual, total:0, empresas:{} });
+        var e = gest.empresas[emp] || (gest.empresas[emp] = { linhas:[], total:0 });
+        e.linhas.push({ cc: col.cc ? limpa(valor(row.getCell(col.cc))) : '', contrato: limpa(contrato), coord: coord,
+          sup: col.sup ? supervisor(valor(row.getCell(col.sup))) : '', qtd: q });
+        e.total += q; gest.total += q;
+      }
+    });
+    var gestores = Object.keys(porGestor).sort(function(a,b){ return a.localeCompare(b,'pt-BR'); })
+      .map(function(k){ return porGestor[k]; });
+    var m = /([A-ZÇ]+)[-_ ]+(\d{4})/i.exec(nomeArquivo.replace(/\.xlsx$/i,''));
+    return { gestores:gestores, abas:abas, ref: m ? (m[1].toUpperCase() + '/' + m[2]) : '' };
+  }
+
+  // Área útil da folha (A4 menos as margens do @page), em px CSS.
+  var MM = 96 / 25.4, AREA_H = 273 * MM, FOLGA = 3 * MM;
+  var seq = 0;
+
+  function plural(n, s){ return n + ' ' + s + (n === 1 ? '' : 's'); }
+  function nContratos(g){ return EMPRESAS.reduce(function(s, e){ return s + (g.empresas[e.id] ? g.empresas[e.id].linhas.length : 0); }, 0); }
+
+  function cabecalho(folha, total){
+    return '<div class="pcab"><div><img src="../../assets/tecnolimplogo.png" alt="Tecnolimp"><div class="tit">Contratos por Gestor</div></div>' +
+      '<div class="ref">' + (dados.ref ? 'Referência <b>' + esc(dados.ref) + '</b> · ' : '') + 'gerado em ' + new Date().toLocaleDateString('pt-BR') +
+      '<br>Folha <b>' + folha + '</b> de ' + total + '</div></div>';
+  }
+
+  function blocoGestor(g){
+    var h = ['<div class="gestor-cab"><span class="nome">' + esc(g.nome) + '</span><span class="tot">' +
+      plural(nContratos(g), 'contrato') + ' · <b>' + fmt(g.total) + '</b> postos</span></div>'];
+    EMPRESAS.forEach(function(e){
+      var b = g.empresas[e.id];
+      if (!b) return;
+      h.push('<div class="empresa e-' + e.id + '"><div class="empresa-cab">' + e.nome.toUpperCase() +
+        '<span>' + plural(b.linhas.length, 'contrato') + ' · ' + fmt(b.total) + ' postos</span></div>' +
+        '<table><thead><tr><th class="cc">C. Custo</th><th>Contrato</th><th class="coord">Coordenador</th><th class="num qtd">Qtd</th></tr></thead><tbody>');
+      b.linhas.forEach(function(l){
+        h.push('<tr><td class="cc">' + esc(l.cc) + '</td><td>' + esc(l.contrato) + '</td><td class="coord">' +
+          (l.coord ? esc(l.coord) : '<span class="vazio-c">—</span>') + '</td><td class="num">' + fmt(l.qtd) + '</td></tr>');
+      });
+      h.push('</tbody></table></div>');
+    });
+    return h.join('');
+  }
+
+  // Soma postos por pessoa (gestor, coordenador ou supervisor) e empresa. chave(linha, gestor) → nome ('' = sem).
+  function agrupar(lista, chave){
+    var grupos = {};
+    lista.forEach(function(g){
+      EMPRESAS.forEach(function(e){
+        var b = g.empresas[e.id];
+        if (!b) return;
+        b.linhas.forEach(function(l){
+          var nome = chave(l, g), k = nome || '';
+          var gr = grupos[k] || (grupos[k] = { nome:nome, total:0, empresas:{} });
+          gr.empresas[e.id] = (gr.empresas[e.id] || 0) + l.qtd;
+          gr.total += l.qtd;
+        });
+      });
+    });
+    return Object.keys(grupos).map(function(k){ return grupos[k]; });
+  }
+
+  // Folha de resumo: do maior para o menor % do total; "sem ..." sempre por último.
+  function blocoResumo(titulo, coluna, semNome, grupos, nota){
+    var geral = grupos.reduce(function(s, g){ return s + g.total; }, 0), h = [];
+    h.push('<div class="r-tit">' + titulo + '</div><table class="tab-resumo"><thead><tr><th class="ord">#</th><th class="g">' + coluna + '</th>' +
+      '<th>Empresas (postos)</th><th class="num post">Postos</th><th class="num pct">% total</th></tr></thead><tbody>');
+    grupos.slice().sort(function(a, b){
+      return (!a.nome) - (!b.nome) || b.total - a.total || a.nome.localeCompare(b.nome, 'pt-BR');
+    }).forEach(function(g, i){
+      var pills = EMPRESAS.filter(function(e){ return g.empresas[e.id]; }).map(function(e){
+        return '<span class="pill e-' + e.id + '">' + e.nome + '<b>' + fmt(g.empresas[e.id]) + '</b></span>';
+      }).join('');
+      h.push('<tr' + (g.nome ? '' : ' class="sem"') + '><td class="ord">' + (g.nome ? i + 1 : '') + '</td><td class="g">' + esc(g.nome || semNome) + '</td><td>' + pills + '</td>' +
+        '<td class="num post">' + fmt(g.total) + '</td>' +
+        '<td class="num pct">' + (geral ? (g.total / geral * 100).toLocaleString('pt-BR', { minimumFractionDigits:1, maximumFractionDigits:1 }) : '0') + '%</td></tr>');
+    });
+    h.push('</tbody><tfoot><tr><td></td><td>Total</td><td></td><td class="num">' + fmt(geral) +
+      '</td><td class="num">100%</td></tr></tfoot></table>' +
+      '<div class="legenda">' + nota + ' Telefone, e-mail e IMR não constam deste relatório. Fonte: abas ' +
+      esc(dados.abas.join(', ')) + '.</div>');
+    return h.join('');
+  }
+
+  // Mede o bloco na largura útil da folha; se passar de uma folha, reduz (zoom) para caber inteiro.
+  function medir(med, html){
+    med.innerHTML = '<div class="bloco">' + html + '</div>';
+    var el = med.firstChild, alt = el.getBoundingClientRect().height, zoom = 1;
+    // o zoom não é exatamente linear (arredonda fonte/linha): reaplica e remede até caber
+    for (var i = 0; i < 6 && alt > med._util; i++){
+      zoom = Math.floor(zoom * med._util / alt * 995) / 1000;
+      el.style.zoom = zoom;
+      alt = el.getBoundingClientRect().height;
+    }
+    return { html:html, alt:alt + 5 * MM * zoom, zoom:zoom };
+  }
+
+  function render(){
+    if (!dados) return;
+    var minha = ++seq;
+    document.fonts.ready.then(function(){
+      if (minha !== seq) return;
+      var filtro = $('fGestor').value, umPorFolha = $('fQuebra').checked, detalhe = $('fDetalhe').checked || !!filtro;
+      var lista = dados.gestores.filter(function(g){ return !filtro || g.nome === filtro; });
+      var med = document.createElement('div');
+      med.className = 'medidor';
+      document.body.appendChild(med);
+      med.innerHTML = cabecalho(99, 99);
+      med._util = AREA_H - med.firstChild.getBoundingClientRect().height - 5 * MM - FOLGA;
+
+      // empacota os gestores em folhas, na ordem alfabética, sem dividir nenhum
+      var folhas = [], atual = null;
+      if (detalhe) lista.forEach(function(g){
+        var b = medir(med, blocoGestor(g));
+        if (!atual || umPorFolha || atual.usado + b.alt > med._util + 5 * MM){
+          atual = { blocos:[], usado:0 }; folhas.push(atual);
+        }
+        atual.blocos.push(b); atual.usado += b.alt;
+      });
+      var paginas = folhas.map(function(f){ return f.blocos; });
+      // folhas de resumo (só sem filtro de gestor), nesta ordem, antes do detalhe
+      var resumos = [];
+      if (!filtro && $('fResGestor').checked)
+        resumos.push(blocoResumo('Resumo por gestor', 'Gestor', '', lista.map(function(g){
+          var emp = {};
+          EMPRESAS.forEach(function(e){ if (g.empresas[e.id]) emp[e.id] = g.empresas[e.id].total; });
+          return { nome:g.nome, total:g.total, empresas:emp };
+        }), 'Gestores do maior para o menor % do total; as folhas de detalhe seguem a ordem alfabética.'));
+      if (!filtro && $('fResCoord').checked)
+        resumos.push(blocoResumo('Resumo por coordenador', 'Coordenador', 'Sem coordenador', agrupar(lista, function(l){ return l.coord; }),
+          'Coordenadores do maior para o menor % do total.'));
+      if (!filtro && $('fResSup').checked)
+        resumos.push(blocoResumo('Resumo por supervisor', 'Supervisor', 'Sem supervisor', agrupar(lista, function(l){ return l.sup; }),
+          'Supervisores do maior para o menor % do total. "Sob demanda / Fulano" conta para o próprio supervisor; N/A ou em branco = sem supervisor.'));
+      paginas = resumos.map(function(html){ return [medir(med, html)]; }).concat(paginas);
+      med.remove();
+
+      var total = paginas.length;
+      $('folha').innerHTML = total ? paginas.map(function(blocos, i){
+        return '<section class="pagina">' + cabecalho(i + 1, total) + blocos.map(function(b){
+          return '<div class="bloco"' + (b.zoom < 1 ? ' style="zoom:' + b.zoom + '"' : '') + '>' + b.html + '</div>';
+        }).join('') + '</section>';
+      }).join('') : '<div class="vazio">Nenhum contrato encontrado.</div>';
+      $('status').textContent = dados.gestores.length + ' gestores · ' + plural(total, 'folha') + ' para impressão.';
+    });
+  }
+
+  function carregar(file){
+    if (!file) return;
+    var st = $('status');
+    st.className = 'status no-print'; st.textContent = 'Lendo ' + file.name + '…';
+    $('nomeArquivo').textContent = file.name;
+    file.arrayBuffer().then(function(buf){
+      var wb = new ExcelJS.Workbook();
+      return wb.xlsx.load(buf).then(function(){ return wb; });
+    }).then(function(wb){
+      dados = ler(wb, file.name);
+      if (!dados.abas.length) throw new Error('Nenhuma aba Tecnolimp, Serviplus, Pontual ou Seed com a coluna GESTOR foi encontrada.');
+      var sel = $('fGestor');
+      sel.innerHTML = '<option value="">Todos</option>' + dados.gestores.map(function(g){
+        return '<option>' + esc(g.nome) + '</option>'; }).join('');
+      $('controles').hidden = false;
+      render();
+    }).catch(function(err){
+      st.className = 'status erro no-print';
+      st.textContent = 'Não foi possível ler a planilha: ' + (err && err.message || err);
+    });
+  }
+
+  var drop = $('drop');
+  $('arquivo').addEventListener('change', function(){ carregar(this.files[0]); });
+  ['dragenter','dragover'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add('sobre'); }); });
+  ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove('sobre'); }); });
+  drop.addEventListener('drop', function(e){ carregar(e.dataTransfer.files[0]); });
+  ['fGestor','fQuebra','fResGestor','fResCoord','fResSup','fDetalhe'].forEach(function(id){ $(id).addEventListener('change', render); });
+  $('btnImprimir').addEventListener('click', function(){ window.print(); });
+
+  // login único da Central: permissão pelo slug (área T.I.)
+  TC.protegerRelatorio('contratos-gestores').then(function(perfil){
+    TC.montarMenuUsuario($('user-slot'), perfil);
+  });
+})();
+</script>
+</body>
+</html>

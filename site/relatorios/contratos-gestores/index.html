@@ -7,8 +7,27 @@
 <link rel="icon" href="../../assets/favicon-tecnolimp.ico" sizes="16x16 32x32 48x48">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
+<script src="../../assets/config.js"></script>
+<script src="../../assets/auth.js"></script>
 <script src="../../assets/vendor/exceljs-4.4.0.min.js"></script>
 <style>
+  /* barra da Central (login único) */
+  .cbar{max-width:1000px;margin:0 auto 16px;display:flex;align-items:center;gap:10px;font-size:13px;}
+  .cbar a.cb-link{display:inline-flex;align-items:center;gap:6px;color:#66707f;text-decoration:none;font-weight:500;}
+  .cbar a.cb-link:hover{color:#004773;text-decoration:underline;}
+  .cbar .cb-sep{color:#cbd2dc;}
+  .cbar .cb-sp{flex:1;}
+  .tc-user{position:relative;}
+  .tc-user-btn{display:flex;align-items:center;gap:8px;border:1px solid #e4e7ec;background:#fff;border-radius:999px;padding:3px 10px 3px 3px;font:inherit;font-weight:600;color:#161c2d;cursor:pointer;}
+  .tc-avatar{width:28px;height:28px;border-radius:50%;background:#004773;color:#fff;display:grid;place-items:center;font-size:11.5px;font-weight:700;}
+  .tc-menu{position:absolute;right:0;top:calc(100% + 6px);min-width:230px;background:#fff;border:1px solid #e4e7ec;border-radius:12px;box-shadow:0 10px 28px -10px rgba(0,42,69,.25);padding:6px;z-index:30;}
+  .tc-menu-head{padding:8px 12px;border-bottom:1px solid #e4e7ec;margin-bottom:4px;display:flex;flex-direction:column;}
+  .tc-menu-head span{color:#66707f;font-size:12px;}
+  .tc-menu a,.tc-menu button{display:block;width:100%;text-align:left;padding:8px 12px;border-radius:8px;color:#161c2d;text-decoration:none;font:inherit;background:none;border:0;cursor:pointer;}
+  .tc-menu a:hover,.tc-menu button:hover{background:#eaf1f6;}
+  .tc-menu .tc-sair{color:#c4261d;}
+  @media (max-width:560px){ .tc-user-nome,.cb-area{display:none;} }
+
   :root{
     --brand:#004773; --brand-600:#00385c; --brand-050:#eaf1f6; --brand-100:#d5e4ee;
     --text-primary:#161c2d; --text-secondary:#3c4858; --text-muted:#66707f;
@@ -111,12 +130,17 @@
 </style>
 </head>
 <body>
+<nav class="cbar no-print" aria-label="Navegação da Central">
+  <a class="cb-link" href="../../index.html"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>Central de Relatórios</a>
+  <span class="cb-sep cb-area">/</span><a class="cb-link cb-area" href="../../area.html?a=ti">T.I.</a>
+  <span class="cb-sp"></span><div id="user-slot"></div>
+</nav>
 <div class="wrap">
   <header class="topbar no-print">
     <div>
       <img class="brand-logo" src="../../assets/tecnolimplogo.png" alt="Tecnolimp">
       <h1>Contratos por Gestor</h1>
-      <div class="subtitle">Agrupa as abas Tecnolimp, Serviplus, Pontual e Seed por gestor. Telefone, e-mail, IMR e supervisor não aparecem. A planilha é lida só no seu navegador.</div>
+      <div class="subtitle">Agrupa as abas Tecnolimp, Serviplus, Pontual e Seed por gestor. Telefone, e-mail e IMR não aparecem; supervisor só nos resumos. A planilha é lida só no seu navegador.</div>
     </div>
   </header>
 
@@ -418,6 +442,11 @@
   drop.addEventListener('drop', function(e){ carregar(e.dataTransfer.files[0]); });
   ['fGestor','fQuebra','fResGestor','fResCoord','fResSup','fDetalhe'].forEach(function(id){ $(id).addEventListener('change', render); });
   $('btnImprimir').addEventListener('click', function(){ window.print(); });
+
+  // login único da Central: permissão pelo slug (área T.I.)
+  TC.protegerRelatorio('contratos-gestores').then(function(perfil){
+    TC.montarMenuUsuario($('user-slot'), perfil);
+  });
 })();
 </script>
 </body>

@@ -14,7 +14,7 @@ Cada usuário vê só as áreas/relatórios liberados pelo administrador; a perm
 |---|---|---|---|
 | Relação de Eventos — Folha Demitidos | RH | `site/relatorios/eventos/` | Sync agendado Oracle → Supabase |
 | Quadro de Vagas (FPRF307) | Operacional (**acesso livre**, sem login) | `site/relatorios/quadro-vagas/` | **Sob demanda**: worker consulta o Oracle ao clicar em Gerar |
-| Contratos por Gestor | Operacional (página avulsa, sem login) | `site/relatorios/contratos-gestores/` | Planilha `CONTRATOS_GESTORES_<MÊS>-<ANO>.xlsx` lida no navegador (nada é enviado) |
+| Contratos por Gestor | T.I. (login da Central) | `site/relatorios/contratos-gestores/` | Planilha `CONTRATOS_GESTORES_<MÊS>-<ANO>.xlsx` lida no navegador (nada é enviado) |
 
 ### Quadro de Vagas (FPRF307)
 Formulário por local e cargo para impressão e preenchimento à caneta.
@@ -36,7 +36,7 @@ Relatório para impressão a partir da planilha mensal de contratos por gestores
 |---|---|
 | `site/` | Frontend estático (HTML/CSS/JS, sem build). `assets/config.js` = único ponto com URL/chave do Supabase |
 | `site/assets/vendor/` | Bibliotecas servidas localmente (ExcelJS 4.4.0) |
-| `migrations/` | SQL do schema `central`: base (001), proteção do Painel de Eventos (002), carga inicial da produção (003), login por usuário de rede (004), Quadro de Vagas (005) e relatórios de acesso livre (006) |
+| `migrations/` | SQL do schema `central`: base (001), proteção do Painel de Eventos (002), carga inicial da produção (003), login por usuário de rede (004), Quadro de Vagas (005), relatórios de acesso livre (006) e cadastro do Contratos por Gestor (007) |
 | `sync/quadro-vagas/` | Worker Python da TECNOLIMP12 (fila → Oracle → resultado) e instalação no Agendador — ver `LEIAME.md` |
 | `supabase/functions/central-admin-usuarios/` | Edge Function: criar usuário e redefinir senha |
 | `painel-redirect/` | Página que redireciona o endereço antigo do painel para a Central |

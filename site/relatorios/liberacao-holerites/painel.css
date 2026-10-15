@@ -274,3 +274,11 @@
   .vazio b{display:block;color:var(--color-ink);font-size:15px;margin-bottom:4px;}
   .grid td.carregando{color:var(--color-subtle);text-align:center;padding:30px;}
   @media (max-width:560px){ .tc-user-nome,.cb-area{display:none;} }
+
+  /* tooltip flutuante (data-tip) */
+  .tip{position:fixed;z-index:200;max-width:280px;padding:7px 10px;border-radius:6px;background:#1d2733;color:#fff;font-size:12px;line-height:1.4;font-weight:500;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.18);}
+  [data-tip]{cursor:help;}
+  .cell[data-tip],.btn[data-tip],.lg[data-tip]{cursor:pointer;}
+  .btn.sm{padding:3px 9px;font-size:12px;white-space:nowrap;}
+  .opt.rev b{color:var(--lock);}
+  @media print{.tip{display:none!important;}}

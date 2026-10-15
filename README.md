@@ -29,7 +29,7 @@ Formulário por local e cargo para impressão e preenchimento à caneta.
 |---|---|
 | `site/` | Frontend estático (HTML/CSS/JS, sem build). `assets/config.js` = único ponto com URL/chave do Supabase |
 | `site/assets/vendor/` | Bibliotecas servidas localmente (ExcelJS 4.4.0) |
-| `migrations/` | SQL do schema `central`: base (001), proteção do Painel de Eventos (002), carga inicial da produção (003), login por usuário de rede (004), Quadro de Vagas (005), relatórios de acesso livre (006) e Liberação de Holerites (007). `migrations/testes/` = teste local com stub do Supabase |
+| `migrations/` | SQL do schema `central`: base (001), proteção do Painel de Eventos (002), carga inicial da produção (003), login por usuário de rede (004), Quadro de Vagas (005), relatórios de acesso livre (006) e Liberação de Holerites (007; 008 = cancelar pedido). `migrations/testes/` = teste local com stub do Supabase |
 | `sync/quadro-vagas/` | Worker Python da TECNOLIMP12 (fila → Oracle → resultado) e instalação no Agendador — ver `LEIAME.md` |
 | `sync/liberacao-holerites/` | Integrador da Liberação de Holerites (fila → USU_TLIBHOL no Sapiens → espelho) — ver `LEIAME.md` |
 | `supabase/functions/central-admin-usuarios/` | Edge Function: criar usuário e redefinir senha |

@@ -360,7 +360,7 @@
                           >
                             Selecionar Mes
                           </button>
-                          <ul class="dropdown-menu" style="cursor: pointer">
+                          <ul class="dropdown-menu" style="cursor: pointer; min-width: 260px">
                             <li>
                               <a
                                 class="dropdown-item mes-option"
@@ -577,6 +577,14 @@
       #holerite canvas {
         width: 70%;
         height: auto;
+      }
+
+      /* combo do holerite: mês à esquerda, situação à direita */
+      .mes-option {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
       }
     </style>
     <script type="text/javascript">
@@ -840,6 +848,8 @@
               ? '<span class="badge bg-label-secondary ms-2">&#128274; Em breve</span>'
               : estado === "sem"
               ? '<span class="badge bg-label-secondary ms-2">Sem holerite</span>'
+              : estado === "ok"
+              ? '<span class="badge bg-label-primary ms-2">&#128196; Ver holerite</span>'
               : "";
           $(`.mes-option[value="${chave}"]`).html(
             obterMesAno(MESES_HOLERITE[chave]) + extra

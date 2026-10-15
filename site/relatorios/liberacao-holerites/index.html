@@ -23,7 +23,7 @@
   <div class="head">
     <div>
       <h1>Liberação de holerites — RH 24h</h1>
-      <div class="meta">Hoje: <b id="hoje">—</b> · Folhas lidas do Sapiens em <b id="lastSync">—</b></div>
+      <div class="meta">Hoje: <b id="hoje">—</b> · <span data-tip="Última vez que o integrador leu as folhas (R044CAL) e as liberações (USU_TLIBHOL) do Sapiens.">Folhas lidas do Sapiens em</span> <b id="lastSync">—</b></div>
     </div>
     <div class="actions">
       <button class="btn" id="btnSync" title="Pede ao integrador para reler a R044CAL e a USU_TLIBHOL">↻ Atualizar do Sapiens</button>
@@ -71,12 +71,19 @@
   <section id="tabComo" class="hidden">
     <div class="banner info"><span>ℹ</span><div>Todo holerite nasce <b>bloqueado</b>. Ele só aparece no portal RH 24h quando a TI libera aqui, a pedido do RH. A trava fica no Sapiens (pré-seleção dos 15 modelos), então não dá para contornar pela URL do portal.</div></div>
     <div class="how">
-      <div class="card"><h4>1. RH pede</h4><p>“Pode soltar setembro dia 04.” A TI abre a coluna do mês e escolhe <b>Agendar</b> (ou Liberar agora). No lote “Todas no padrão”, cada empresa libera <b>1 dia antes do pagamento</b>.</p></div>
+      <div class="card"><h4>1. RH pede</h4><p>“Pode soltar setembro dia 04.” A TI abre a célula e escolhe <b>Agendar</b> (ou Liberar agora). <b>No padrão</b> = pagamento − 1 dia, por empresa (na célula ou em “Todas ▾”).</p></div>
       <div class="card"><h4>2. Painel envia</h4><p>O clique vira um pedido. O integrador na TECNOLIMP12 grava na tabela <code>USU_TLIBHOL</code> do Sapiens e relê as folhas. Nada fica rodando em ciclo.</p></div>
       <div class="card"><h4>3. Portal obedece</h4><p>O agendamento não depende de nenhum processo: a data fica no Sapiens e o próprio holerite confere no dia. O colaborador nunca vê data: até sair, aparece só <b>🔒 Em breve</b>.</p></div>
     </div>
     <div class="card" style="padding:16px;margin-top:12px"><h4 style="margin:0 0 6px;font-family:var(--font-display);color:var(--color-primary)">Por que só 3 meses no painel?</h4>
       <p style="margin:0;color:var(--color-muted);font-size:13px;line-height:1.5">O combo do portal tem 3 posições (atual, anterior e há 2 meses). Mês fora dessa janela não aparece para ninguém, então não há o que liberar. Quando a folha do mês corrente já foi calculada, ela aparece como “Próxima” para a TI poder agendar antes.</p></div>
+    <div class="card" style="padding:16px;margin-top:12px"><h4 style="margin:0 0 6px;font-family:var(--font-display);color:var(--color-primary)">Errou? Como desfazer</h4>
+      <ul style="margin:0;padding-left:18px;color:var(--color-muted);font-size:13px;line-height:1.6">
+        <li><b>Pedido ainda carregando:</b> “Cancelar pedido” na caixa de andamento. Só funciona antes de o integrador começar a gravar.</li>
+        <li><b>Já liberado ou agendado:</b> abra a célula e use <b>↩ Reverter liberação</b> (ou “↩ Reverter” no Histórico). Volta a “🔒 Em breve” na hora.</li>
+        <li><b>Bloqueou sem querer:</b> abra a célula e libere de novo (agora, no padrão ou em outra data).</li>
+        <li><b>Painel ou integrador fora do ar:</b> SQL de contingência (manual da TI) e depois “Atualizar do Sapiens”.</li>
+      </ul></div>
   </section>
 </main>
 
@@ -119,7 +126,10 @@
     <div class="sub" id="ldSub"></div>
     <ul class="steps" id="ldSteps"></ul>
     <div class="ld-bar" id="ldBar"><i></i></div>
-    <div class="acts hidden" id="ldActs"><button class="btn primary" id="ldOk">Entendi</button></div>
+    <div class="acts hidden" id="ldActs">
+      <button class="btn" id="ldCancel" title="Tira o pedido da fila se o integrador ainda não começou a gravar">Cancelar pedido</button>
+      <button class="btn primary hidden" id="ldOk">Entendi</button>
+    </div>
   </div>
 </div>
 

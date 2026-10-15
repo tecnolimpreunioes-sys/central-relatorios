@@ -105,5 +105,5 @@ No painel PROD, uma empresa, competência "Próxima": **Agendar** para daqui a 7
 
 ## Operação no dia a dia
 - RH pede → TI agenda (ou "Todas no padrão": cada empresa libera 1 dia antes do pagamento).
-- Aviso "integrador não respondeu" → Agendador › *Tecnolimp - Liberacao de Holerites (integrador)* › Executar. Urgência sem painel: `sql_contingencia.sql` e depois "Atualizar do Sapiens".
+- Aviso "integrador não respondeu" → Agendador › *Tecnolimp - Liberacao de Holerites (integrador)* › Executar. Urgência sem painel: `sql_contingencia.sql` (ver `manual-sql-contingencia.md`) e depois "Atualizar do Sapiens".
 - Atualizar o integrador: trocar só `.py/.bat/.ps1` e reiniciar a tarefa.

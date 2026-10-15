@@ -25,7 +25,7 @@ Depois de cada pedido relê a janela (mês atual até 3 meses atrás). Diferenç
 
 ## Operação
 - Log: `logs\worker_liberacao_holerites.log` (rotativo).
-- Painel avisa "integrador não respondeu" (pedido pendente há mais de 1 min) → Agendador › *Tecnolimp - Liberacao de Holerites (integrador)* › Executar. Urgência: `sapiens/sql_contingencia.sql` e depois "Atualizar do Sapiens".
+- Painel avisa "integrador não respondeu" (pedido pendente há mais de 1 min) → Agendador › *Tecnolimp - Liberacao de Holerites (integrador)* › Executar. Urgência: `sapiens/sql_contingencia.sql` (manual: `holerites-rh24h/docs/manual-sql-contingencia.md`) e depois "Atualizar do Sapiens".
 - Pedido pendente há mais de 1 dia expira (não aplica decisão velha); processando há mais de 10 min vira erro.
 - Atualização: substituir só os `.py`/`.bat`/`.ps1` (o zip nunca leva `credenciais.bat`) e reiniciar a tarefa.
 

@@ -14,6 +14,7 @@ Cada usuário vê só as áreas/relatórios liberados pelo administrador; a perm
 |---|---|---|---|
 | Relação de Eventos — Folha Demitidos | RH | `site/relatorios/eventos/` | Sync agendado Oracle → Supabase |
 | Quadro de Vagas (FPRF307) | Operacional (**acesso livre**, sem login) | `site/relatorios/quadro-vagas/` | **Sob demanda**: worker consulta o Oracle ao clicar em Gerar |
+| Contratos por Gestor | Operacional (página avulsa, sem login) | `site/relatorios/contratos-gestores/` | Planilha `CONTRATOS_GESTORES_<MÊS>-<ANO>.xlsx` lida no navegador (nada é enviado) |
 
 ### Quadro de Vagas (FPRF307)
 Formulário por local e cargo para impressão e preenchimento à caneta.
@@ -22,6 +23,12 @@ Formulário por local e cargo para impressão e preenchimento à caneta.
 - **Saídas:** prévia na tela igual ao papel, **Imprimir** e **Exportar Excel** (`quadro de vagas - dd-mm-aaaa.xlsx`, A4 paisagem, cabeçalho repetido, "Página X de Y", cada local em página nova).
 - **Fluxo:** tela chama `central.qv_solicitar` (grava em `central.qv_solicitacoes`, com ou sem login) → worker da TECNOLIMP12 (`sync/quadro-vagas/`) consulta o Oracle e grava o resultado → tela acompanha por `central.qv_consultar`. Sem login: até 10 gerações abertas ao mesmo tempo. Resultado só com quantidades (sem dados pessoais); retenção de 7 dias.
 - Documentação técnica completa: [`docs/quadro-de-vagas-documentacao-tecnica.pdf`](docs/quadro-de-vagas-documentacao-tecnica.pdf).
+
+### Contratos por Gestor
+Relatório para impressão a partir da planilha mensal de contratos por gestores: junta as abas Tecnolimp, Serviplus, Pontual e Seed **por gestor** (ex.: NILCELI aparece com o bloco Tecnolimp e o bloco Pontual), sem telefone, e-mail, IMR e supervisor.
+- Colunas localizadas pelo cabeçalho (`GESTOR`, `C.CUSTO`, `CONTRATO`/`INSTITUIÇÃO`, `QTD`, `COORDENADOR`); abas ocultas e outras abas são ignoradas.
+- Grafias diferentes do mesmo nome ficam em `ALIAS_GESTOR`/`ALIAS_COORD` no próprio `index.html`.
+- Resumo gestor × empresa, filtro por gestor e opção "cada gestor em nova página".
 
 ## Estrutura
 | Pasta | Conteúdo |

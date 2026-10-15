@@ -27,9 +27,9 @@ Formulário por local e cargo para impressão e preenchimento à caneta.
 ### Contratos por Gestor
 Relatório para impressão a partir da planilha mensal de contratos por gestores: junta as abas Tecnolimp, Serviplus, Pontual e Seed **por gestor** (ex.: NILCELI aparece com o bloco Tecnolimp e o bloco Pontual), sem telefone, e-mail, IMR e supervisor.
 - Colunas localizadas pelo cabeçalho (`GESTOR`, `C.CUSTO`, `CONTRATO`/`INSTITUIÇÃO`, `QTD`, `COORDENADOR`); abas ocultas e outras abas são ignoradas.
-- Grafias diferentes do mesmo nome ficam em `ALIAS_GESTOR`/`ALIAS_COORD` no próprio `index.html`.
+- Nomes corrigidos ficam em `ALIAS_GESTOR`/`ALIAS_COORD`/`ALIAS_SUP` no próprio `index.html` (ex.: gestora CAROLAINE → ITELVÂNIA; coordenadora DANIELLE/DANIELE ROMÃO → DANIELLE ROMÃO; a gestora DANIELLE não muda).
 - Folhas A4 montadas na própria página (a prévia é igual ao papel): **nenhum gestor é dividido entre folhas**; se um gestor não couber em uma folha, o bloco é reduzido para caber.
-- Folha 1 = resumo por gestor em fonte maior, do maior para o menor % do total (empresas com postos, total e %); filtro por gestor e opção "cada gestor em folha separada".
+- Folhas de resumo (fonte maior, do maior para o menor % do total; empresas com postos, total e %): **por gestor**, **por coordenador** e **por supervisor** (só nos resumos; "Sob demanda / Fulano" conta para Fulano, N/A ou vazio = sem supervisor). Cada uma pode ser ligada/desligada, assim como o detalhe por gestor; filtro por gestor e opção "cada gestor em folha separada".
 
 ## Estrutura
 | Pasta | Conteúdo |

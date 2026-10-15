@@ -79,7 +79,8 @@
   .tab-resumo td{padding:4.5px 8px;vertical-align:middle;}
   .tab-resumo tbody tr:nth-child(even) td{background:#f6f8fa;}
   .tab-resumo .ord{width:6%;color:var(--text-muted);font-variant-numeric:tabular-nums;}
-  .tab-resumo .g{font-weight:700;width:24%;}
+  .tab-resumo .g{font-weight:700;width:31%;}
+  .tab-resumo tr.sem td{color:var(--text-muted);font-style:italic;}
   .tab-resumo .post{font-weight:700;width:9%;}
   .tab-resumo .pct{width:9%;color:var(--text-secondary);}
   .tab-resumo tfoot td{font-weight:700;border-top:2px solid var(--brand);border-bottom:0;background:none;}
@@ -132,7 +133,10 @@
     </div>
     <div class="campo">
       <span class="rot">Impressão</span>
-      <label class="check"><input type="checkbox" id="fResumo" checked> Incluir resumo</label>
+      <label class="check"><input type="checkbox" id="fResGestor" checked> Resumo por gestor</label>
+      <label class="check"><input type="checkbox" id="fResCoord" checked> Resumo por coordenador</label>
+      <label class="check"><input type="checkbox" id="fResSup" checked> Resumo por supervisor</label>
+      <label class="check"><input type="checkbox" id="fDetalhe" checked> Detalhe por gestor</label>
       <label class="check"><input type="checkbox" id="fQuebra"> Cada gestor em folha separada</label>
     </div>
     <div class="acoes">
@@ -155,8 +159,17 @@
     { id:'SEED',      nome:'Seed',      chaves:['SEED'] }
   ];
   // Mesma pessoa grafada de formas diferentes entre as abas.
-  var ALIAS_GESTOR = { FRANCIELI:'FRANCIELLI', FRANCIELE:'FRANCIELLI', NILCELLI:'NILCELI' };
-  var ALIAS_COORD = { EDLAINE:'EDILAINE' };
+  var ALIAS_GESTOR = { FRANCIELI:'FRANCIELLI', FRANCIELE:'FRANCIELLI', NILCELLI:'NILCELI', CAROLAINE:'ITELVÂNIA', CAROLINE:'ITELVÂNIA' };
+  var ALIAS_COORD = { EDLAINE:'EDILAINE', DANIELLE:'DANIELLE ROMÃO', DANIELE:'DANIELLE ROMÃO', 'DANIELE ROMAO':'DANIELLE ROMÃO', 'DANIELLE ROMAO':'DANIELLE ROMÃO' };
+  var ALIAS_SUP = { 'JURANDIR / ENCARREGADO':'JURANDIR (ENCARREGADO)', 'KATIA - LONDRINA':'KATIA' };
+
+  // "SOB DEMANDA / FABIO" conta para FABIO; N/A e vazio = sem supervisor; "EQUIPE ..." = equipe de supervisão.
+  function supervisor(s){
+    var n = norm(s).replace(/^SOB DEMANDA\s*[\/\-]?\s*/, '');
+    if (!n || n === 'N/A' || n === '-') return '';
+    if (n.indexOf('EQUIPE') === 0) return 'EQUIPE DE SUPERVISÃO';
+    return ALIAS_SUP[n] || n;
+  }
 
   var $ = function(id){ return document.getElementById(id); };
   var dados = null; // { ref, gestores:[{nome, total, empresas:{ID:{linhas,total}}}] }
@@ -204,6 +217,7 @@
         else if (t.indexOf('CONTRATO') === 0 || t.indexOf('INSTITUI') === 0) map.contrato = c;
         else if (t === 'QTD' || t.indexOf('QTD') === 0) map.qtd = c;
         else if (t.indexOf('COORDENADOR') === 0) map.coord = c;
+        else if (t.indexOf('SUPERVISOR') === 0) map.sup = c;
       });
       if (map.gestor && map.contrato && map.qtd){ map.inicio = r + 1; return map; }
     }
@@ -230,7 +244,8 @@
         coord = ALIAS_COORD[coord] || coord;
         var gest = porGestor[atual] || (porGestor[atual] = { nome:atual, total:0, empresas:{} });
         var e = gest.empresas[emp] || (gest.empresas[emp] = { linhas:[], total:0 });
-        e.linhas.push({ cc: col.cc ? limpa(valor(row.getCell(col.cc))) : '', contrato: limpa(contrato), coord: coord, qtd: q });
+        e.linhas.push({ cc: col.cc ? limpa(valor(row.getCell(col.cc))) : '', contrato: limpa(contrato), coord: coord,
+          sup: col.sup ? supervisor(valor(row.getCell(col.sup))) : '', qtd: q });
         e.total += q; gest.total += q;
       }
     });
@@ -271,22 +286,42 @@
     return h.join('');
   }
 
-  function blocoResumo(lista){
-    var geral = lista.reduce(function(s, g){ return s + g.total; }, 0), h = [];
-    h.push('<div class="r-tit">Resumo por gestor</div><table class="tab-resumo"><thead><tr><th class="ord">#</th><th class="g">Gestor</th>' +
+  // Soma postos por pessoa (gestor, coordenador ou supervisor) e empresa. chave(linha, gestor) → nome ('' = sem).
+  function agrupar(lista, chave){
+    var grupos = {};
+    lista.forEach(function(g){
+      EMPRESAS.forEach(function(e){
+        var b = g.empresas[e.id];
+        if (!b) return;
+        b.linhas.forEach(function(l){
+          var nome = chave(l, g), k = nome || '';
+          var gr = grupos[k] || (grupos[k] = { nome:nome, total:0, empresas:{} });
+          gr.empresas[e.id] = (gr.empresas[e.id] || 0) + l.qtd;
+          gr.total += l.qtd;
+        });
+      });
+    });
+    return Object.keys(grupos).map(function(k){ return grupos[k]; });
+  }
+
+  // Folha de resumo: do maior para o menor % do total; "sem ..." sempre por último.
+  function blocoResumo(titulo, coluna, semNome, grupos, nota){
+    var geral = grupos.reduce(function(s, g){ return s + g.total; }, 0), h = [];
+    h.push('<div class="r-tit">' + titulo + '</div><table class="tab-resumo"><thead><tr><th class="ord">#</th><th class="g">' + coluna + '</th>' +
       '<th>Empresas (postos)</th><th class="num post">Postos</th><th class="num pct">% total</th></tr></thead><tbody>');
-    // ordem do maior para o menor % do total (empate: nome)
-    lista.slice().sort(function(a, b){ return b.total - a.total || a.nome.localeCompare(b.nome, 'pt-BR'); }).forEach(function(g, i){
+    grupos.slice().sort(function(a, b){
+      return (!a.nome) - (!b.nome) || b.total - a.total || a.nome.localeCompare(b.nome, 'pt-BR');
+    }).forEach(function(g, i){
       var pills = EMPRESAS.filter(function(e){ return g.empresas[e.id]; }).map(function(e){
-        return '<span class="pill e-' + e.id + '">' + e.nome + '<b>' + fmt(g.empresas[e.id].total) + '</b></span>';
+        return '<span class="pill e-' + e.id + '">' + e.nome + '<b>' + fmt(g.empresas[e.id]) + '</b></span>';
       }).join('');
-      h.push('<tr><td class="ord">' + (i + 1) + '</td><td class="g">' + esc(g.nome) + '</td><td>' + pills + '</td>' +
+      h.push('<tr' + (g.nome ? '' : ' class="sem"') + '><td class="ord">' + (g.nome ? i + 1 : '') + '</td><td class="g">' + esc(g.nome || semNome) + '</td><td>' + pills + '</td>' +
         '<td class="num post">' + fmt(g.total) + '</td>' +
         '<td class="num pct">' + (geral ? (g.total / geral * 100).toLocaleString('pt-BR', { minimumFractionDigits:1, maximumFractionDigits:1 }) : '0') + '%</td></tr>');
     });
     h.push('</tbody><tfoot><tr><td></td><td>Total</td><td></td><td class="num">' + fmt(geral) +
       '</td><td class="num">100%</td></tr></tfoot></table>' +
-      '<div class="legenda">Gestores do maior para o menor % do total; as folhas de detalhe seguem a ordem alfabética. Telefone, e-mail, IMR e supervisor não constam deste relatório. Fonte: abas ' +
+      '<div class="legenda">' + nota + ' Telefone, e-mail e IMR não constam deste relatório. Fonte: abas ' +
       esc(dados.abas.join(', ')) + '.</div>');
     return h.join('');
   }
@@ -309,7 +344,7 @@
     var minha = ++seq;
     document.fonts.ready.then(function(){
       if (minha !== seq) return;
-      var filtro = $('fGestor').value, umPorFolha = $('fQuebra').checked, resumo = $('fResumo').checked && !filtro;
+      var filtro = $('fGestor').value, umPorFolha = $('fQuebra').checked, detalhe = $('fDetalhe').checked || !!filtro;
       var lista = dados.gestores.filter(function(g){ return !filtro || g.nome === filtro; });
       var med = document.createElement('div');
       med.className = 'medidor';
@@ -319,7 +354,7 @@
 
       // empacota os gestores em folhas, na ordem alfabética, sem dividir nenhum
       var folhas = [], atual = null;
-      lista.forEach(function(g){
+      if (detalhe) lista.forEach(function(g){
         var b = medir(med, blocoGestor(g));
         if (!atual || umPorFolha || atual.usado + b.alt > med._util + 5 * MM){
           atual = { blocos:[], usado:0 }; folhas.push(atual);
@@ -327,7 +362,21 @@
         atual.blocos.push(b); atual.usado += b.alt;
       });
       var paginas = folhas.map(function(f){ return f.blocos; });
-      if (resumo) paginas.unshift([medir(med, blocoResumo(lista))]);
+      // folhas de resumo (só sem filtro de gestor), nesta ordem, antes do detalhe
+      var resumos = [];
+      if (!filtro && $('fResGestor').checked)
+        resumos.push(blocoResumo('Resumo por gestor', 'Gestor', '', lista.map(function(g){
+          var emp = {};
+          EMPRESAS.forEach(function(e){ if (g.empresas[e.id]) emp[e.id] = g.empresas[e.id].total; });
+          return { nome:g.nome, total:g.total, empresas:emp };
+        }), 'Gestores do maior para o menor % do total; as folhas de detalhe seguem a ordem alfabética.'));
+      if (!filtro && $('fResCoord').checked)
+        resumos.push(blocoResumo('Resumo por coordenador', 'Coordenador', 'Sem coordenador', agrupar(lista, function(l){ return l.coord; }),
+          'Coordenadores do maior para o menor % do total.'));
+      if (!filtro && $('fResSup').checked)
+        resumos.push(blocoResumo('Resumo por supervisor', 'Supervisor', 'Sem supervisor', agrupar(lista, function(l){ return l.sup; }),
+          'Supervisores do maior para o menor % do total. "Sob demanda / Fulano" conta para o próprio supervisor; N/A ou em branco = sem supervisor.'));
+      paginas = resumos.map(function(html){ return [medir(med, html)]; }).concat(paginas);
       med.remove();
 
       var total = paginas.length;
@@ -367,7 +416,7 @@
   ['dragenter','dragover'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.add('sobre'); }); });
   ['dragleave','drop'].forEach(function(ev){ drop.addEventListener(ev, function(e){ e.preventDefault(); drop.classList.remove('sobre'); }); });
   drop.addEventListener('drop', function(e){ carregar(e.dataTransfer.files[0]); });
-  ['fGestor','fQuebra','fResumo'].forEach(function(id){ $(id).addEventListener('change', render); });
+  ['fGestor','fQuebra','fResGestor','fResCoord','fResSup','fDetalhe'].forEach(function(id){ $(id).addEventListener('change', render); });
   $('btnImprimir').addEventListener('click', function(){ window.print(); });
 })();
 </script>

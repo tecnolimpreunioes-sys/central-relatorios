@@ -12,13 +12,14 @@
 <script src="assets/auth.js"></script>
 <script src="assets/icones.js"></script>
 <style>
-  .hero{position:relative;overflow:hidden;border-radius:20px;padding:34px 36px 30px;color:#fff;
-    background:radial-gradient(1200px 300px at 100% 0%,rgba(255,255,255,.10),transparent 60%),
+  /* sem overflow:hidden: a lista da busca precisa sair para fora do cartão.
+     Anel e faixa vermelha são camadas de fundo (o border-radius já recorta). */
+  .hero{position:relative;z-index:5;border-radius:20px;padding:34px 36px 30px;color:#fff;
+    background:linear-gradient(var(--accent),var(--accent)) left bottom/120px 4px no-repeat,
+               radial-gradient(circle at calc(100% - 100px) 100px,transparent 113px,rgba(255,255,255,.05) 114px,rgba(255,255,255,.05) 160px,transparent 161px),
+               radial-gradient(1200px 300px at 100% 0%,rgba(255,255,255,.10),transparent 60%),
                linear-gradient(120deg,var(--brand-800) 0%,var(--brand) 55%,#0b5d8f 100%);
     box-shadow:var(--shadow-2);}
-  .hero::after{content:"";position:absolute;right:-60px;top:-60px;width:320px;height:320px;border-radius:50%;
-    border:46px solid rgba(255,255,255,.05);pointer-events:none;}
-  .hero::before{content:"";position:absolute;left:0;bottom:0;height:4px;width:120px;background:var(--accent);border-radius:0 4px 0 0;}
   .hero-k{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#bcd3e3;margin:0 0 6px;}
   .hero h1{font-family:var(--font-display);font-weight:800;font-size:30px;line-height:1.15;margin:0 0 8px;}
   .hero p{margin:0;color:#d6e4ee;max-width:620px;font-size:15px;}

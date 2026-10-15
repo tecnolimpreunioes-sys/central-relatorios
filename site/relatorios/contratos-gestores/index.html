@@ -74,20 +74,12 @@
 
   /* folha 1: resumo */
   .r-tit{font-family:'Nunito',system-ui,sans-serif;font-size:13px;font-weight:800;color:var(--brand);text-transform:uppercase;letter-spacing:.05em;margin:0 0 3mm;}
-  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:3mm;margin-bottom:6mm;}
-  .kpi{border:1px solid var(--border);border-top:4px solid var(--e,var(--brand));border-radius:4px;padding:2.5mm 3mm;background:var(--e-050,#fff);}
-  .kpi .k-nome{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--e,var(--brand));}
-  .kpi .k-val{font-family:'Nunito',system-ui,sans-serif;font-size:21px;font-weight:800;line-height:1.1;margin:1mm 0 .5mm;font-variant-numeric:tabular-nums;}
-  .kpi .k-val small{font-family:'Inter',system-ui,sans-serif;font-size:10px;font-weight:500;color:var(--text-muted);}
-  .kpi .k-det{font-size:9.5px;color:var(--text-secondary);}
-  .kpi.geral{background:var(--brand);border-color:var(--brand);color:#fff;}
-  .kpi.geral .k-nome,.kpi.geral .k-det,.kpi.geral .k-val small{color:#d5e4ee;}
   .tab-resumo td{padding:4px 7px;vertical-align:middle;}
   .tab-resumo tbody tr:nth-child(even) td{background:#f6f8fa;}
   .tab-resumo .ord{width:6%;color:var(--text-muted);font-variant-numeric:tabular-nums;}
   .tab-resumo .g{font-weight:700;width:24%;}
   .tab-resumo .post{font-weight:700;width:9%;}
-  .tab-resumo .pct,.tab-resumo .nc,.tab-resumo .fl{width:8%;color:var(--text-secondary);}
+  .tab-resumo .pct{width:9%;color:var(--text-secondary);}
   .tab-resumo tfoot td{font-weight:700;border-top:2px solid var(--brand);border-bottom:0;background:none;}
   .pill{display:inline-block;margin:1px 4px 1px 0;padding:1px 6px;border-radius:3px;font-size:10px;background:var(--e-050);color:var(--e);border-left:3px solid var(--e);white-space:nowrap;}
   .pill b{color:var(--text-primary);font-weight:700;margin-left:3px;}
@@ -277,41 +269,21 @@
     return h.join('');
   }
 
-  function blocoResumo(lista, folhaDe){
-    var tot = {}, geral = 0, h = [];
-    EMPRESAS.forEach(function(e){ tot[e.id] = { postos:0, contratos:0, gestores:0 }; });
-    lista.forEach(function(g){
-      geral += g.total;
-      EMPRESAS.forEach(function(e){
-        var b = g.empresas[e.id];
-        if (!b) return;
-        tot[e.id].postos += b.total; tot[e.id].contratos += b.linhas.length; tot[e.id].gestores++;
-      });
-    });
-    var contratos = lista.reduce(function(s, g){ return s + nContratos(g); }, 0);
-    h.push('<div class="r-tit">Resumo geral</div><div class="kpis">');
-    EMPRESAS.forEach(function(e){
-      var t = tot[e.id];
-      h.push('<div class="kpi e-' + e.id + '"><div class="k-nome">' + e.nome + '</div><div class="k-val">' + fmt(t.postos) +
-        ' <small>postos</small></div><div class="k-det">' + plural(t.contratos, 'contrato') + ' · ' + plural(t.gestores, 'gestor') + '</div></div>');
-    });
-    h.push('<div class="kpi geral"><div class="k-nome">Total geral</div><div class="k-val">' + fmt(geral) +
-      ' <small>postos</small></div><div class="k-det">' + plural(contratos, 'contrato') + ' · ' + plural(lista.length, 'gestor') + '</div></div></div>');
-
-    h.push('<div class="r-tit">Gestores</div><table class="tab-resumo"><thead><tr><th class="ord">#</th><th class="g">Gestor</th>' +
-      '<th>Empresas (postos)</th><th class="num nc">Contratos</th><th class="num post">Postos</th><th class="num pct">% total</th><th class="num fl">Folha</th></tr></thead><tbody>');
+  function blocoResumo(lista){
+    var geral = lista.reduce(function(s, g){ return s + g.total; }, 0), h = [];
+    h.push('<div class="r-tit">Resumo por gestor</div><table class="tab-resumo"><thead><tr><th class="ord">#</th><th class="g">Gestor</th>' +
+      '<th>Empresas (postos)</th><th class="num post">Postos</th><th class="num pct">% total</th></tr></thead><tbody>');
     lista.forEach(function(g, i){
       var pills = EMPRESAS.filter(function(e){ return g.empresas[e.id]; }).map(function(e){
         return '<span class="pill e-' + e.id + '">' + e.nome + '<b>' + fmt(g.empresas[e.id].total) + '</b></span>';
       }).join('');
       h.push('<tr><td class="ord">' + (i + 1) + '</td><td class="g">' + esc(g.nome) + '</td><td>' + pills + '</td>' +
-        '<td class="num nc">' + nContratos(g) + '</td><td class="num post">' + fmt(g.total) + '</td>' +
-        '<td class="num pct">' + (geral ? (g.total / geral * 100).toLocaleString('pt-BR', { minimumFractionDigits:1, maximumFractionDigits:1 }) : '0') + '%</td>' +
-        '<td class="num fl">' + (folhaDe[g.nome] || '') + '</td></tr>');
+        '<td class="num post">' + fmt(g.total) + '</td>' +
+        '<td class="num pct">' + (geral ? (g.total / geral * 100).toLocaleString('pt-BR', { minimumFractionDigits:1, maximumFractionDigits:1 }) : '0') + '%</td></tr>');
     });
-    h.push('</tbody><tfoot><tr><td></td><td>Total</td><td></td><td class="num">' + contratos + '</td><td class="num">' + fmt(geral) +
-      '</td><td class="num">100%</td><td></td></tr></tfoot></table>' +
-      '<div class="legenda">Gestores em ordem alfabética. "Folha" indica onde está o detalhe de cada gestor. Telefone, e-mail, IMR e supervisor não constam deste relatório. Fonte: abas ' +
+    h.push('</tbody><tfoot><tr><td></td><td>Total</td><td></td><td class="num">' + fmt(geral) +
+      '</td><td class="num">100%</td></tr></tfoot></table>' +
+      '<div class="legenda">Gestores em ordem alfabética. Telefone, e-mail, IMR e supervisor não constam deste relatório. Fonte: abas ' +
       esc(dados.abas.join(', ')) + '.</div>');
     return h.join('');
   }
@@ -338,17 +310,16 @@
       med._util = AREA_H - med.firstChild.getBoundingClientRect().height - 5 * MM - FOLGA;
 
       // empacota os gestores em folhas, na ordem alfabética, sem dividir nenhum
-      var folhas = [], atual = null, folhaDe = {}, base = resumo ? 1 : 0;
+      var folhas = [], atual = null;
       lista.forEach(function(g){
         var b = medir(med, blocoGestor(g));
         if (!atual || umPorFolha || atual.usado + b.alt > med._util + 5 * MM){
           atual = { blocos:[], usado:0 }; folhas.push(atual);
         }
         atual.blocos.push(b); atual.usado += b.alt;
-        folhaDe[g.nome] = folhas.length + base;
       });
       var paginas = folhas.map(function(f){ return f.blocos; });
-      if (resumo) paginas.unshift([medir(med, blocoResumo(lista, folhaDe))]);
+      if (resumo) paginas.unshift([medir(med, blocoResumo(lista))]);
       med.remove();
 
       var total = paginas.length;

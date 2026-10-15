@@ -1,0 +1,1225 @@
+
+--------------------------------------------------------------------------------
+Código: 1 - Descrição: ModeloGerador_Funções Globais
+--------------------------------------------------------------------------------
+
+/*Definir funcao Rel_CalPerFGT();
+
+@ -- Retorna o percentual do FGTS (8%) -- @
+Funcao Rel_CalPerFGT();
+Inicio
+  PerFgt = 0;    
+  @ -- Prazo Determinado -- @
+  Se (R034Fun.TipCon = 7)
+  inicio
+    Definir cursor Cur_14Sin;
+    RetSinEmp(R034FUN.NumEmp, R034FUN.TipCol, R034FUN.NumCad, yfimcmp);
+    AuxCodSin = CodSinEmp;
+    Cur_14Sin.SQL "SELECT R014SIN.FgtCpd FROM R014SIN WHERE CodSin = :AuxCodSin ";
+    Cur_14Sin.AbrirCursor();
+    Se (Cur_14Sin.Achou)
+      PerFgt = Cur_14Sin.FgtCpd;
+    senao
+      PerFgt = 2;
+    Cur_14Sin.FecharCursor();
+  fim
+  senao
+  inicio 
+    @ -- menor aprendiz -- @
+    montaData(20,12,2000,Aux_DatImp);
+    Se ((R034Fun.TipCon = 6) e (R034Fun.DatAdm >= Aux_DatImp))
+      PerFgt = 2;
+    senao
+      @ -- Valor padrão -- @
+      PerFgt = 8;
+  fim;
+fim;
+*/
+
+--------------------------------------------------------------------------------
+Código: 2 - Descrição: ModeloGerador_Inicialização
+--------------------------------------------------------------------------------
+
+Definir Alfa vBgColor;
+Definir Alfa vFontColor;
+Definir Alfa vPageWIDTH;
+vBgColor   = "#40A080";
+vFontColor = "#FFFFFF";
+@ Netscape: necessário informar larg. tabela em pt @
+vPageWIDTH = " 605 ";
+
+Definir Cursor Cur_Usuario;
+Definir Alfa aNomUsu;
+Definir Alfa pNomUsu;
+aNomUsu = NomUsu; 
+@--- Busca cadastro do usuario ---@
+Cur_Usuario.Sql"Select CodUsu,NomUsu \
+                  From R999USU    \
+                    Where NomUsu = :aNomUsu";
+                   
+Cur_Usuario.AbrirCursor();
+Se (Cur_Usuario.Achou)
+{
+   pNomUsu = Cur_Usuario.NomUsu;
+   PosicaoAlfa("D",pNomUsu,nPod);
+}   
+Cur_Usuario.FecharCursor();
+Se(nPod > 0)
+ Cancel(1);   
+
+--------------------------------------------------------------------------------
+Código: 3 - Descrição: ModeloGerador_Pré-Seleção
+--------------------------------------------------------------------------------
+
+Definir Alfa xSql;
+Definir Alfa cSql;
+Definir Alfa xCodCal;
+Definir Alfa xNumEmp;
+Definir Alfa xNumCad;
+Definir Alfa aNumcad;
+Definir Alfa pCadNum;
+Definir Data dPerIni;
+Definir Alfa aPerIni;
+Definir Data dPerFim;
+Definir Alfa aPerFim;
+Definir Alfa aCodCal;
+Definir Cursor Cur_User;
+Definir Cursor Cur_R044CAL;
+Definir Cursor Cur_R042AVI;
+@IntParaAlfa(ENumCad,xNumCad);@
+
+xNumCad = NomUsu; @"2328E";@ 
+@-------@
+Cur_User.Sql"Select CodUsu,NomUsu \
+                  From R999USU    \
+                 Where NomUsu = :xNumCad";
+                   
+Cur_User.AbrirCursor();
+Se (Cur_User.Achou)
+{
+   pCadNum = Cur_User.NomUsu;
+   PosicaoAlfa("E",pCadNum, nPos);
+   Se(nPos > 0)
+   {
+     ENumEmp = 3;
+     DeletarAlfa(xNumCad,nPos,1);
+   }  
+   PosicaoAlfa("P",pCadNum, nPos);
+   Se(nPos > 0)
+   {
+     ENumEmp = 3;
+     DeletarAlfa(xNumCad,nPos,1);
+   }  
+}   
+Cur_User.FecharCursor();
+@-------@
+
+
+@--- Busca Colaborador no Aviso Previo e Cancela a Emissão ---@
+Cur_R042AVI.Sql "Select NumEmp,TipCol,NumCad,DatAvi \
+                   From R042AVI  \
+                     Where NumEmp = :ENumEmp And \
+                           NumCad = :xNumCad And \
+                           MotCan <> 9";
+Cur_R042AVI.AbrirCursor();
+Se(Cur_R042AVI.Achou)
+{
+   Cancel(1);
+}
+Cur_R042AVI.FecharCursor();     
+
+IntparaAlfa(ENumEmp,xNumEmp);
+AlfaparaInt(xNumcad,xCadNum);
+IntparaAlfa(xCadNum,aNumCad);
+
+@- Valores fixos manutenção mensal -@
+MontaData(01,08,2026,dPerIni);       
+MontaData(31,08,2026,dPerFim);
+Cur_R044CAL.SQL "Select NumEmp,IniCmp,FimCmp,CodCal \
+                       FROM R044Cal \
+                         WHERE NumEmp = :ENumEmp AND TipCal = 11 AND \
+                               IniCmp >= :dPerIni AND FimCmp <= :dPerFim";
+
+Cur_R044CAL.AbrirCursor();
+Se (Cur_R044CAL.Achou)
+Inicio
+  nCodCal = Cur_R044CAL.CodCal;
+Fim;
+Cur_R044CAL.FecharCursor();
+IntParaAlfa(nCodCal,aCodCal);
+ConverteDataBanco(dPerIni,aPerIni);
+ConverteDataBanco(dPerFim,aPerFim);
+xSql = "";
+xSql = xSql
+    + "R044CAL.NumEmp = " + xNumEmp
+    + " AND R044CAL.IniCmp >= " + aPerIni + " AND R044CAL.FimCmp <= " + aPerFim
+    + " AND R044CAL.TipCal = 11";       
+InsClauSqlWhere("Detalhe_Calculo", xSql);
+
+@- Inclui a clausula Where no select da tabela R034FUN -@
+xSql = "";
+xSql = xSql
+    + "R034FUN.NUMEMP = " + xNumEmp
+    + " AND R034FUN.TIPCOL = 1"
+    + " AND R034FUN.NUMCAD = " + aNumCad
+    + " AND R034FUN.SITAFA <> 7";
+InsClauSqlWhere("Detalhe_Colaborador", xSql);
+
+/*
+    + "R044CAL.NumEmp = " + xNumEmp
+    + " AND R044CAL.IniCmp >= " + aPerIni + " AND R044CAL.FimCmp <= " + aPerFim
+    + " AND R044CAL.TipCal = 11"
+    + " AND R044CAL.CodCal = " + aCodCal; */       
+
+--------------------------------------------------------------------------------
+Código: 4 - Descrição: ModeloGerador_Seleção
+--------------------------------------------------------------------------------
+
+/*Definir Data dDatSis;
+Definir Data dDatIne;
+Definir Data dDatFme;
+
+dDatSis = DatSis;
+DesmontaData(dDatSis,nDia,nMes,nAno);
+MontaData(01,nMes,nAno,dDatIne);
+MontaData(28,nMes,nAno,dDatFme);
+
+Se((dDatSis < dDatIne) ou (dDatSis > dDatFme))
+  Cancel(1);    */
+
+--------------------------------------------------------------------------------
+Código: 5 - Descrição: ModeloGerador_Finalização
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 6 - Descrição: ModeloGerador_Imprimir Página
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 7 - Descrição: Detalhe_Calculo_Depois Imprimir
+--------------------------------------------------------------------------------
+
+Definir Numero vCodCal;
+Definir Numero vTipCal;
+Definir Data vPerRef;
+Definir Data vDatPag;
+
+vCodCal = R044CAL.CodCal;
+vPerRef = R044CAL.PerRef;
+vTipCal = R044CAL.TipCal;
+
+Se ((vTipCal = 11) ou (vTipCal = 21) ou (vTipCal = 22) ou (vTipCal = 23) ou (vTipCal = 41) ou (vTipCal = 42))
+  vDatPag = R044Cal.FimCmp;
+Senao 
+  vDatPag = R044CAL.DatPag;
+
+--------------------------------------------------------------------------------
+Código: 8 - Descrição: Detalhe_Calculo_Antes Imprimir
+--------------------------------------------------------------------------------
+
+FMes = R044CAL.IniCmp;
+FAno = R044CAL.IniCmp;
+
+
+
+--------------------------------------------------------------------------------
+Código: 9 - Descrição: Cadastro002_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 10 - Descrição: Cadastro003_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 11 - Descrição: Cadastro001_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 12 - Descrição: FTipCal_Na Impressão
+--------------------------------------------------------------------------------
+
+Definir Alfa xTipCal;
+Definir Alfa xDesCal;
+
+vTipCal = R044CAL.TipCal;
+xTipCal = Formatar(vTipCal, "%0.0f");
+
+DescItemLista("LTipCal", xTipCal, xDesCal);
+ValStr = xDesCal;
+Cancel(2);
+
+--------------------------------------------------------------------------------
+Código: 13 - Descrição: Descricao005_Na Impressão
+--------------------------------------------------------------------------------
+
+/* Definir Alfa xAux;
+xAux = "";
+xAux = xAux + "<script>window.open('"+SiteAddr+", 'BOTOES');</script>"; 
+xAux = xAux + "<table CLASS=\"TABELADESTAQUE\">";
+xAux = xAux + "  <tr CLASS=\"LINHADESTAQUE\">";
+xAux = xAux + "    <td>";
+xAux = xAux + "      <b>T E C N O L I M P </b>";
+xAux = xAux + "    </td>";
+xAux = xAux + "  </tr>";
+xAux = xAux + "</table>";
+
+ValStr = xAux;
+Cancel(2); 
+*/
+
+--------------------------------------------------------------------------------
+Código: 14 - Descrição: Imagem001_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 15 - Descrição: Descricao025_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 16 - Descrição: Descricao030_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 17 - Descrição: Descricao027_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 18 - Descrição: Descricao024_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 19 - Descrição: FMes_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 20 - Descrição: FAno_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 21 - Descrição: Descricao004_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 22 - Descrição: Descricao020_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 23 - Descrição: Descricao007_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 24 - Descrição: Detalhe_Colaborador_Depois Imprimir
+--------------------------------------------------------------------------------
+
+@ Cursores @
+Definir Cursor cR008EVC; @ Cursor da Tabela R008EVC @
+Definir Cursor cR008INC; @ Cursor da Tabela R008INC @
+Definir Cursor cR026INF; @ Cursor da Tabela R026INF @
+Definir Cursor cR026IPE; @ Cursor da Tabela R026IPE @
+Definir Cursor cR046VER; @ Cursor da Tabela R046VER @
+Definir Cursor cR046INF; @ Cursor da Tabela R046INF @
+
+@ Eventos Normais  @
+Definir Alfa vDesEve;  @ Descrição @
+Definir Numero xValPro;  @ Valor Proventos @
+Definir Numero xValDes;  @ Valor Descontos @
+
+@ Variáveis Auxiliares @
+Definir Numero vCodCal;  @ Código do Cálculo @
+Definir Numero vTipCal;  @ Tipo do Cálculo @
+Definir Data vPerRef;  @ Período do Cálculo @
+Definir Data pPerRef;  @ Período de Refrência @
+Definir Numero vListou;  @ Listou eventos? (0=Sim, 1=não) @
+vListou = 1;
+
+@ Sub-Totais/Bases @
+Definir Numero xTotPro;  @ Total de Proventos @
+Definir Numero xTotVan;  @ Total de Vantagens @
+Definir Numero xTotDes;  @ Total de Descontos @
+Definir Numero xSalBas;  @ Salário Base @
+Definir Numero xBasFgt;  @ Base Fgts @
+Definir Numero xBasIns;  @ Base Inss @
+Definir Numero xBasIrf;  @ Base Irrf @
+Definir Numero xCodCrt;  @ Somar/Diminuir (+/-) @
+Definir Alfa xIncIns;  @ base do INSS mensal @
+Definir Alfa xIncIpm;  @ base do IPE mensal @
+Definir Alfa xIncIrf;  @ base do IRRF mensal @
+Definir Alfa xIncFgm;  @ base do FGTS mensal @
+Definir Alfa xIncFgd;  @ base do FGTS 13 salario @
+
+@ Inicialização de variáveis usadas em toda a Regra @
+pNumEmp = R034FUN.NumEmp;
+pTipCol = R034FUN.TipCol;
+pNumCad = R034FUN.NumCad;
+nTipCon = R034FUN.TipCon;
+nEscVtr = R034FUN.EscVtr;
+pCodCal = vCodCal;
+pPerRef = vPerRef;
+
+xTotPro = 0;
+xTotDes = 0;
+xTotVan = 0;
+xBasFgt = 0;
+xBasIns = 0;
+xBasIrf = 0;
+
+@ Seleciona todos os Eventos Normais do Colaborador @
+cR046VER.Sql "SELECT TABEVE, CodEve, REFEVE, VALEVE \
+              FROM R046VER WHERE \
+                NUMEMP = :pNumEmp \
+                AND TIPCOL = :pTipCol \
+                AND NUMCAD = :pNumCad \
+                AND CODCAL = :pCodCal \
+              ORDER BY TABEVE, CodEve";
+cR046VER.UsaAbrangencia(1);
+cR046VER.AbrirCursor();
+Se (cR046VER.Achou)
+Inicio
+  ListaSecao("Colunas_Eventos_Normais");
+  vListou = 0;
+Fim;
+
+Enquanto (cR046VER.Achou)
+Inicio
+  pCodTab = cR046VER.TabEve;
+  pCodEve = cR046VER.CodEve;
+
+  @ Código do Evento @
+  FCodEve = cR046VER.CodEve;
+
+  @ Descrição @
+  cR008EVC.Sql "SELECT DESEVE, TIPEVE, CODCRT \
+                FROM  R008EVC WHERE \
+                  CODTAB = :pCodTab \
+                  AND CodEve = :pCodEve";
+  cR008EVC.AbrirCursor();
+  Se (cR008EVC.Achou)
+  Inicio
+    vDesEve = cR008EVC.DesEve;
+    FTipEve = cR008EVC.TipEve;
+    xCodCrt = cR008EVC.CodCrt;
+  Fim;
+  Senao
+  Inicio
+    vDesEve = "Evento " + Formatar(CR046VER.CodEve, "%0.0f") + " não Cadastrado";
+    FTipEve = 4;
+  Fim;
+  cR008EVC.FecharCursor();
+
+  xRefEve = cR046VER.RefEve;
+  xValEve = cR046VER.ValEve;
+/*  @ Tratamento para acertar valores para o colaborador @
+  @ Evento de FGTS @
+  Se ((CalPerFgt > 0) e (xValEve > 0) e ((xCodCrt = 5001) ou (xCodCrt = 5006)))
+  inicio
+    @ -- Retorna o percentual do FGTS (8%) -- @
+    @ Estes campos necessitam ser referenciados, até o reconhecimento automático dentra da função @
+    aux = R034Fun.TipCon;
+    aux = R034Fun.DatAdm;
+    Rel_CalPerFGT(); 
+    xRefEve = cR046VER.RefEve - CalPerFgt;
+    xValEve = ((xValEve * PerFGT) / (PerFGT + CalPerFgt));   
+    xValEve = ((xValEve * 8) / (8 + CalPerFgt)); 
+    xValEve = xValEve * 100;
+    TruncarValor(xValEve);
+    xValEve = xValEve / 100;
+    FValFgt = xValEve;
+    @xValFgt = xValEve; @
+  fim; 
+*/
+  @ Consiste Proventos e Descontos @
+  @  Se ((FTipEve = 1) ou (FTipEve = 2) ou (FTipEve = 4) ou (FTipEve = 5))     @
+  Se ((FTipEve = 1) ou (FTipEve = 2) ou (FTipEve = 4) ou (FTipEve = 5))
+  Inicio
+    xValPro = xValEve;
+    xValDes = 0;
+  Fim;
+  Senao Se ((FTipEve = 3) ou (FTipEve = 6))
+  Inicio
+    xValPro = 0;
+    xValDes = xValEve;
+  Fim;
+
+  ArredondarValor(xValPro, 2);
+  ArredondarValor(xValDes, 2);
+
+  @ Proventos @
+  FValPro = xValPro;
+
+  @ Descontos @
+  FValDes = xValDes;
+
+  @ Referência @
+  FRefEve = xRefEve;
+
+  @ Mostra todos os eventos, exceto os do tipo 4, que devem ser listados somente @
+  @ se a sua cacacteristica for 50A(FGTS) = 5001  @
+  @Se ((FTipEve <> 4) ou ((FTipEve = 4) e ((TstCarEve(pCodEve, 66)) ou (TstCarEve(pCodEve, 67)) ou (xCodCrt = 5007) ou (xCodCrt = 5008))))  @
+  Se (FTipEve <> 4) 
+  Inicio
+    ListaSecao("Adicional_Eventos_Normais");
+  Fim;
+
+  @ Leitura dos dados para cálculo das Bases @
+  @ Cursor para carregas as incidências @
+  cR008INC.Sql "SELECT INCFGM, INCFGD, INCINM, INCIND, \
+                       INCIRD, INCIRM, INCIRF, INCIRP, \
+                       INCIPM, INCIPD, CMPINC \
+                FROM R008INC WHERE \
+                  CODTAB =  :pCodTab \
+                  AND CodEve =  :pCodEve \
+                  AND CMPINC <= :pPerRef \
+                ORDER BY CMPINC DESC";
+
+  cR008INC.AbrirCursor();
+  Se (cR008INC.Achou)
+  Inicio
+    Se ((vTipCal = 31) ou (vTipCal = 32))
+    Inicio
+      xIncIns = cR008INC.IncInd;              
+      xIncIpm = cR008INC.IncIpd;
+      xIncIrf = cR008INC.IncIrd;
+      xIncFgm = cR008INC.IncFgm;
+      xIncFgd = cR008INC.IncFgd;
+    Fim;
+    Senao
+    Inicio
+      xIncIns = cR008INC.IncInm;                
+      xIncIpm = cR008INC.incIpm;
+      xIncIrf = cR008INC.IncIrm;
+      Se (vTipCal = 92)
+        xIncIrf = cR008INC.IncIrp;
+      xIncFgm = cR008INC.IncFgm;
+      xIncFgd = cR008INC.IncFgd;
+    Fim;
+  Fim;
+  Senao
+  Inicio
+    xIncIns = "N";
+    xIncIpm = "N"; 
+    xIncFgm = "N";
+    xIncFgd = "N";
+  Fim;
+  cR008INC.FecharCursor();
+
+  @ Acumula valor para os Sub-Totais @
+
+  @ Proventos @
+  Se (FTipEve = 1)
+    xTotPro = xTotPro + xValEve;
+  @ Vantagens @
+  Senao Se (FTipEve = 2)
+    xTotVan = xTotVan + xValEve;
+  @ Descontos @
+  Senao Se (FTipEve = 3)
+    xTotDes = xTotDes + xValEve;
+
+  @ Base INSS @
+  Se (xIncIns = "+")
+    xBasIns = xBasIns + xValEve;
+  Senao Se (xIncIns = "-")
+    xBasIns = xBasIns - xValEve;
+
+  @ Base IPE @                                
+  Se (xIncIpm = "+")                       
+    xBasIpe = xBasIpe + xValEve;  
+  Senao Se (xIncIpm = "-")                       
+    xBasIpe = xBasIpe - xValEve;  
+
+   @ CodCrt já carregado no Select da Tabela R008EVC @
+   @ Base IRRF - se não for INSS, Pensão Judicial e Previdência Privada @
+   @ C40A = 4001 INSS                                          @
+   @ C40B = 4002 INSS s/ Ferias                                @
+   @ C40C = 4003 INSS s/ 13.Sal.                               @
+   @ C40L = 4012 I.P.E. (Instituto de Previdencia Estatutario) @
+   @ C40P = 4016 I.P.E. s/ Ferias                              @
+   @ C40R = 4018 I.P.E. s/ 13.salario                          @
+   @ C40U = 4021 Previdência Privada s/ Férias                 @
+   @ C40V = 4022 Previdência Privada s/ 13.Salário             @
+   @ C45A = 4501 Pensao Judicial Mes                           @
+   @ C45B = 4502 Pensao Judicial Ferias                        @
+   @ C45C = 4503 Pensao Judicial 13.Salario                    @
+   @ C45J = 4510 Diferença de Pensão Judicial de Ferias        @
+   @ C49E = 4905 Previdencia Privada                           @
+
+   Se ((xCodCrt <> 4001) e
+       (xCodCrt <> 4002) e
+       (xCodCrt <> 4003) e
+       (xCodCrt <> 4012) e
+       (xCodCrt <> 4016) e
+       (xCodCrt <> 4018) e
+       (xCodCrt <> 4021) e
+       (xCodCrt <> 4022) e
+       (xCodCrt <> 4501) e
+       (xCodCrt <> 4502) e
+       (xCodCrt <> 4503) e
+       (xCodCrt <> 4510) e
+       (xCodCrt <> 4905))
+   Inicio
+     Se (xIncIrf = "+")
+       xBasIrf = xBasIrf + xValEve;
+     Senao Se (xIncIrf = "-")
+       xBasIrf = xBasIrf - xValEve;
+   Fim;
+
+   @ Base FGTS @
+   Se (xIncFgd = "+")
+     xBasFgt = xBasFgt + xValEve;
+   Senao Se (xIncFgd = "-")
+     xBasFgt = xBasFgt - xValEve;
+   Senao Se (xIncFgm = "+")
+     xBasFgt = xBasFgt + xValEve;
+   Senao Se (xIncFgm = "-")
+     xBasFgt = xBasFgt - xValEve;
+
+  cR046VER.Proximo();
+Fim;
+cR046VER.FecharCursor();
+
+@- Verifica se possui as informações do cálculo do colaborador. Se não possuir, utiliza as variáveis de sistema -@
+cR046INF.Sql "SELECT DEPIRF, DEPSAF, SALEMP \
+              FROM R046INF WHERE \
+                NUMEMP = :pNumEmp \
+                AND TIPCOL = :pTipCol \
+                AND NUMCAD = :pNumCad \
+                AND CODCAL = :pCodCal";
+cR046INF.AbrirCursor();
+Se (cR046INF.Achou)
+Inicio
+  FSalBas = cR046INF.SALEMP;
+  Se (FSalBas = 0)
+  Inicio
+    RetSalEmp(R034FUN.NumEmp, R034FUN.TipCol, R034FUN.NumCad, vDatPag);
+    FSalBas = SalEmp;
+  Fim;
+   
+  FDepImR = cR046INF.DEPIRF;
+  FDepSaf = cR046INF.DEPSAF;  
+Fim;
+Senao
+Inicio
+  @- Salário Base -@
+  RetSalEmp(R034FUN.NumEmp, R034FUN.TipCol, R034FUN.NumCad, vDatPag);
+  @- Dependentes/Imposto de Renda e Salario Familia -@
+  CalculaQtdDep( R034FUN.NumEmp, R034FUN.TipCol, R034FUN.NumCad, vDatPag, vDatPag );
+
+  FSalBas = SalEmp;
+  FDepImR = DepIrf;
+  FDepSaf = DepSaf;
+Fim;
+cR046INF.FecharCursor(); 
+
+@ Total de Proventos = Total de Proventos + Vantagens @
+xTotPro = xTotPro + xTotVan;
+ArredondarValor(xTotPro, 2);
+
+@ Total de Descontos = Total de Descontos @
+ArredondarValor(xTotDes, 2);
+
+@ Valor Líquido = Total de Proventos - Total de Descontos @
+xValLiq = xTotPro - xTotDes;
+ArredondarValor(xValLiq, 2);
+  
+@- Verifica se a base de IPE ultrapassou o teto -@
+cR026IPE.Sql "SELECT CODFAI, PERREF, TETFAI \
+              FROM R026IPE WHERE \
+                PERREF <= :pPerRef \
+              ORDER BY PERREF DESC, CODFAI DESC";
+cR026IPE.AbrirCursor();
+Se (cR026IPE.Achou)
+Inicio
+  Se (xBasIpe > cR026IPE.TetFai)
+    xBasIpe = cR026IPE.TetFai;
+Fim;
+cR026IPE.FecharCursor();
+
+@- Verifica se a base de INSS ultrapassou o teto -@
+cR026INF.Sql "SELECT CODFAI, PERREF, TETFAI \
+              FROM R026INF WHERE \
+                PERREF <= :pPerRef \
+              ORDER BY PERREF DESC, CODFAI DESC";
+cR026INF.AbrirCursor();
+Se (cR026INF.Achou)
+Inicio
+  Se (xBasIns > cR026INF.TetFai)
+    xBasIns = cR026INF.TetFai;
+Fim;    
+cR026INF.FecharCursor();
+
+@ Base INSS @
+ArredondarValor(xBasIns, 2);
+@ Base IPE @
+ArredondarValor(xBasIpe, 2);
+@ Base IRRF @
+ArredondarValor(xBasIrf, 2);
+@ Base FGTS @
+ArredondarValor(xBasFgt, 2);
+
+Se (vListou = 0)
+  ListaSecao("Adicional_Colaborador");
+Senao
+  ListaSecao("Adicional_Mensagem");
+
+--------------------------------------------------------------------------------
+Código: 25 - Descrição: Detalhe_Colaborador_Antes Imprimir
+--------------------------------------------------------------------------------
+
+Definir Numero pEstCar;
+Definir Alfa pCodCar;
+Definir Numero pTabOrg;
+Definir Numero pNumLoc;
+Definir Alfa pCodLoc;
+Definir Alfa vDesCar;
+Definir Alfa aCodCbo;
+Definir Alfa vDesLoc;
+Definir Cursor cCargo;
+Definir Cursor cLocal;
+Definir Cursor Cur_R042AVI;
+Definir Data pDatAlt;
+
+@--- Valores passados como parametro ---@
+pNumEmp = R034FUN.NumEmp;
+pTipCol = R034FUN.TipCol;
+pNumCad = R034FUN.NumCad;
+pDatAlt = vPerRef;
+UltimoDia(pDatAlt);
+                   
+RetCarEmp (pNumEmp, pTipCol, pNumCad, pDatAlt);
+pEstCar = EstCarEmp;
+pCodCar = CarEmp;
+
+RetLocEmp (pNumEmp, pTipCol, pNumCad, pDatAlt);
+pTabOrg = TabOrgEmp;
+pNumLoc = LocEmp;
+pCodLoc = CodLocEmp;
+
+
+@- Busca desc. do cargo do colaborador na competência do cálculo -@
+cCargo.Sql "SELECT TITRED,CodCb2 FROM R024CAR WHERE \
+              ESTCAR = :pEstCar \
+              AND CODCAR = :pCodCar"; 
+cCargo.AbrirCursor();
+vDesCar = pCodCar;
+Se (cCargo.Achou)
+  vDesCar = vDesCar + " - " + cCargo.TITRED;
+  aCodCbo = cCargo.CodCb2;
+cCargo.FecharCursor();
+
+@- Verifica se a empresa está assinalada para mostrar a descrição de local até um determinado nivel. -@
+@- Se o nível do local do colaborador for maior que o máximo, busca o local do nível máximo para ser mostrado. -@
+Se (R030EMP.NivLoc > 0) 
+Inicio
+  RetNivLoc(pTabOrg, pCodLoc, vPerRef, xNivelLocal);
+  Se (xNivelLocal > R030EMP.NivLoc)
+    RetNumLocNiv(pTabOrg, pNumLoc, vPerRef, R030EMP.NivLoc, pNumLoc);
+Fim;
+
+@- Busca codloc e descrição do local do colaborador na competência do cálculo -@
+cLocal.Sql "SELECT R016HIE.CODLOC, R016ORN.NOMLOC FROM R016ORN, R016HIE  WHERE \
+              R016ORN.TABORG = :pTabOrg \
+              AND R016ORN.NUMLOC = :pNumLoc \
+              AND R016HIE.TABORG = :pTabOrg \
+              AND R016HIE.NUMLOC = :pNumLoc \
+              AND R016HIE.DATINI <= :vPerRef \
+              AND R016HIE.DATFIM >= :vPerRef";              
+cLocal.AbrirCursor();
+vDesLoc = "Local inválido";
+Se (cLocal.Achou)
+  vDesLoc = cLocal.CODLOC + " - " + cLocal.NOMLOC;
+cLocal.FecharCursor();  
+
+--------------------------------------------------------------------------------
+Código: 26 - Descrição: Descricao006_Na Impressão
+--------------------------------------------------------------------------------
+
+/* Definir Alfa xAux;
+xAux = "";
+xAux = xAux + "<table CLASS=\"TABELADESTAQUE\">";
+xAux = xAux + "  <tr CLASS=\"LINHADESTAQUE\">";
+xAux = xAux + "    <td>";
+xAux = xAux + "      ";
+xAux = xAux + "    </td>";
+xAux = xAux + "  </tr>";
+xAux = xAux + "</table>";
+
+ValStr = xAux;
+Cancel(2);
+
+*/
+
+--------------------------------------------------------------------------------
+Código: 27 - Descrição: Cadastro004_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 28 - Descrição: Imagem002_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 29 - Descrição: FCadastro_Na Impressão
+--------------------------------------------------------------------------------
+
+Definir Alfa vCadastro;
+pNumCad = R034FUN.NUMCAD;
+
+IntParaAlfa(pNumCad, vCadastro);
+vCadastro = vCadastro + " - " + R034FUN.NOMFUN;
+ValStr = vCadastro;
+Cancel(2);
+
+--------------------------------------------------------------------------------
+Código: 30 - Descrição: fCodCbo_Na Impressão
+--------------------------------------------------------------------------------
+
+Definir Alfa aCodCbo;
+ValStr = aCodCbo;
+Cancel(2);
+
+--------------------------------------------------------------------------------
+Código: 31 - Descrição: FDesCar_Na Impressão
+--------------------------------------------------------------------------------
+
+Definir Alfa vDesCar;
+ValStr = vDesCar;
+Cancel(2);
+
+--------------------------------------------------------------------------------
+Código: 32 - Descrição: Descricao009_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 33 - Descrição: FDesLoc_Na Impressão
+--------------------------------------------------------------------------------
+
+Definir Alfa vDesLoc;
+ValStr = vDesLoc;
+Cancel(2);
+
+--------------------------------------------------------------------------------
+Código: 34 - Descrição: Descricao010_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 35 - Descrição: Cadastro008_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 36 - Descrição: Descricao008_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 37 - Descrição: Descricao012_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 38 - Descrição: Descricao013_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 39 - Descrição: Descricao014_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 40 - Descrição: Descricao015_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 41 - Descrição: Descricao018_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 42 - Descrição: Descricao019_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 43 - Descrição: Descricao021_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 44 - Descrição: Descricao022_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 45 - Descrição: Descricao011_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 46 - Descrição: Descricao023_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 47 - Descrição: Descricao026_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 48 - Descrição: Descricao028_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 49 - Descrição: Descricao029_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 50 - Descrição: Adicional_Eventos_Normais_Depois Imprimir
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 51 - Descrição: Adicional_Eventos_Normais_Antes Imprimir
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 52 - Descrição: Imagem003_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 53 - Descrição: FCodEve_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 54 - Descrição: FDesEve_Na Impressão
+--------------------------------------------------------------------------------
+
+Definir Alfa vDesEve;
+ValStr = vDesEve;
+Cancel(2);
+
+--------------------------------------------------------------------------------
+Código: 55 - Descrição: FTipEve_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 56 - Descrição: FRefEve_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 57 - Descrição: FValPro_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 58 - Descrição: FValDes_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 59 - Descrição: Colunas_Eventos_Normais_Depois Imprimir
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 60 - Descrição: Colunas_Eventos_Normais_Antes Imprimir
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 61 - Descrição: Descricao017_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 62 - Descrição: Descricao016_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 63 - Descrição: Descricao001_Na Impressão
+--------------------------------------------------------------------------------
+
+/* Definir Alfa xAux;
+xAux = "";
+xAux = xAux + "<table CLASS=\"TABELADESTAQUE\">";
+xAux = xAux + "  <tr CLASS=\"LINHADESTAQUE\">";
+xAux = xAux + "    <td>";
+xAux = xAux + "      ";
+xAux = xAux + "    </td>";
+xAux = xAux + "  </tr>";
+xAux = xAux + "</table>";
+
+ValStr = xAux;
+Cancel(2);
+*/
+
+--------------------------------------------------------------------------------
+Código: 64 - Descrição: Desenho011_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 65 - Descrição: Desenho012_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 66 - Descrição: Desenho013_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 67 - Descrição: Desenho014_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 68 - Descrição: Desenho015_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 69 - Descrição: Desenho016_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 70 - Descrição: Desenho017_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 71 - Descrição: Desenho018_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 72 - Descrição: Adicional_Mensagem_Depois Imprimir
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 73 - Descrição: Adicional_Mensagem_Antes Imprimir
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 74 - Descrição: Descricao037_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 75 - Descrição: Adicional_Colaborador_Depois Imprimir
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 76 - Descrição: Adicional_Colaborador_Antes Imprimir
+--------------------------------------------------------------------------------
+
+Definir Alfa aRecVtr;
+@-- Menor aprendiz --@
+Se (nTipCon = 6)
+{
+   PerFgt = 2;
+}   
+Senao
+{
+   @ -- Valor padrão -- @
+   PerFgt = 8;
+}
+FValFgt = (xBasFgt*PerFgt)/100;   
+
+Se(nEscVtr > 0)
+{
+  AlteraControle("DRecVtr","Descrição"," V. T. : Crédito no cartão dia 20 para período de 20 do mês até 19 do mês seguinte.");
+}    
+
+--------------------------------------------------------------------------------
+Código: 77 - Descrição: Desenho020_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 78 - Descrição: FDepImR_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 79 - Descrição: FDepSaf_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 80 - Descrição: FBasIpe_Na Impressão
+--------------------------------------------------------------------------------
+
+FBasIpe = xBasIpe;
+
+--------------------------------------------------------------------------------
+Código: 81 - Descrição: Descricao002_Na Impressão
+--------------------------------------------------------------------------------
+
+/* Definir Alfa xAux;
+xAux = "";
+xAux = xAux + "<table CLASS=\"TABELADESTAQUE\">";
+xAux = xAux + "  <tr CLASS=\"LINHADESTAQUE\">";
+xAux = xAux + "    <td>";
+xAux = xAux + "      ";
+xAux = xAux + "    </td>";
+xAux = xAux + "  </tr>";
+xAux = xAux + "</table>";
+
+ValStr = xAux;
+Cancel(2);
+*/
+
+--------------------------------------------------------------------------------
+Código: 82 - Descrição: Descricao003_Na Impressão
+--------------------------------------------------------------------------------
+
+/* Definir Alfa xAux;
+xAux = "";
+xAux = xAux + "<table CLASS=\"TABELADESTAQUE\">";
+xAux = xAux + "  <tr CLASS=\"LINHADESTAQUE\">";
+xAux = xAux + "    <td>";
+xAux = xAux + "      ";
+xAux = xAux + "    </td>";
+xAux = xAux + "  </tr>";
+xAux = xAux + "</table>";
+
+ValStr = xAux;
+Cancel(2);
+   */
+
+--------------------------------------------------------------------------------
+Código: 83 - Descrição: DRecVtrA_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 84 - Descrição: Imagem004_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 85 - Descrição: Descricao033_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 86 - Descrição: DRecVtr_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 87 - Descrição: FTotPro_Na Impressão
+--------------------------------------------------------------------------------
+
+FTotPro = xTotPro;
+
+--------------------------------------------------------------------------------
+Código: 88 - Descrição: FTotDes_Na Impressão
+--------------------------------------------------------------------------------
+
+FTotDes = xTotDes;
+
+--------------------------------------------------------------------------------
+Código: 89 - Descrição: FValLiq_Na Impressão
+--------------------------------------------------------------------------------
+
+FValLiq = xValLiq;
+
+--------------------------------------------------------------------------------
+Código: 90 - Descrição: Descricao038_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 91 - Descrição: Descricao039_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 92 - Descrição: Descricao040_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 93 - Descrição: Descricao031_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 94 - Descrição: Descricao034_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 95 - Descrição: Descricao035_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 96 - Descrição: Descricao036_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 97 - Descrição: FSalBas_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 98 - Descrição: FBasFgt_Na Impressão
+--------------------------------------------------------------------------------
+
+FBasFgt = xBasFgt;
+
+--------------------------------------------------------------------------------
+Código: 99 - Descrição: FValFgt_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 100 - Descrição: FBasIrf_Na Impressão
+--------------------------------------------------------------------------------
+
+FBasIrf = xBasIrf;
+
+--------------------------------------------------------------------------------
+Código: 101 - Descrição: Descricao032_Na Impressão
+--------------------------------------------------------------------------------
+
+
+--------------------------------------------------------------------------------
+Código: 102 - Descrição: FBasIns_Na Impressão
+--------------------------------------------------------------------------------
+
+FBasIns = xBasIns;

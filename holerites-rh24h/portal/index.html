@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html
+  lang="pt-BR"
+  class="light-style layout-menu-fixed layout-compact"
+  dir="ltr"
+  data-theme="theme-default"
+  data-assets-path=""
+  data-template="vertical-menu-template-free"
+  data-style="light"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <base id="base" href="" />
+    <title>Painel</title>
+
+    <meta name="description" content="" />
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+    <link id="favicon" rel="icon" type="image/x-icon" />
+    <style>
+      .swal2-container {
+        z-index: 999999 !important;
+      }
+    </style>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="/rubiweb/ti/assets/vendor/fonts/boxicons.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/rubiweb/ti/assets/vendor/css/core.css"
+      class="template-customizer-core-css"
+    />
+    <link
+      rel="stylesheet"
+      href="/rubiweb/ti/assets/vendor/css/theme-default.css"
+      class="template-customizer-theme-css"
+    />
+    <link rel="stylesheet" href="/rubiweb/ti/assets/css/demo.css" />
+    <link
+      rel="stylesheet"
+      href="/rubiweb/ti/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css"
+    />
+    <link
+      rel="stylesheet"
+      href="/rubiweb/ti/assets/vendor/libs/apex-charts/apex-charts.css"
+    />
+
+    <script src="/rubiweb/ti/assets/vendor/js/helpers.js"></script>
+    <script src="/rubiweb/ti/assets/js/config.js"></script>
+    <style>
+      .dropdown-container {
+        position: relative;
+        display: inline-block;
+      }
+
+      .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background-color: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 4px;
+        z-index: 10;
+      }
+
+      .dropdown-menu label {
+        display: block;
+        margin: 5px 0;
+        cursor: pointer;
+      }
+
+      .dropdown-menu input[type="radio"] {
+        margin-right: 8px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="holeriteModal" style="display: none">
+      <div
+        style="
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+          z-index: 1000;
+        "
+      >
+        <div
+          style="
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 760px;
+          "
+        >
+          <div id="holeriteContent" style="background-color: white"></div>
+          <button id="downloadHolerite" style="margin-top: 20px">
+            Baixar Holerite
+          </button>
+          <button id="closeModal" style="margin-top: 20px">Fechar</button>
+        </div>
+      </div>
+    </div>
+    <div class="layout-wrapper layout-content-navbar">
+      <div class="layout-container">
+        <aside
+          id="layout-menu"
+          class="layout-menu menu-vertical menu bg-menu-theme"
+        >
+          <div class="app-brand demo">
+            <img id="logo" alt="Logo" width="80%" />
+          </div>
+          <div class="menu-inner-shadow"></div>
+          <ul class="menu-inner py-1">
+            <li class="menu-item active open">
+              <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icons bx bx-home-smile"></i>
+                <div class="text-truncate" data-i18n="Dashboards">
+                  Dashboard
+                </div>
+              </a>
+              <ul class="menu-sub" style="cursor: pointer">
+                <li class="menu-item active" target="section_folhaponto">
+                  <a class="menu-link">
+                    <div class="text-truncate" data-i18n="Folha Ponto">
+                      Folha Ponto
+                    </div>
+                  </a>
+                </li>
+                <li class="menu-item" target="section_holerite">
+                  <a class="menu-link">
+                    <div class="text-truncate" data-i18n="Holerite">
+                      Holerite
+                    </div>
+                  </a>
+                </li>
+                <li class="menu-item" target="section_13">
+                  <a class="menu-link">
+                    <div class="text-truncate" data-i18n="Informe">
+                      13 Salario
+                    </div>
+                  </a>
+                </li>
+                <li class="menu-item" target="section_informe">
+                  <a class="menu-link">
+                    <div class="text-truncate" data-i18n="Informe">
+                      Informe de Rendimentos
+                    </div>
+                  </a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </aside>
+
+        <div class="layout-page">
+          <nav
+            class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+            id="layout-navbar"
+          >
+            <div
+              class="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 d-xl-none"
+            >
+              <a
+                class="nav-item nav-link px-0 me-xl-6"
+                href="javascript:void(0)"
+              >
+                <i class="bx bx-menu bx-md"></i>
+              </a>
+            </div>
+            <div
+              class="navbar-nav-right d-flex align-items-center"
+              id="navbar-collapse"
+            >
+              <ul
+                class="navbar-nav flex-row align-items-center ms-auto"
+                style="display: flex; flex-direction: column; gap: 10px"
+              >
+                <li>
+                  <Nome>
+                    <img src="/rubiweb/ti/assets/img/dots.gif" width="50px" />
+                  </Nome>
+                </li>
+                <li id="sair" style="cursor: pointer">
+                  <i class="bx bx-exit bx-md"></i>
+                </li>
+              </ul>
+            </div>
+          </nav>
+
+          <div class="content-wrapper">
+            <div class="container-xxl flex-grow-1 container-p-y">
+              <div class="row">
+                <div class="col-xxl-12 mb-6 order-0">
+                  <div class="card">
+                    <div class="d-flex align-items-start row">
+                      <div class="col-sm-7">
+                        <div class="card-body">
+                          <h5 class="card-title text-primary mb-3">
+                            Bem vindo(a)
+                          </h5>
+                          <p class="mb-6">
+                            Aqui voce pode visualizar sua folha ponto e holerite
+                            de forma rapida e pratica.
+                          </p>
+                        </div>
+                      </div>
+                      <div class="col-sm-5 text-center text-sm-left">
+                        <div class="card-body pb-0 px-0 px-md-6">
+                          <img
+                            src="/rubiweb/ti/assets/img/illustrations/man-with-laptop.png"
+                            height="175"
+                            class="scaleX-n1-rtl"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div id="section_folhaponto" class="row">
+                <div class="col-md-12 col-lg-12 col-xl-12 order-0 mb-6">
+                  <div class="card h-100">
+                    <div
+                      class="card-header d-flex justify-content-between align-items-center"
+                    >
+                      <div class="card-title mb-0">
+                        <h5 class="mb-1 me-2">
+                          <i class="bx bx-calendar me-3 text-primary fs-4"></i>
+                          Folha Ponto
+                        </h5>
+                      </div>
+                      <div
+                        id="acao_folhaponto"
+                        class="d-flex align-items-center"
+                        style="display: none !important"
+                      >
+                        <button
+                          id="baixarFolhaPonto"
+                          class="btn btn-icon me-2"
+                          title="Download"
+                        >
+                          <i class="bx bx-download fs-4"></i>
+                        </button>
+                        <button
+                          id="verFolhaPonto"
+                          class="btn btn-icon me-2"
+                          title="Visualizar"
+                        >
+                          <i class="bx bx-show fs-4"></i>
+                        </button>
+                        <div class="dropdown-container">
+                          <button
+                            class="btn btn-icon"
+                            id="dropdownButton"
+                            title="Calendario"
+                          >
+                            <i class="bx bx-calendar fs-4"></i>
+                          </button>
+                          <div
+                            class="dropdown-menu"
+                            id="dropdownMenu"
+                            style="margin-left: -120px"
+                          >
+                            <label>
+                              <input
+                                type="radio"
+                                name="mes"
+                                value="atual"
+                                checked
+                              />
+                              Mes Atual
+                            </label>
+                            <label>
+                              <input type="radio" name="mes" value="anterior" />
+                              Mes Anterior
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-6"
+                      >
+                        <div id="folhaponto" style="margin: auto">
+                          <img src="/rubiweb/ti/assets/img/loading.gif" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                id="section_holerite"
+                class="row"
+                style="display: none !important"
+              >
+                <div class="col-md-12 col-lg-12 col-xl-12 order-0 mb-6">
+                  <div class="card h-100">
+                    <div
+                      class="card-header d-flex justify-content-between align-items-center"
+                    >
+                      <div class="card-title mb-0">
+                        <h5 class="mb-1 me-2">
+                          <i
+                            class="bx bx-dollar-circle me-3 text-primary fs-4"
+                          ></i>
+                          Holerite
+                        </h5>
+                      </div>
+                      <div id="acao_holerite" class="d-flex align-items-center">
+                        <button
+                          id="baixarHolerite"
+                          class="btn btn-icon me-2"
+                          title="Download"
+                          style="display: none !important"
+                        >
+                          <i class="bx bx-download fs-4"></i>
+                        </button>
+                        <button
+                          id="visualizarHolerite"
+                          class="btn btn-icon me-2"
+                          title="Visualizar"
+                          style="display: none !important"
+                        >
+                          <i class="bx bx-show fs-4"></i>
+                        </button>
+                        <div class="dropdown">
+                          <button
+                            class="btn btn-outline-primary dropdown-toggle"
+                            id="btnMesHolerite"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                          >
+                            Selecionar Mes
+                          </button>
+                          <ul class="dropdown-menu" style="cursor: pointer; min-width: 260px">
+                            <li>
+                              <a
+                                class="dropdown-item mes-option"
+                                id="labelProximoHolerite"
+                                value="proximo"
+                                ></a
+                              >
+                            </li>
+                            <li>
+                              <a
+                                class="dropdown-item mes-option"
+                                id="labelMesAtualHolerite"
+                                value="holerite"
+                                ></a
+                              >
+                            </li>
+                            <li>
+                              <a
+                                class="dropdown-item mes-option"
+                                id="labelMesAnteriorHolerite"
+                                value="holerite_anterior"
+                                ></a
+                              >
+                            </li>
+                            <li>
+                              <a
+                                class="dropdown-item mes-option"
+                                id="labelMesPosteriorHolerite"
+                                value="holerite_posterior"
+                                ></a
+                              >
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-body">
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-6"
+                      >
+                        <div id="holerite" style="width: 100%">
+                          <div class="alert alert-warning" role="alert">
+                            Selecione um mes
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Seção 13º Salário -->
+              <div id="section_13" class="row" style="display: none !important">
+                <div class="col-md-12 col-lg-12 col-xl-12 order-0 mb-6">
+                  <div class="card h-100">
+                    <div
+                      class="card-header d-flex justify-content-between align-items-center"
+                    >
+                      <div class="card-title mb-0">
+                        <h5 class="mb-1 me-2">
+                          <i
+                            class="bx bx-dollar-circle me-3 text-primary fs-4"
+                          ></i>
+                          13 Salario
+                        </h5>
+                      </div>
+
+                      <div
+                        id="acao_13"
+                        class="d-flex align-items-center"
+                        style="display: flex"
+                      >
+                        <!-- Botão de Download -->
+                        <button
+                          id="baixar13"
+                          class="btn btn-icon me-2"
+                          title="Download"
+                          style="display: none !important"
+                        >
+                          <i class="bx bx-download fs-4"></i>
+                        </button>
+
+                        <!-- Botão para Escolher Parcela -->
+                        <div class="dropdown">
+                          <button
+                            class="btn btn-outline-primary dropdown-toggle"
+                            id="btnParcela13"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false"
+                          >
+                            Selecionar Parcela
+                          </button>
+                          <ul class="dropdown-menu" style="cursor: pointer">
+                            <li>
+                              <a
+                                class="dropdown-item parcela-option"
+                                value="salario13_primeira"
+                                nome="1 Parcela"
+                                >1 Parcela</a
+                              >
+                            </li>
+                            <li>
+                              <a
+                                class="dropdown-item parcela-option"
+                                value="salario13_segunda"
+                                nome="2 Parcela"
+                                >2 Parcela</a
+                              >
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="card-body">
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-6"
+                      >
+                        <div id="salario13" style="width: 100%">
+                          <img src="/rubiweb/ti/assets/img/loading.gif" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                id="section_informe"
+                class="row"
+                style="display: none !important"
+              >
+                <div class="col-md-12 col-lg-12 col-xl-12 order-0 mb-6">
+                  <div class="card h-100">
+                    <div
+                      class="card-header d-flex justify-content-between align-items-center"
+                    >
+                      <div class="card-title mb-0">
+                        <h5 class="mb-1 me-2">
+                          <i
+                            class="bx bx-dollar-circle me-3 text-primary fs-4"
+                          ></i>
+                          Informe de rendimentos
+                        </h5>
+                      </div>
+
+                      <div
+                        id="acao_13"
+                        class="d-flex align-items-center"
+                        style="display: flex"
+                      >
+                        <!-- Botão de Download -->
+                        <button
+                          id="baixarinforme"
+                          class="btn btn-icon me-2"
+                          title="Download"
+                          style="display: none !important"
+                        >
+                          <i class="bx bx-download fs-4"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="card-body">
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-6"
+                      >
+                        <div id="informerendimento" style="width: 100%">
+                          <img src="/rubiweb/ti/assets/img/loading.gif" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <footer class="content-footer footer bg-footer-theme">
+              <div class="container-xxl">
+                <div
+                  class="footer-container d-flex align-items-center justify-content-between py-4 flex-md-row flex-column"
+                >
+                  <div class="d-none d-lg-inline-block">
+                    Ficou em duvida?
+                    <a id="whatsapp" href="">Clique aqui</a>
+                  </div>
+                </div>
+              </div>
+            </footer>
+            <div class="content-backdrop fade"></div>
+          </div>
+        </div>
+      </div>
+      <div class="layout-overlay layout-menu-toggle"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="/rubiweb/ti/assets/vendor/libs/popper/popper.js"></script>
+    <script src="/rubiweb/ti/assets/vendor/js/bootstrap.js"></script>
+    <script src="/rubiweb/ti/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+    <script src="/rubiweb/ti/assets/vendor/js/menu.js"></script>
+    <script src="/rubiweb/ti/assets/vendor/libs/apex-charts/apexcharts.js"></script>
+    <script src="/rubiweb/ti/assets/js/main.js"></script>
+    <script src="/rubiweb/ti/assets/js/dashboards-analytics.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <style>
+      #folhaponto canvas {
+        width: 100%;
+        height: auto;
+      }
+
+      #holerite canvas {
+        width: 70%;
+        height: auto;
+      }
+
+      /* combo do holerite: mês à esquerda, situação à direita */
+      .mes-option {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+    </style>
+    <script type="text/javascript">
+      $(document).ready(function () {
+        let relatorio = "FPRE162.COL";
+        let atualmente = "atual";
+
+        const base = window.location.origin;
+        const empresa = localStorage.getItem("empresa")
+          ? JSON.parse(localStorage.getItem("empresa"))
+          : null;
+        const config = localStorage.getItem("config")
+          ? JSON.parse(localStorage.getItem("config"))
+          : null;
+
+        // Configurações iniciais
+        if (empresa) {
+          document.title = empresa.titulo;
+          $("#favicon").attr("href", empresa.favicon);
+          $("#logo").attr("src", empresa.logo);
+          $("#whatsapp").attr(
+            "href",
+            `https://api.whatsapp.com/send?phone=${empresa.contato}`
+          );
+        }
+        if (config) {
+          console.log("Configuração encontrada no localStorage.");
+          $("#base").attr("href", config.base);
+          $("html").attr("data-assets-path", config.base);
+        } else {
+          console.error("Configuração não encontrada no localStorage.");
+        }
+
+        // Variável global para armazenar o PDF como blob
+        let pdfBlob = null;
+        let pdfBlobHolerite = null; // Novo blob para holerite
+        // O conector do Senior gera um relatório por vez por sessão: pedidos de holerite em fila, nunca juntos
+        let filaHolerite = Promise.resolve();
+
+        // Carregar nome do usuário
+
+
+        // Função para carregar a folha de ponto
+
+        // $("#dropdownButton").on("click", function () {
+        //   const mesSelecionado = $("input[name='mes']:checked").val();
+        //   if (mesSelecionado === atualmente) return;
+        //   console.log(mesSelecionado);
+        //   $("#folhaponto").html(
+        //     `<img src="/rubiweb/ti/assets/img/loading.gif" />`
+        //   );
+        //   if (mesSelecionado === "atual") {
+        //     relatorio = "FPRE162.COL";
+        //     atualmente = "atual";
+        //   } else if (mesSelecionado === "anterior") {
+        //     relatorio = "FPRE165.COL";
+        //     atualmente = "anterior";
+        //   }
+
+        //   // Chamar a função para carregar a folha de ponto
+        //   carregarFolhaPonto(relatorio);
+        // });
+
+        $("input[name='mes']").on("change", function () {
+          const mesSelecionado = $("input[name='mes']:checked").val();
+          $("#folhaponto").html(
+            `<img src="/rubiweb/ti/assets/img/loading.gif" />`
+          );
+
+          relatorio =
+            mesSelecionado === "atual" ? "FPRE162.COL" : "FPRE165.COL";
+
+          carregarFolhaPonto(relatorio);
+        });
+
+        async function carregarFolhaPonto(relatorio) {
+          try {
+            const pdfUrl = `${base}/rubiweb/conector?ACAO=ENTRANCEREL&SIS=FP&NOME=${relatorio}`;
+            // mesma fila dos holerites: o conector gera um relatório por vez
+            const consulta = filaHolerite.then(async function () {
+              const response = await fetch(pdfUrl);
+              if (!response.ok) return null;
+              const blob = await response.blob();
+              return (await blob.slice(0, 5).text()).startsWith("%PDF") ? blob : null;
+            });
+            filaHolerite = consulta.catch(function () {});
+            const blob = await consulta;
+            if (!blob) {
+              pdfBlob = null;
+              $("#acao_folhaponto").hide();
+              $("#folhaponto").html(
+                '<div class="text-center py-5">' +
+                  '<div style="font-size: 44px; line-height: 1">&#128197;</div>' +
+                  '<h5 class="mt-3 mb-1">Sem folha de ponto</h5>' +
+                  '<p class="text-muted mb-0">N&atilde;o h&aacute; folha de ponto dispon&iacute;vel para este per&iacute;odo.</p>' +
+                  "</div>"
+              );
+              return;
+            }
+
+            // Armazena o PDF como blob
+            pdfBlob = blob;
+
+            // Renderizar o PDF com PDF.js
+            const pdf = await pdfjsLib.getDocument(URL.createObjectURL(pdfBlob))
+              .promise;
+
+            const folhaponto = $("#folhaponto");
+            folhaponto.empty(); // Limpar conteúdo existente
+
+            for (let i = 1; i <= pdf.numPages; i++) {
+              const page = await pdf.getPage(i);
+
+              // Criar um canvas para cada página
+              const canvas = $("<canvas></canvas>");
+              const context = canvas[0].getContext("2d");
+
+              const viewport = page.getViewport({ scale: 1.5 }); // Escala 1.5 para boa qualidade
+              canvas[0].width = viewport.width;
+              canvas[0].height = viewport.height;
+
+              // Renderizar página no canvas
+              await page.render({
+                canvasContext: context,
+                viewport: viewport,
+              }).promise;
+
+              folhaponto.append(canvas);
+            }
+            $("#acao_folhaponto").show();
+          } catch (error) {
+            console.error("Erro ao carregar o PDF:", error);
+            $("#folhaponto").html(
+              `<div class="alert alert-danger" role="alert">Erro ao carregar PDF</div>`
+            );
+          }
+        }
+
+        // Função para abrir o PDF em nova aba
+        function abrirPDFEmNovaAba() {
+          try {
+            if (!pdfBlob) {
+              throw new Error("PDF não carregado.");
+            }
+
+            const pdfBlobUrl = URL.createObjectURL(pdfBlob);
+            window.open(pdfBlobUrl, "_blank");
+          } catch (error) {
+            console.error("Erro ao abrir o PDF:", error);
+            Swal.fire("Erro", "Não foi possível abrir o PDF.", "error");
+          }
+        }
+
+        // Função para baixar o PDF
+        function baixarPDF() {
+          try {
+            if (!pdfBlob) {
+              throw new Error("PDF não carregado.");
+            }
+
+            const link = $("<a></a>");
+            link.attr("href", URL.createObjectURL(pdfBlob));
+            link.attr("download", "FolhaPonto.pdf");
+            $("body").append(link);
+            link[0].click();
+            link.remove();
+          } catch (error) {
+            console.error("Erro ao baixar o PDF:", error);
+            Swal.fire("Erro", "Não foi possível baixar o PDF.", "error");
+          }
+        }
+
+        // Carregar a folha de ponto inicialmente
+        carregarFolhaPonto(relatorio);
+
+        // Eventos de clique
+        $("#verFolhaPonto").on("click", function () {
+          abrirPDFEmNovaAba();
+        });
+
+        $("#baixarFolhaPonto").on("click", function () {
+          baixarPDF();
+        });
+
+        // Dropdown funcional
+        $("#dropdownButton").on("click", function (e) {
+          e.stopPropagation();
+          const dropdownMenu = $("#dropdownMenu");
+          dropdownMenu.toggle();
+        });
+
+        // Fechar o dropdown ao clicar fora
+        $(document).on("click", function () {
+          $("#dropdownMenu").hide();
+        });
+
+        var blobUrl;
+        var HtmlHolerite;
+
+        // Meses do holerite: o próximo (sempre "Em breve") + as 3 posições do portal.
+        // Mês não liberado pela TI volta sem PDF e aparece como "Em breve", sem data.
+        const MESES_HOLERITE = {
+          proximo: 0,
+          holerite: -1,
+          holerite_anterior: -2,
+          holerite_posterior: -3,
+        };
+        // estado: "ok" (PDF), "breve" (ainda não liberado) ou "sem" (colaborador sem cálculo no mês)
+        const consultasHolerite = {}; // chave -> Promise<{ estado, blob }> (uma consulta por mês)
+
+        function buscarHolerite(chave) {
+          if (!(chave in MESES_HOLERITE)) return Promise.resolve({ estado: "breve", blob: null });
+          if (!consultasHolerite[chave]) {
+            const consulta = filaHolerite.then(async function () {
+              const breve = { estado: "breve", blob: null };
+              if (chave === "proximo" || !empresa?.[chave]) return breve;
+              try {
+                const response = await fetch(
+                  `${base}/rubiweb/conector?ACAO=ENTRANCEREL&SIS=FP&NOME=${empresa[chave]}`
+                );
+                if (!response.ok) return breve;
+                const blob = await response.blob();
+                const inicio = await blob.slice(0, 5).text();
+                if (inicio.startsWith("%PDF")) return { estado: "ok", blob: blob };
+                // pré-seleção avisa "SEMHOLERITE" quando o colaborador não tem cálculo no mês
+                const texto = await blob.text();
+                return texto.includes("SEMHOLERITE") ? { estado: "sem", blob: null } : breve;
+              } catch (error) {
+                console.error("Erro ao consultar o holerite:", error);
+                return breve;
+              }
+            });
+            filaHolerite = consulta;
+            consultasHolerite[chave] = consulta;
+          }
+          return consultasHolerite[chave];
+        }
+
+        function rotuloHolerite(chave, estado) {
+          const extra =
+            estado === "carregando"
+              ? '<span class="spinner-border spinner-border-sm text-secondary ms-2" role="status"></span>'
+              : estado === "breve"
+              ? '<span class="badge bg-label-secondary ms-2">&#128274; Em breve</span>'
+              : estado === "sem"
+              ? '<span class="badge bg-label-secondary ms-2">Sem holerite</span>'
+              : estado === "ok"
+              ? '<span class="badge bg-label-primary ms-2">&#128196; Ver holerite</span>'
+              : "";
+          $(`.mes-option[value="${chave}"]`).html(
+            obterMesAno(MESES_HOLERITE[chave]) + extra
+          );
+        }
+
+        // Ao abrir a seção Holerite: consulta os meses e marca o que ainda não saiu
+        function prepararHolerites() {
+          Object.keys(MESES_HOLERITE).forEach(function (chave) {
+            if (!consultasHolerite[chave]) rotuloHolerite(chave, "carregando");
+            buscarHolerite(chave).then(function (r) {
+              rotuloHolerite(chave, r.estado);
+            });
+          });
+        }
+
+        // Ao entrar: baixa os holerites uma vez só (a tela de holerite reaproveita).
+        // O nome no topo vinha do holerite em HTML; o Senior hoje entrega PDF.
+        function carregarNomeUsuario() {
+          const chaves = ["holerite", "holerite_anterior", "holerite_posterior"];
+          Promise.all(chaves.map(buscarHolerite)).finally(function () {
+            $("Nome").html(""); // tira a animação de carregando
+          });
+        }
+        carregarNomeUsuario();
+
+        function mostrarEmBreve(chave) {
+          $("#holerite").html(
+            '<div class="text-center py-5">' +
+              '<div style="font-size: 44px; line-height: 1">&#128274;</div>' +
+              '<h5 class="mt-3 mb-1">Em breve</h5>' +
+              '<p class="text-muted mb-0">Holerite de ' +
+              obterMesAno(MESES_HOLERITE[chave] ?? -1) +
+              "</p></div>"
+          );
+        }
+
+        function mostrarSemHolerite(chave) {
+          $("#holerite").html(
+            '<div class="text-center py-5">' +
+              '<div style="font-size: 44px; line-height: 1">&#128196;</div>' +
+              '<h5 class="mt-3 mb-1">Sem holerite em ' +
+              obterMesAno(MESES_HOLERITE[chave] ?? -1) +
+              "</h5>" +
+              '<p class="text-muted mb-0">Aqui aparecem os holerites dos seus 3 &uacute;ltimos meses de trabalho.</p>' +
+              "</div>"
+          );
+        }
+
+        // Mostra o holerite do mês escolhido (PDF renderizado na tela)
+        async function carregarHoleritePDF(mesSelecionado) {
+          if (!(mesSelecionado in MESES_HOLERITE)) return;
+          try {
+            $("#baixarHolerite").attr("style", "display: none !important");
+            $("#visualizarHolerite").attr("style", "display: none !important");
+            $("#holerite").html(
+              '<img src="/rubiweb/ti/assets/img/loading.gif" />'
+            );
+
+            const r = await buscarHolerite(mesSelecionado);
+            rotuloHolerite(mesSelecionado, r.estado);
+            if (!r.blob) {
+              pdfBlobHolerite = null;
+              if (r.estado === "sem") mostrarSemHolerite(mesSelecionado);
+              else mostrarEmBreve(mesSelecionado);
+              return;
+            }
+            pdfBlobHolerite = r.blob;
+
+            // Renderizar o PDF com PDF.js
+            const pdf = await pdfjsLib.getDocument(
+              URL.createObjectURL(pdfBlobHolerite)
+            ).promise;
+
+            const holeriteDiv = $("#holerite");
+            holeriteDiv.empty();
+
+            for (let i = 1; i <= pdf.numPages; i++) {
+              const page = await pdf.getPage(i);
+              const canvas = $("<canvas></canvas>");
+              const context = canvas[0].getContext("2d");
+              const viewport = page.getViewport({ scale: 1.5 });
+              canvas[0].width = viewport.width;
+              canvas[0].height = viewport.height;
+              await page.render({
+                canvasContext: context,
+                viewport: viewport,
+              }).promise;
+              holeriteDiv.append(canvas);
+            }
+            $("#acao_holerite").show();
+            $("#baixarHolerite").show();
+            $("#visualizarHolerite").show();
+          } catch (error) {
+            console.error("Erro ao carregar o PDF do holerite:", error);
+            mostrarEmBreve(mesSelecionado);
+          }
+        }
+
+        // Evento para seleção do mês do holerite (dropdown)
+        $(".mes-option").on("click", function (e) {
+          e.preventDefault();
+          let mesSelecionado = $(this).attr("value");
+          const nomeMes = obterMesAno(MESES_HOLERITE[mesSelecionado]); // sem o selo "Em breve"
+          $("#btnMesHolerite").text(nomeMes);
+          localStorage.setItem("mesSelecionado", mesSelecionado);
+          localStorage.setItem("nameMesSelected", nomeMes);
+          carregarHoleritePDF(mesSelecionado); // Chama a nova função de PDF
+        });
+
+        // Botão baixar holerite (PDF)
+        $("#baixarHolerite")
+          .off("click")
+          .on("click", function () {
+            try {
+              if (!pdfBlobHolerite) {
+                throw new Error("PDF não carregado.");
+              }
+              const link = $("<a></a>");
+              link.attr("href", URL.createObjectURL(pdfBlobHolerite));
+              let mesSelecionado =
+                localStorage.getItem("nameMesSelected") || "Holerite";
+              link.attr("download", `Holerite ${mesSelecionado.replace(/\s*\/\s*/g, " - ")}.pdf`);
+              $("body").append(link);
+              link[0].click();
+              link.remove();
+            } catch (error) {
+              console.error("Erro ao baixar o PDF do holerite:", error);
+              Swal.fire(
+                "Erro",
+                "Não foi possível baixar o PDF do holerite.",
+                "error"
+              );
+            }
+          });
+
+        // Botão visualizar holerite (PDF)
+        $("#visualizarHolerite")
+          .off("click")
+          .on("click", function () {
+            try {
+              if (!pdfBlobHolerite) {
+                throw new Error("PDF não carregado.");
+              }
+              const pdfBlobUrl = URL.createObjectURL(pdfBlobHolerite);
+              window.open(pdfBlobUrl, "_blank");
+            } catch (error) {
+              console.error("Erro ao abrir o PDF do holerite:", error);
+              Swal.fire(
+                "Erro",
+                "Não foi possível abrir o PDF do holerite.",
+                "error"
+              );
+            }
+          });
+
+        function obterMesAno(mesesAdicionais) {
+          let data = new Date();
+          data.setDate(1); // dia 1: evita pular mes quando hoje e 29/30/31
+          data.setMonth(data.getMonth() + mesesAdicionais);
+          let nomeMes = data.toLocaleString("pt-BR", { month: "long" });
+          let ano = data.getFullYear();
+          return (
+            nomeMes.charAt(0).toUpperCase() + nomeMes.slice(1) + " / " + ano
+          );
+        }
+
+        // Atualizar labels dos meses dinamicamente (o selo "Em breve" entra ao abrir a seção)
+        Object.keys(MESES_HOLERITE).forEach(function (chave) {
+          $(`.mes-option[value="${chave}"]`).text(obterMesAno(MESES_HOLERITE[chave]));
+        });
+
+        // Mostrar/Ocultar dropdown do calendário
+        $("#dropdownButtonHolerite").click(function () {
+          $("#dropdownMenuHolerite").toggle();
+        });
+
+        // Evento de mudança no rádio button
+        $('input[name="mes"]').change(function () {
+          $("#holerite").html(
+            '<img src="/rubiweb/ti/assets/img/loading.gif" />'
+          );
+          carregarHoleritePDF(empresa?.[$(this).val()]);
+        });
+
+        // Fechar dropdown ao clicar fora dele
+        $(document).click(function (event) {
+          if (
+            !$(event.target).closest(
+              "#dropdownButtonHolerite, #dropdownMenuHolerite"
+            ).length
+          ) {
+            $("#dropdownMenuHolerite").hide();
+          }
+        });
+
+        // $("#baixarHolerite").click(function () {
+        //   const iframe = $("#holerite iframe")[0];
+
+        //   if (iframe && iframe.contentWindow) {
+        //     const iframeDoc =
+        //       iframe.contentDocument || iframe.contentWindow.document;
+        //     html2canvas(iframeDoc.body, {
+        //       scale: 2,
+        //       useCORS: true,
+        //       allowTaint: true,
+        //     })
+        //       .then(function (canvas) {
+        //         const imgData = canvas.toDataURL("image/png");
+        //         const link = document.createElement("a");
+        //         link.href = imgData;
+
+        //         let mesSelecionado = localStorage.getItem("nameMesSelected");
+        //         const [mes, ano] = mesSelecionado.split(" / ");
+        //         link.download = `Holerite ${mes} de ${ano}.png`;
+
+        //         document.body.appendChild(link);
+        //         link.click();
+        //         document.body.removeChild(link);
+        //       })
+        //       .catch(function (error) {
+        //         console.error("Erro ao gerar imagem:", error);
+        //         Swal.fire(
+        //           "Erro",
+        //           "Não foi possível gerar a imagem do holerite.",
+        //           "error"
+        //         );
+        //       });
+        //   } else {
+        //     Swal.fire("Erro", "Iframe do holerite não encontrado.", "error");
+        //   }
+        // });
+
+        function obterMesAtual() {
+          const meses = [
+            "Janeiro",
+            "Fevereiro",
+            "Março",
+            "Abril",
+            "Maio",
+            "Junho",
+            "Julho",
+            "Agosto",
+            "Setembro",
+            "Outubro",
+            "Novembro",
+            "Dezembro",
+          ];
+          const dataAtual = new Date();
+          return meses[dataAtual.getMonth()];
+        }
+
+        $(".parcela-option").on("click", function (e) {
+          e.preventDefault();
+
+          var nome = $(this).attr("nome");
+          var parcela = $(this).attr("value");
+
+          $("#btnParcela13").text(nome);
+          localStorage.setItem("parcelaSelecionada", parcela);
+          carregar13(parcela);
+        });
+
+        async function carregar13(parcela) {
+          $("#baixar13").attr("style", "display: none !important");
+          $("#salario13").html(
+            '<img src="/rubiweb/ti/assets/img/loading.gif" />'
+          );
+          if (parcela) {
+            $.get(
+              `${base}/rubiweb/conector?ACAO=ENTRANCEREL&SIS=FP&NOME=${empresa?.[parcela]}`
+            ).done(function (data) {
+              const tables = data.match(/<table[\s\S]*?<\/table>/g);
+              if (tables !== null) {
+                if (tables.length >= 2) {
+                  let tableHTML = tables[1];
+                  tableHTML = tableHTML.replace(/top:(\d+)/g, "top:$1px");
+                  tableHTML = tableHTML.replace(/left:(\d+)/g, "left:$1px");
+                  const cssLink =
+                    '<link rel="stylesheet" href="css/holerite.css">';
+                  const base_url = `<base href="${base}/rubiweb/">`;
+                  const utf8 = '<meta charset="UTF-8">';
+                  const combinedHTML = `${utf8}${base_url}${cssLink}${tableHTML}`;
+                  html = combinedHTML;
+                  HtmlHolerite = `${utf8}${cssLink}${tableHTML}`;
+                  const blob = new Blob([combinedHTML], { type: "text/html" });
+                  const url = URL.createObjectURL(blob);
+                  blobUrl = url;
+                  $("#baixar13").show();
+                  $("#salario13").html(
+                    `<iframe width="100%" height="750" src=${url} />`
+                  );
+                  $("#acao_13").show();
+                }
+              } else {
+                $("#baixar13").attr("style", "display: none !important");
+                $("#salario13").html(
+                  '<div class="alert alert-danger" role="alert">Erro ao carregar 13 Salario</div>'
+                );
+              }
+            });
+          } else {
+            $("#baixar13").attr("style", "display: none !important");
+            $("#salario13").html(
+              '<div class="alert alert-warning" role="alert">Selecione uma parcela</div>'
+            );
+          }
+        }
+
+        // Função para baixar 13º Salário em formato PNG
+        // $("#baixar13").on("click", function () {
+        //   const iframe = $("#salario13 iframe")[0];
+
+        //   if (iframe && iframe.contentWindow) {
+        //     const iframeDoc =
+        //       iframe.contentDocument || iframe.contentWindow.document;
+        //     html2canvas(iframeDoc.body, {
+        //       scale: 2,
+        //       useCORS: true,
+        //       allowTaint: true,
+        //     })
+        //       .then(function (canvas) {
+        //         const imgData = canvas.toDataURL("image/png");
+        //         const link = document.createElement("a");
+        //         link.href = imgData;
+
+        //         let parcelaSelecionada =
+        //           localStorage.getItem("parcelaSelecionada") || "13_Salario";
+        //         const nomeArquivo =
+        //           parcelaSelecionada === "salario13_primeira"
+        //             ? "1 Parcela"
+        //             : "2 Parcela";
+        //         link.download = `${nomeArquivo}.png`;
+
+        //         document.body.appendChild(link);
+        //         link.click();
+        //         document.body.removeChild(link);
+        //       })
+        //       .catch(function (error) {
+        //         console.error("Erro ao gerar imagem:", error);
+        //         Swal.fire(
+        //           "Erro",
+        //           "Não foi possível gerar a imagem do 13º Salário.",
+        //           "error"
+        //         );
+        //       });
+        //   } else {
+        //     Swal.fire(
+        //       "Erro",
+        //       "O conteúdo do 13º Salário não foi encontrado.",
+        //       "error"
+        //     );
+        //   }
+        // });
+
+        $("#baixar13").on("click", function () {
+          const iframe = $("#salario13 iframe")[0];
+
+          if (iframe && iframe.contentWindow) {
+            const iframeDoc =
+              iframe.contentDocument || iframe.contentWindow.document;
+
+            html2canvas(iframeDoc.body, {
+              scale: 2,
+              useCORS: true,
+              allowTaint: true,
+            })
+              .then(function (canvas) {
+                const imgData = canvas.toDataURL("image/png");
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF("p", "mm", "a4");
+
+                const imgWidth = 210; // Largura A4 em mm
+                const pageHeight = 295; // Altura A4 em mm
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                let heightLeft = imgHeight;
+
+                let position = 0;
+
+                pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                // Adiciona páginas adicionais se necessário
+                while (heightLeft > 0) {
+                  position -= pageHeight;
+                  pdf.addPage();
+                  pdf.addImage(
+                    imgData,
+                    "PNG",
+                    0,
+                    position,
+                    imgWidth,
+                    imgHeight
+                  );
+                  heightLeft -= pageHeight;
+                }
+
+                let parcelaSelecionada =
+                  localStorage.getItem("parcelaSelecionada") || "13_Salario";
+                const nomeArquivo =
+                  parcelaSelecionada === "salario13_primeira"
+                    ? "1 Parcela"
+                    : "2 Parcela";
+
+                pdf.save(`${nomeArquivo} 13 Salario.pdf`);
+              })
+              .catch(function (error) {
+                console.error("Erro ao gerar PDF:", error);
+                Swal.fire(
+                  "Erro",
+                  "Não foi possível gerar o PDF do 13º Salário.",
+                  "error"
+                );
+              });
+          } else {
+            Swal.fire(
+              "Erro",
+              "O conteúdo do 13º Salário não foi encontrado.",
+              "error"
+            );
+          }
+        });
+
+        const carregarInforme = async () => {
+          try {
+            Swal.fire({
+              title: "Carregando...",
+              text: "Aguarde enquanto carregamos o informe.",
+              allowOutsideClick: false,
+              allowEscapeKey: false,
+              allowEnterKey: false,
+              didOpen: () => {
+                Swal.showLoading();
+              },
+            });
+
+            const pdfUrl = `${base}/rubiweb/conector?ACAO=ENTRANCEREL&SIS=FP&NOME=FPIN101.ANU`;
+            const response = await fetch(pdfUrl);
+
+            if (!response.ok) {
+              throw new Error("Erro ao buscar o PDF.");
+            }
+
+            const pdfBlob = await response.blob();
+
+            const pdf = await pdfjsLib.getDocument(URL.createObjectURL(pdfBlob))
+              .promise;
+
+            Swal.close();
+
+            const pdfBlobUrl = URL.createObjectURL(pdfBlob);
+            window.open(pdfBlobUrl, "_blank");
+          } catch (error) {
+            console.error("Erro ao carregar o PDF:", error);
+
+            Swal.fire({
+              icon: "error",
+              title: "Erro ao carregar o informe!",
+              text: error.message || "Não foi possível carregar o PDF.",
+            });
+          }
+        };
+
+        $("MesAnterior").html(obterMesAno(-1));
+        $("MesPosterior").html(obterMesAno(-2));
+        $("MesRestrasado").html(obterMesAno(-3));
+
+        $(".menu-sub li").on("click", function () {
+          const target = $(this)[0].getAttribute("target");
+          if (target === "section_holerite") {
+            $("#section_folhaponto").hide();
+            $("#section_13").hide();
+            $("#section_holerite").show();
+            $("#holerite").html(
+              `<div class="alert alert-warning" role="alert">Selecione um mes</div>`
+            );
+            pdfBlobHolerite = null; // Limpa blob ao trocar de seção
+            prepararHolerites();
+          } else if (target === "section_folhaponto") {
+            $("#section_folhaponto").show();
+            $("#section_13").hide();
+            $("#section_holerite").hide();
+          } else if (target === "section_13") {
+            $("#section_folhaponto").hide();
+            $("#section_holerite").hide();
+            carregar13();
+            $("#section_13").show();
+          } else if (target === "section_informe") {
+            carregarInforme();
+          }
+          $(".menu-sub li").removeClass("active");
+          $(this).addClass("active");
+        });
+
+        $("#sair").on("click", function () {
+          window.location.href = `${config.login}?empresa=${empresa.href}`;
+        });
+      });
+    </script>
+  </body>
+</html>

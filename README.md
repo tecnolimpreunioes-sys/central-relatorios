@@ -14,6 +14,7 @@ Cada usuário vê só as áreas/relatórios liberados pelo administrador; a perm
 |---|---|---|---|
 | Relação de Eventos — Folha Demitidos | RH | `site/relatorios/eventos/` | Sync agendado Oracle → Supabase |
 | Quadro de Vagas (FPRF307) | Operacional (**acesso livre**, sem login) | `site/relatorios/quadro-vagas/` | **Sob demanda**: worker consulta o Oracle ao clicar em Gerar |
+| Liberação de Holerites (RH 24h) | T.I. (**sempre pede senha**) | `site/relatorios/liberacao-holerites/` | **Sob demanda**: clique vira pedido (`lh_solicitar`); integrador `sync/liberacao-holerites/` grava na USU_TLIBHOL e relê o Sapiens |
 | Contratos por Gestor | T.I. (login da Central) | `site/relatorios/contratos-gestores/` | Planilha `CONTRATOS_GESTORES_<MÊS>-<ANO>.xlsx` lida no navegador (nada é enviado) |
 
 ### Quadro de Vagas (FPRF307)
@@ -36,11 +37,12 @@ Relatório para impressão a partir da planilha mensal de contratos por gestores
 |---|---|
 | `site/` | Frontend estático (HTML/CSS/JS, sem build). `assets/config.js` = único ponto com URL/chave do Supabase |
 | `site/assets/vendor/` | Bibliotecas servidas localmente (ExcelJS 4.4.0) |
-| `migrations/` | SQL do schema `central`: base (001), proteção do Painel de Eventos (002), carga inicial da produção (003), login por usuário de rede (004), Quadro de Vagas (005), relatórios de acesso livre (006) e cadastro do Contratos por Gestor (007) |
+| `migrations/` | SQL do schema `central`: base (001), proteção do Painel de Eventos (002), carga inicial da produção (003), login por usuário de rede (004), Quadro de Vagas (005), relatórios de acesso livre (006), Contratos por Gestor (`007_contratos_gestores`), Liberação de Holerites (`007_liberacao_holerites`; `008` = cancelar pedido). As duas 007 são independentes e já estão aplicadas; a próxima é a 009. `migrations/testes/` = teste local com stub do Supabase |
 | `sync/quadro-vagas/` | Worker Python da TECNOLIMP12 (fila → Oracle → resultado) e instalação no Agendador — ver `LEIAME.md` |
+| `sync/liberacao-holerites/` | Integrador da Liberação de Holerites (fila → USU_TLIBHOL no Sapiens → espelho) — ver `LEIAME.md` |
 | `supabase/functions/central-admin-usuarios/` | Edge Function: criar usuário e redefinir senha |
 | `painel-redirect/` | Página que redireciona o endereço antigo do painel para a Central |
-| `docs/` | Documentação técnica (PDF) |
+| `docs/` | Documentação técnica (PDF): Quadro de Vagas e Liberação de Holerites |
 
 ## Ambientes
 | Ambiente | Banco | Site | Scripts Oracle |

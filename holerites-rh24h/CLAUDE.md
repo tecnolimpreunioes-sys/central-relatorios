@@ -61,7 +61,7 @@ HML validado ponta a ponta em 14/10 (painel → fila → integrador com `TEC_LIB
 Produção: seguir `docs/roteiro-producao.md` (migration na VM → integrador PROD → painel no IIS → serviço → pré-seleção de Pontual/Tecnolimp/Deltalimp/DRA → teste final).
 Ajustes 15/10 (pedido do Ygor): **sem data automática** — não existe regra D-1/"no padrão" (removida do painel, SQL e manual; `agendar_padrao` segue aceito no banco/integrador só por compatibilidade, sem botão); tooltips (`data-tip`, inclusive "Fora do painel" e "Sem folha"); "Cancelar pedido" na caixa de andamento (migration `008`, `lh_cancelar`, só pedido pendente); "↩ Reverter liberação" na gaveta e no Histórico (= bloquear com motivo); portal com selo "📄 Ver holerite" no mês liberado.
 **Produção concluída e validada em 15/10:** 6 empresas com 3 meses liberados (1,3,4,5,6,7), pré-seleção nas 15, integrador como serviço, painel na Central.
-**Encerramento (pedido do Ygor):** a documentação final (PDF) precisa:
+**Documentação final entregue (15/10):** `docs/liberacao-holerites-documentacao-tecnica.pdf` (fonte: `holerites-rh24h/docs/documentacao-tecnica.html`, WeasyPrint). Requisitos atendidos: a documentação final (PDF) precisa:
 - explicar **cada tabela** (Oracle `USU_TLIBHOL`, `R044CAL`; Supabase `lh_folhas`, `lh_liberacoes`, `lh_pedidos`, `lh_log`), **o que cada coluna guarda** e **o significado de cada 0/1** (`USU_SitLib` 1 = liberado a partir de `USU_DatIni`, 0 = bloqueado; sem linha = bloqueado) e de cada status (`pendente/processando/aplicado/erro/cancelado`, origem `painel/fora_do_painel`);
 - citar o **manual do SQL de contingência** (`docs/manual-sql-contingencia.md`) e o cancelar/reverter do painel.
 Sync **sem ciclo fixo** (decisão 6): worker sob demanda, só quando a TI clica no painel.

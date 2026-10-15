@@ -7,7 +7,7 @@ Uma linha por empresa + competência. Sem linha = bloqueado (padrão).
 |---|---|---|---|
 | `USU_NumEmp` | Número 4 | PK | Empresa (R044CAL.NumEmp) |
 | `USU_PerRef` | Data | PK | Competência, sempre dia 01 (R044CAL.PerRef) |
-| `USU_DatIni` | Data | | Libera a partir de. **Sempre preenchida** — "vazio" no painel/SQL vira DatPag − 1 na gravação |
+| `USU_DatIni` | Data | | Libera a partir de. **Sempre preenchida**, sempre com a data escolhida pela TI (não há data automática) |
 | `USU_SitLib` | Número 1 | | 1 = liberado, 0 = bloqueado |
 | `USU_UsuLib` | Alfa 30 | | Usuário de rede que fez a última alteração (ou `VIRADA`) |
 | `USU_DatGra` | Data | | Data da última alteração |

@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Liberação de Holerites — Documentação Técnica</title>
+<style>
+  @page { size: A4; margin: 22mm 18mm 20mm 18mm;
+    @top-right { content: "Tecnolimp · Central de Relatórios"; font: 7.5pt Inter; color: #8a96a3; }
+    @bottom-left { content: "Liberação de Holerites (RH 24h) — Documentação técnica"; font: 7.5pt Inter; color: #8a96a3; }
+    @bottom-right { content: "Página " counter(page) " de " counter(pages); font: 7.5pt Inter; color: #8a96a3; } }
+  @page capa { margin: 0; @top-right { content: none; } @bottom-left { content: none; } @bottom-right { content: none; } }
+  :root { --p: #004773; --r: #c4261d; --ink: #1d2733; --mut: #5b6876; --line: #dfe5eb; --alt: #f4f7fa; }
+  * { box-sizing: border-box; }
+  body { font-family: Inter, sans-serif; font-size: 9.2pt; line-height: 1.5; color: var(--ink); margin: 0; }
+  h1 { font-size: 15pt; color: var(--p); margin: 0 0 12px; padding-bottom: 6px; border-bottom: 2px solid var(--p); page-break-before: always; }
+  h2 { font-size: 10.5pt; color: var(--ink); margin: 16px 0 6px; }
+  h3 { font-size: 9.5pt; color: var(--p); margin: 12px 0 4px; }
+  p { margin: 0 0 7px; }
+  ul { margin: 0 0 8px; padding-left: 16px; } li { margin: 2px 0; }
+  code { font-family: "DejaVu Sans Mono", monospace; font-size: 7.8pt; background: #eef3f7; color: var(--p); padding: 0 3px; border-radius: 3px; }
+  pre { font-family: "DejaVu Sans Mono", monospace; font-size: 7.6pt; background: #f4f7fa; border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; white-space: pre-wrap; page-break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 10px; font-size: 8.2pt; page-break-inside: auto; }
+  tr { page-break-inside: avoid; }
+  table.peq { page-break-inside: avoid; }
+  thead { display: table-header-group; }
+  h2, h3 { page-break-after: avoid; }
+  th { background: var(--p); color: #fff; text-align: left; font-weight: 600; padding: 5px 7px; }
+  td { padding: 5px 7px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td:first-child { white-space: nowrap; }
+  td.w { white-space: normal; }
+  .kpis { display: flex; gap: 8px; margin: 10px 0 12px; }
+  .kpi { flex: 1; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+  .kpi b { display: block; font-size: 14pt; color: var(--p); }
+  .kpi span { font-size: 7.6pt; color: var(--mut); }
+  .nota { border-left: 3px solid var(--p); background: var(--alt); padding: 7px 10px; margin: 8px 0 10px; border-radius: 0 6px 6px 0; page-break-inside: avoid; }
+  .alerta { border-left-color: var(--r); background: #fcf1f0; }
+  .v1 { color: #137a3d; font-weight: 700; } .v0 { color: var(--r); font-weight: 700; }
+  .tag { display: inline-block; font-size: 7.4pt; font-weight: 700; padding: 1px 6px; border-radius: 9px; background: #e9eef3; color: var(--mut); }
+  /* capa */
+  .capa { page: capa; height: 297mm; position: relative; padding: 0 22mm; }
+  .capa .barra { position: absolute; top: 0; left: 0; right: 0; height: 9mm; background: var(--p); }
+  .capa .barra i { position: absolute; left: 0; bottom: 0; width: 55mm; height: 2.2mm; background: var(--r); }
+  .capa img { position: absolute; top: 46mm; left: 22mm; width: 52mm; }
+  .capa .tit { position: absolute; top: 118mm; left: 22mm; right: 22mm; }
+  .capa .sup { font-size: 8pt; letter-spacing: 2px; color: var(--mut); }
+  .capa .h0 { display: block; font-size: 27pt; font-weight: 800; color: var(--p); margin: 6px 0 8px; line-height: 1.15; }
+  .capa .sub { font-size: 10.5pt; color: var(--mut); max-width: 150mm; }
+  .capa .meta { position: absolute; bottom: 22mm; left: 22mm; right: 22mm; border-top: 1px solid var(--line); padding-top: 8px; display: flex; gap: 14mm; font-size: 8pt; }
+  .capa .meta b { display: block; }
+  /* sumário */
+  .sum { page-break-before: always; }
+  .sum h1 { page-break-before: avoid; }
+  .sum a { display: block; padding: 7px 0; border-bottom: 1px solid var(--line); color: var(--ink); text-decoration: none; font-size: 9.5pt; }
+  .sum a::after { content: target-counter(attr(href), page); float: right; color: var(--p); font-weight: 700; }
+  /* diagrama */
+  .arq { display: flex; align-items: stretch; gap: 0; margin: 10px 0 6px; page-break-inside: avoid; }
+  .bx { flex: 1; border: 1.5px solid var(--p); border-radius: 8px; padding: 7px 8px; font-size: 7.8pt; background: #fff; }
+  .bx b { display: block; color: var(--p); font-size: 8.4pt; }
+  .seta { width: 22px; display: flex; align-items: center; justify-content: center; color: var(--r); font-weight: 800; font-size: 12pt; }
+</style>
+</head>
+<body>
+
+<section class="capa">
+  <div class="barra"><i></i></div>
+  <img src="../../site/assets/tecnolimplogo.png" alt="Tecnolimp">
+  <div class="tit">
+    <div class="sup">DOCUMENTAÇÃO TÉCNICA</div>
+    <div class="h0">Liberação de Holerites — RH 24h</div>
+    <div class="sub">Holerite bloqueado por padrão no portal RH 24h: a T.I. libera, agenda ou bloqueia por empresa e competência num painel da Central de Relatórios, com histórico de quem fez e plano B por SQL.</div>
+  </div>
+  <div class="meta">
+    <div><b>Área</b>T.I. — Central de Relatórios / RH</div>
+    <div><b>Conclusão</b>15/10/2026</div>
+    <div><b>Status</b>Em produção</div>
+    <div><b>Repositório</b>central-relatorios</div>
+  </div>
+</section>
+
+<section class="sum">
+  <h1>Sumário</h1>
+  <a href="#s1">1&nbsp;&nbsp;Sumário Executivo</a>
+  <a href="#s2">2&nbsp;&nbsp;Contexto</a>
+  <a href="#s3">3&nbsp;&nbsp;Detalhamento Técnico</a>
+  <a href="#s4">4&nbsp;&nbsp;Tabelas, campos e valores (0 e 1)</a>
+  <a href="#s5">5&nbsp;&nbsp;Runbook (operação e manutenção)</a>
+  <a href="#s6">6&nbsp;&nbsp;Lições Técnicas</a>
+  <a href="#s7">7&nbsp;&nbsp;Linha do Tempo</a>
+  <a href="#s8">8&nbsp;&nbsp;Glossário e pendências</a>
+</section>
+
+<h1 id="s1">1. Sumário Executivo</h1>
+<p>Antes, o holerite aparecia no portal <b>RH 24h</b> assim que a folha era calculada no Senior, sem controle de quando o colaborador podia vê-lo. Agora <b>todo holerite nasce bloqueado</b> e só aparece quando a <b>T.I.</b> libera, a pedido do RH, pelo painel <b>Liberação de Holerites</b> da Central de Relatórios (área T.I.). A trava fica no próprio Senior (pré-seleção dos 15 modelos do portal), então não dá para contornar pela URL.</p>
+<div class="kpis">
+  <div class="kpi"><b>6 empresas</b><span>Tecnolimp, Pontual, ServiPlus, Servinews, DRA e Deltalimp</span></div>
+  <div class="kpi"><b>15 modelos</b><span>FPFF491…893 com a mesma pré-seleção (3 parâmetros por modelo)</span></div>
+  <div class="kpi"><b>segundos</b><span>do clique no painel até valer no portal</span></div>
+  <div class="kpi"><b>0 datas</b><span>automáticas: só sai quando a T.I. libera</span></div>
+</div>
+<ul>
+  <li><b>Liberar, agendar ou bloquear</b> por empresa e competência, uma de cada vez ou todas de uma competência ("Todas ▾").</li>
+  <li><b>Agendamento sem processo rodando:</b> a data fica gravada no Senior e o próprio holerite confere no dia.</li>
+  <li><b>Colaborador nunca vê data:</b> até sair, o portal mostra "🔒 Em breve"; mês sem cálculo para a pessoa mostra "Sem holerite".</li>
+  <li><b>Desfazer:</b> "Cancelar pedido" (antes de gravar) e "↩ Reverter liberação" (depois de gravar), tudo no histórico com o usuário.</li>
+  <li><b>Plano B:</b> SQL de contingência com manual próprio, para quando o painel ou o integrador estiverem fora.</li>
+  <li><b>Seguro:</b> login obrigatório (nunca acesso livre), permissão por área/relatório no banco (RLS) e escrita no Oracle só na tabela <code>USU_TLIBHOL</code>, com usuário dedicado.</li>
+</ul>
+
+<h1 id="s2">2. Contexto</h1>
+<h2>Problema</h2>
+<p>Os modelos do portal mostravam meses fixos (manutenção manual a cada mês) e qualquer folha calculada podia aparecer antes da hora, inclusive em recálculo. O RH precisava pedir à T.I. ajustes pontuais sem ferramenta, sem histórico e sem poder agendar ("pode soltar dia 04").</p>
+<h2>Objetivo</h2>
+<ul>
+  <li>Holerite bloqueado por padrão; a T.I. libera (a pedido do RH) sem depender de o RH executar nada.</li>
+  <li>Portal igual ao de sempre: os 3 meses mais recentes; mês não liberado aparece só como "🔒 Em breve".</li>
+  <li>Agendamento, bloqueio imediato, histórico de quem fez e caminho de emergência.</li>
+</ul>
+<h2>Decisões de negócio</h2>
+<table><thead><tr><th>Tema</th><th>Decisão</th></tr></thead><tbody>
+  <tr><td>Padrão</td><td class="w">Todo holerite nasce bloqueado. Sem registro na <code>USU_TLIBHOL</code> = bloqueado.</td></tr>
+  <tr><td>Data de liberação</td><td class="w">Sempre escolhida pela T.I. (hoje ou data agendada). <b>Não existe regra automática</b> (nem "pagamento − 1 dia").</td></tr>
+  <tr><td>Granularidade</td><td class="w">Por empresa + competência: todos os colaboradores da empresa juntos.</td></tr>
+  <tr><td>Recálculo</td><td class="w">Mês já liberado continua visível, com o cálculo mais recente. Para segurar, a T.I. reverte (bloqueia).</td></tr>
+  <tr><td>Quem usa o painel</td><td class="w">Só a T.I. (admin, acesso à área T.I. ou ao relatório). O relatório <b>sempre pede senha</b>: o banco recusa marcá-lo como acesso livre.</td></tr>
+  <tr><td>Escrita no Senior</td><td class="w">Exceção aprovada: gravar <b>só</b> na <code>USU_TLIBHOL</code>, com usuário Oracle próprio (<code>TEC_LIBHOL</code>), sem DELETE.</td></tr>
+  <tr><td>Sincronização</td><td class="w">Sem ciclo fixo: o integrador só toca o Oracle quando alguém clica no painel.</td></tr>
+  <tr><td>Mensagens ao colaborador</td><td class="w">Nunca "procure o RH/T.I."; só "🔒 Em breve" ou "Sem holerite — aqui aparecem os holerites dos seus 3 últimos meses de trabalho".</td></tr>
+  <tr><td>Virada</td><td class="w">Antes de ligar a trava, os meses já visíveis (jul/ago/set 2026) foram registrados como liberados (usuário <code>VIRADA</code>), para ninguém perder o holerite.</td></tr>
+</tbody></table>
+
+<h1 id="s3">3. Detalhamento Técnico</h1>
+<h2>Arquitetura</h2>
+<div class="arq">
+  <div class="bx"><b>Painel (Central)</b>tecnolimp15 · IIS<br>clique = pedido na fila</div>
+  <div class="seta">→</div>
+  <div class="bx"><b>Supabase (VM)</b>schema <code>central</code><br>fila, espelho e histórico · RLS</div>
+  <div class="seta">→</div>
+  <div class="bx"><b>Integrador</b>TECNOLIMP12 · Agendador<br>Python, olha a fila a cada 3 s</div>
+  <div class="seta">→</div>
+  <div class="bx"><b>Sapiens (Oracle)</b>grava na <code>USU_TLIBHOL</code><br>lê <code>R044CAL</code></div>
+  <div class="seta">→</div>
+  <div class="bx"><b>Portal RH 24h</b>pré-seleção dos 15 modelos confere a <code>USU_TLIBHOL</code></div>
+</div>
+<p>O site nunca acessa o Oracle. O clique vira um pedido (<code>lh_solicitar</code>); o integrador pega o pedido (<code>lh_proximo</code>), grava na <code>USU_TLIBHOL</code>, devolve o resultado (<code>lh_concluir</code>) e relê o Sapiens (<code>lh_espelhar</code>). O painel acompanha as etapas reais na caixa de andamento. Se o integrador não responder em 1 minuto, o painel avisa e o pedido fica na fila.</p>
+
+<h2>Componentes</h2>
+<table class="peq"><thead><tr><th>Parte</th><th>Arquivo / local</th><th>Função</th></tr></thead><tbody>
+  <tr><td>Painel</td><td class="w"><code>site/relatorios/liberacao-holerites/</code> (index.html, painel.js, painel.css)</td><td class="w">Grade empresa × competência, gaveta da célula, "Todas ▾", histórico, tooltips, cancelar/reverter, "Como funciona".</td></tr>
+  <tr><td>Banco</td><td class="w"><code>migrations/007_liberacao_holerites.sql</code> e <code>008_liberacao_holerites_cancelar.sql</code></td><td class="w">Tabelas <code>lh_*</code>, funções, RLS, cadastro do relatório e trava "sempre pede senha".</td></tr>
+  <tr><td>Integrador</td><td class="w"><code>sync/liberacao-holerites/</code> → TECNOLIMP12 <code>C:\Automações\08 - Liberação holerite</code></td><td class="w">Fila → Oracle → espelho. Modos <code>--diagnostico</code>, <code>--leitura</code>, <code>--espelhar</code>.</td></tr>
+  <tr><td>Pré-seleção</td><td class="w"><code>holerites-rh24h/sapiens/producao/FPFF*_preselecao.txt</code></td><td class="w">Código idêntico nos 15 modelos; mudam 3 parâmetros (posição, empresas, aviso prévio).</td></tr>
+  <tr><td>Portal</td><td class="w"><code>holerites-rh24h/portal/index.html</code></td><td class="w">Selos "📄 Ver holerite", "🔒 Em breve", "Sem holerite"; fila de pedidos ao Senior; "Sem folha de ponto".</td></tr>
+  <tr><td>Contingência</td><td class="w"><code>sapiens/sql_contingencia.sql</code> + <code>docs/manual-sql-contingencia.md</code></td><td class="w">Liberar/agendar/bloquear direto no Oracle quando o painel estiver fora.</td></tr>
+</tbody></table>
+
+<h2>Pré-seleção (o que o holerite confere antes de sair)</h2>
+<table class="peq"><thead><tr><th>Bloco</th><th>O que faz</th></tr></thead><tbody>
+  <tr><td>1</td><td class="w">Identifica empresa e cadastro pelo login (cadastro + sufixo: nenhum = 1, E/P = 3, S = 4, D = 5, L = 6, S7 = 7, Y = 9).</td></tr>
+  <tr><td>2–4</td><td class="w">Confere se a empresa é atendida pelo site (<code>aHolSite</code>) e, onde vale, bloqueia quem está em aviso prévio (<code>nHolAviso</code>).</td></tr>
+  <tr><td>5</td><td class="w">Escolhe a competência da posição do combo (<code>nHolAtras</code> = 1, 2 ou 3 meses atrás) e o cálculo mensal mais recente (<code>R044CAL</code>, TipCal 11).</td></tr>
+  <tr><td>5b</td><td class="w">Colaborador sem cálculo no mês (ex.: admitido depois) → devolve a marca <code>SEMHOLERITE</code>; o portal mostra "Sem holerite".</td></tr>
+  <tr><td>6</td><td class="w">Só emite se existir linha na <code>USU_TLIBHOL</code> com <code>USU_SitLib = 1</code> e <code>USU_DatIni ≤ hoje</code>. Senão, não emite e o portal mostra "🔒 Em breve".</td></tr>
+</tbody></table>
+<table class="peq"><thead><tr><th>Modelos</th><th>Empresa(s)</th><th><code>aHolSite</code></th><th><code>nHolAviso</code></th></tr></thead><tbody>
+  <tr><td>FPFF491/492/493</td><td>ServiPlus (4) e Servinews (7)</td><td>"4,7"</td><td>1 (bloqueia aviso prévio)</td></tr>
+  <tr><td>FPFF591/592/593</td><td>Pontual (3)</td><td>"3"</td><td>1</td></tr>
+  <tr><td>FPFF691/692/693</td><td>Tecnolimp (1) (+ 9)</td><td>"1,9"</td><td>1</td></tr>
+  <tr><td>FPFF791/792/793</td><td>Deltalimp (6)</td><td>"6"</td><td>0 (não bloqueia)</td></tr>
+  <tr><td>FPFF891/892/893</td><td>DRA (5)</td><td>"5"</td><td>0</td></tr>
+</tbody></table>
+<p>O último dígito do modelo é a posição no combo do portal: <b>x91</b> = mês passado ("holerite"), <b>x92</b> = 2 meses atrás, <b>x93</b> = 3 meses atrás.</p>
+
+<h2>Segurança</h2>
+<ul>
+  <li>Navegador só lê as tabelas <code>lh_*</code> (RLS por <code>lh_pode()</code>) e só escreve por <code>lh_solicitar</code>/<code>lh_cancelar</code>, que validam tudo (ação, empresa com folha, datas, motivo obrigatório para bloquear, até 20 alvos).</li>
+  <li><code>service_role</code> e senhas Oracle só no <code>credenciais.bat</code> da TECNOLIMP12, nunca no Git.</li>
+  <li><code>TEC_LIBHOL</code>: <code>SELECT, INSERT, UPDATE</code> só na <code>USU_TLIBHOL</code> + <code>SELECT</code> na <code>R044CAL</code>. Bloquear nunca apaga linha.</li>
+</ul>
+
+<h1 id="s4">4. Tabelas, campos e valores (0 e 1)</h1>
+<div class="nota"><b>Regra de ouro:</b> o holerite de uma empresa/competência aparece no portal <b>somente</b> quando existe a linha na <code>USU_TLIBHOL</code> com <span class="v1">USU_SitLib = 1</span> <b>e</b> <code>USU_DatIni</code> já chegou (hoje ou antes). Qualquer outro caso = "🔒 Em breve".</div>
+
+<h2>4.1 Oracle (Sapiens) — <code>VETORH.USU_TLIBHOL</code> (a tabela que manda)</h2>
+<p>Tabela de usuário criada pelo Sapiens (Personalização › Tabelas de usuário). <b>Uma linha por empresa + competência.</b> É gravada pelo integrador (painel) ou pelo SQL de contingência.</p>
+<table><thead><tr><th>Coluna</th><th>Tipo</th><th>O que guarda</th></tr></thead><tbody>
+  <tr><td><code>USU_NumEmp</code> <span class="tag">chave</span></td><td>Número 4</td><td class="w">Empresa (1 Tecnolimp, 3 Pontual, 4 ServiPlus, 5 DRA, 6 Deltalimp, 7 Servinews).</td></tr>
+  <tr><td><code>USU_PerRef</code> <span class="tag">chave</span></td><td>Data</td><td class="w">Competência da folha, sempre dia 01 (ex.: 01/09/2026 = folha de setembro).</td></tr>
+  <tr><td><code>USU_DatIni</code></td><td>Data</td><td class="w">A partir de quando o holerite aparece. Hoje = liberado na hora; data futura = agendado. Sempre gravada sem hora.</td></tr>
+  <tr><td><code>USU_SitLib</code></td><td>Número 1</td><td class="w"><span class="v1">1</span> = liberado (a partir de <code>USU_DatIni</code>) · <span class="v0">0</span> = bloqueado.</td></tr>
+  <tr><td><code>USU_UsuLib</code></td><td>Alfa 30</td><td class="w">Usuário de rede que fez a última alteração (ou <code>VIRADA</code>, nas linhas criadas na implantação).</td></tr>
+  <tr><td><code>USU_DatGra</code></td><td>Data</td><td class="w">Data da última alteração.</td></tr>
+  <tr><td><code>USU_ObsLib</code></td><td>Alfa 60</td><td class="w">Quem pediu / motivo (obrigatório para bloquear ou reverter pelo painel).</td></tr>
+</tbody></table>
+<h3>Como ler cada situação</h3>
+<table class="peq"><thead><tr><th>Na tabela</th><th>No painel</th><th>No portal (colaborador)</th></tr></thead><tbody>
+  <tr><td>Sem linha</td><td>Bloqueado</td><td class="w">🔒 Em breve (padrão de toda folha nova)</td></tr>
+  <tr><td><span class="v0">SitLib = 0</span></td><td>Bloqueado</td><td class="w">🔒 Em breve (bloqueio/reversão feita pela T.I.)</td></tr>
+  <tr><td><span class="v1">SitLib = 1</span> e DatIni &gt; hoje</td><td>Agendado</td><td class="w">🔒 Em breve até a data; no dia, aparece sozinho</td></tr>
+  <tr><td><span class="v1">SitLib = 1</span> e DatIni ≤ hoje</td><td>Liberado</td><td class="w">📄 Ver holerite</td></tr>
+</tbody></table>
+<div class="nota">Exemplo: <code>4 · 01/10/2026 · DatIni 12/11/2026 · SitLib 1 · ygor.adm</code> = ServiPlus, folha de outubro, agendada para aparecer em 12/11. Se a T.I. reverter, a mesma linha passa a <code>SitLib 0</code> (a linha nunca é apagada, o histórico fica).</div>
+
+<h2>4.2 Oracle (Sapiens) — <code>VETORH.R044CAL</code> (só leitura)</h2>
+<table class="peq"><thead><tr><th>Coluna</th><th>Uso no projeto</th></tr></thead><tbody>
+  <tr><td><code>NumEmp</code></td><td class="w">Empresa do cálculo.</td></tr>
+  <tr><td><code>PerRef</code></td><td class="w">Competência (dia 01).</td></tr>
+  <tr><td><code>TipCal</code></td><td class="w"><code>11</code> = folha mensal (o único tipo usado).</td></tr>
+  <tr><td><code>CodCal</code></td><td class="w">Código do cálculo; vale sempre o mais recente da competência (recálculo substitui).</td></tr>
+  <tr><td><code>DatPag</code></td><td class="w">Data de pagamento. Só informativa no painel (não gera data automática).</td></tr>
+</tbody></table>
+<p>Outras tabelas lidas pela pré-seleção: <code>R999USU</code> (login), <code>R034FUN</code> (colaborador), <code>R042AVI</code> (aviso prévio), <code>R046VER</code> (eventos calculados, para o "Sem holerite").</p>
+
+<h2>4.3 Supabase (schema <code>central</code>) — espelho, fila e histórico</h2>
+<p>O Supabase <b>não decide nada</b> sobre o portal: guarda a cópia do Sapiens para o painel, a fila de cliques e a auditoria.</p>
+<h3><code>lh_folhas</code> — espelho da R044CAL</h3>
+<table class="peq"><thead><tr><th>Coluna</th><th>O que guarda</th></tr></thead><tbody>
+  <tr><td><code>num_emp</code>, <code>per_ref</code></td><td class="w">Empresa e competência (chave).</td></tr>
+  <tr><td><code>cod_cal</code>, <code>dat_pag</code></td><td class="w">Cálculo mensal mais recente e data de pagamento.</td></tr>
+  <tr><td><code>lido_em</code></td><td class="w">Quando o integrador leu o Sapiens ("Folhas lidas do Sapiens em…" no painel).</td></tr>
+</tbody></table>
+<p>Empresa/competência sem linha aqui aparece como <b>"Sem folha"</b>: a folha ainda não foi calculada, não há o que liberar.</p>
+<h3><code>lh_liberacoes</code> — espelho da USU_TLIBHOL</h3>
+<table class="peq"><thead><tr><th>Coluna</th><th>O que guarda</th></tr></thead><tbody>
+  <tr><td><code>num_emp</code>, <code>per_ref</code></td><td class="w">Empresa e competência (chave).</td></tr>
+  <tr><td><code>dat_ini</code>, <code>sit_lib</code></td><td class="w">Cópia de <code>USU_DatIni</code> e <code>USU_SitLib</code> (<span class="v1">1</span> liberado / <span class="v0">0</span> bloqueado).</td></tr>
+  <tr><td><code>usu_lib</code>, <code>dat_gra</code>, <code>obs_lib</code></td><td class="w">Quem, quando e por quê (cópia das colunas do Oracle).</td></tr>
+  <tr><td><code>lido_em</code></td><td class="w">Quando a linha foi copiada.</td></tr>
+</tbody></table>
+<h3><code>lh_pedidos</code> — fila de cliques do painel</h3>
+<table><thead><tr><th>Coluna</th><th>O que guarda</th></tr></thead><tbody>
+  <tr><td><code>id</code></td><td class="w">Identificador do pedido.</td></tr>
+  <tr><td><code>usuario_id</code>, <code>usuario_login</code></td><td class="w">Quem clicou.</td></tr>
+  <tr><td><code>acao</code></td><td class="w"><code>liberar</code> (hoje) · <code>agendar</code> (data) · <code>bloquear</code> (bloquear/reverter) · <code>atualizar</code> (só reler o Sapiens). <code>agendar_padrao</code> existe só por compatibilidade, sem botão.</td></tr>
+  <tr><td><code>data_ini</code></td><td class="w">Data pedida (hoje no liberar; a escolhida no agendar; vazia nos demais).</td></tr>
+  <tr><td><code>obs</code></td><td class="w">Motivo / quem pediu (até 60).</td></tr>
+  <tr><td><code>alvos</code></td><td class="w">Lista de empresa + competência, ex.: <code>[{"emp":4,"per":"2026-10-01"}]</code>.</td></tr>
+  <tr><td><code>status</code></td><td class="w">Ver tabela abaixo.</td></tr>
+  <tr><td><code>mensagem</code></td><td class="w">Erro do integrador, expiração ou "Cancelado por …".</td></tr>
+  <tr><td><code>criado_em</code>, <code>atualizado_em</code></td><td class="w">Quando entrou na fila e a última mudança de status.</td></tr>
+</tbody></table>
+<table class="peq"><thead><tr><th>Status</th><th>Significado</th></tr></thead><tbody>
+  <tr><td><code>pendente</code></td><td class="w">Na fila, o integrador ainda não pegou. Pode ser cancelado. Mais de 1 min = aviso amarelo; mais de 1 dia = expira (vira erro).</td></tr>
+  <tr><td><code>processando</code></td><td class="w">O integrador está gravando no Sapiens. Não dá mais para cancelar. Mais de 10 min = erro (travou).</td></tr>
+  <tr><td><code>aplicado</code></td><td class="w">Gravado na <code>USU_TLIBHOL</code> e espelho atualizado.</td></tr>
+  <tr><td><code>erro</code></td><td class="w">Não aplicado (Oracle recusou, expirou ou travou); motivo em <code>mensagem</code>. Nada é gravado pela metade.</td></tr>
+  <tr><td><code>cancelado</code></td><td class="w">Tirado da fila pelo botão "Cancelar pedido" antes de chegar ao Sapiens.</td></tr>
+</tbody></table>
+<p>Pedidos encerrados há mais de 90 dias são apagados da fila (o histórico <code>lh_log</code> fica).</p>
+<h3><code>lh_log</code> — histórico permanente (aba Histórico)</h3>
+<table><thead><tr><th>Coluna</th><th>O que guarda</th></tr></thead><tbody>
+  <tr><td><code>em</code></td><td class="w">Data/hora do registro.</td></tr>
+  <tr><td><code>usuario</code></td><td class="w">Quem fez (login do painel ou o <code>USU_UsuLib</code> gravado no Oracle).</td></tr>
+  <tr><td><code>num_emp</code>, <code>per_ref</code></td><td class="w">Empresa e competência.</td></tr>
+  <tr><td><code>acao</code></td><td class="w">Situação resultante: <code>Liberado</code>, <code>Agendado</code> ou <code>Bloqueado</code>.</td></tr>
+  <tr><td><code>de</code> → <code>para</code></td><td class="w">Antes e depois, em texto: "Bloqueado (sem registro)", "Bloqueado", "a partir de dd/mm/aaaa", "desde dd/mm/aaaa".</td></tr>
+  <tr><td><code>origem</code></td><td class="w"><code>painel</code> = feito pelo painel · <code>fora_do_painel</code> = feito direto no Sapiens (SQL de contingência ou virada), detectado na leitura seguinte.</td></tr>
+  <tr><td><code>obs</code>, <code>pedido_id</code></td><td class="w">Motivo e o pedido que originou (vazio quando fora do painel).</td></tr>
+</tbody></table>
+
+<h2>4.4 Funções do banco</h2>
+<table><thead><tr><th>Função</th><th>Quem chama</th><th>O que faz</th></tr></thead><tbody>
+  <tr><td><code>lh_pode()</code></td><td>painel / RLS</td><td class="w">Tem acesso? (login + admin, área T.I. ou o relatório; nunca acesso livre).</td></tr>
+  <tr><td><code>lh_solicitar(...)</code></td><td>painel</td><td class="w">Valida e grava o pedido na fila.</td></tr>
+  <tr><td><code>lh_cancelar(id)</code></td><td>painel</td><td class="w">Cancela se ainda <code>pendente</code>; devolve o status final.</td></tr>
+  <tr><td><code>lh_proximo()</code></td><td>integrador</td><td class="w">Pega o próximo pendente (um por vez, sem disputa).</td></tr>
+  <tr><td><code>lh_concluir(...)</code></td><td>integrador</td><td class="w">Encerra o pedido e registra no histórico como "painel".</td></tr>
+  <tr><td><code>lh_espelhar(...)</code></td><td>integrador</td><td class="w">Substitui o espelho pelo Sapiens; diferenças viram "fora do painel".</td></tr>
+  <tr><td><code>lh_manutencao()</code></td><td>integrador (1×/h)</td><td class="w">Expira pendentes &gt; 1 dia, encerra travados &gt; 10 min, limpa fila &gt; 90 dias.</td></tr>
+</tbody></table>
+
+<h1 id="s5">5. Runbook (operação e manutenção)</h1>
+<h2>Onde está cada parte</h2>
+<table class="peq"><thead><tr><th>Parte</th><th>Local</th></tr></thead><tbody>
+  <tr><td>Painel</td><td class="w">tecnolimp15 — <code>C:\Sites\central\relatorios\liberacao-holerites\</code> — <code>http://central.apps.tecnolimp.local/relatorios/liberacao-holerites/</code></td></tr>
+  <tr><td>Banco</td><td class="w">VM tecnolimp-dados — Supabase <code>http://supabase.tecnolimp.local:8000</code>, schema <code>central</code></td></tr>
+  <tr><td>Integrador</td><td class="w">TECNOLIMP12 — <code>C:\Automações\08 - Liberação holerite</code>; tarefa "Tecnolimp - Liberacao de Holerites (integrador)"</td></tr>
+  <tr><td>Log</td><td class="w"><code>...\logs\worker_liberacao_holerites.log</code> (rotativo)</td></tr>
+  <tr><td>Credenciais</td><td class="w"><code>credenciais.bat</code> da pasta do integrador (chama o do <code>03 - Relacao_Eventos</code>; <code>LH_ORACLE_USER=TEC_LIBHOL</code>, <code>LH_ESQUEMA=VETORH</code>, Supabase da VM). Nunca versionado.</td></tr>
+</tbody></table>
+
+<h2>Rotina</h2>
+<ol>
+  <li>RH pede ("pode soltar setembro dia 04").</li>
+  <li>T.I. abre a célula (empresa × mês) → <b>Liberar agora</b> ou <b>Agendar</b> (data) → Confirmar. Para todas as empresas do mês: "Todas ▾".</li>
+  <li>A caixa de andamento vai até ✓ "Aplicado no Sapiens". O histórico registra o usuário.</li>
+</ol>
+<h2>Desfazer</h2>
+<table class="peq"><thead><tr><th>Situação</th><th>Como desfazer</th></tr></thead><tbody>
+  <tr><td>Pedido ainda carregando</td><td class="w">"Cancelar pedido" na caixa de andamento (só antes de o integrador começar a gravar).</td></tr>
+  <tr><td>Já liberado/agendado</td><td class="w">Abrir a célula → "↩ Reverter liberação" (motivo obrigatório), ou "↩ Reverter" no Histórico.</td></tr>
+  <tr><td>Bloqueado sem querer</td><td class="w">Abrir a célula e liberar/agendar de novo.</td></tr>
+  <tr><td>Painel/integrador fora</td><td class="w">SQL de contingência (abaixo) e depois "↻ Atualizar do Sapiens".</td></tr>
+</tbody></table>
+
+<h2>SQL de contingência (manual completo: <code>docs/manual-sql-contingencia.md</code>)</h2>
+<div class="nota alerta">Plano B. Rodar <b>só no DBeaver conectado ao Sapiens</b> (nunca no Supabase), <b>um bloco por vez</b>, trocando só as linhas marcadas <code>&lt;-- TROCAR</code>. Depois, no painel, "↻ Atualizar do Sapiens": a mudança entra no histórico como "fora do painel".</div>
+<table class="peq"><thead><tr><th>Bloco</th><th>O que faz</th></tr></thead><tbody>
+  <tr><td>0. Consultar</td><td class="w">Folhas dos meses do portal e a situação de cada empresa (LIBERADO / AGENDADO / BLOQUEADO).</td></tr>
+  <tr><td>1. Liberar / agendar</td><td class="w">Cria/atualiza a linha com <code>USU_SitLib = 1</code> e a data (hoje ou data marcada). Também desfaz um bloqueio.</td></tr>
+  <tr><td>2. Bloquear / reverter</td><td class="w">Muda para <code>USU_SitLib = 0</code>. 0 linhas = já estava bloqueado.</td></tr>
+  <tr><td>3. Gravar</td><td class="w"><code>COMMIT</code> (ou <code>ROLLBACK</code> para desistir). Com Auto-Commit ligado no DBeaver a mudança já foi gravada no passo anterior.</td></tr>
+</tbody></table>
+
+<h2>Verificar se o integrador está no ar (TECNOLIMP12 — PowerShell)</h2>
+<pre>Get-ScheduledTask -TaskName "Tecnolimp - Liberacao de Holerites (integrador)" | Select-Object TaskName, State
+Get-Content "C:\Automações\08 - Liberação holerite\logs\worker_liberacao_holerites.log" -Tail 15 -Encoding UTF8</pre>
+<p>Esperado: <code>Running</code> e, a cada clique, "Pedido … por &lt;usuário&gt;" e "… aplicado: N linha(s)".</p>
+<h2>Validar o Oracle sem o painel (TECNOLIMP12 — cmd)</h2>
+<pre>cd /d "C:\Automações\08 - Liberação holerite"
+call credenciais.bat
+"%PYEXE%" worker_liberacao_holerites.py --diagnostico   &amp;:: colunas, usuário conectado e grants
+"%PYEXE%" worker_liberacao_holerites.py --leitura       &amp;:: o que iria para o painel (não grava)
+"%PYEXE%" worker_liberacao_holerites.py --espelhar      &amp;:: atualiza o painel uma vez</pre>
+<p>O diagnóstico deve mostrar <code>Privilégios na USU_TLIBHOL (TEC_LIBHOL): INSERT, SELECT, UPDATE</code>. Se mostrar <code>VETORH</code>, o <code>credenciais.bat</code> está sem as linhas <code>LH_*</code>.</p>
+
+<h2>Problemas conhecidos</h2>
+<table><thead><tr><th>Sintoma</th><th>Causa / ação</th></tr></thead><tbody>
+  <tr><td class="w">Aviso amarelo "O integrador com o Sapiens não respondeu"</td><td class="w">Tarefa parada: Agendador › "Tecnolimp - Liberacao de Holerites (integrador)" › Executar; conferir o log. Urgente: SQL de contingência.</td></tr>
+  <tr><td class="w">Painel com "Folhas lidas…" antigo e pedidos pendentes</td><td class="w">Painel aberto é o de HML (Vercel). Usar o endereço da Central (produção).</td></tr>
+  <tr><td><code>ORA-01017</code></td><td class="w">Usuário/senha Oracle do <code>TEC_LIBHOL</code>; testar no DBeaver; senha entre aspas: <code>set "LH_ORACLE_PASSWORD=..."</code>.</td></tr>
+  <tr><td class="w">"O sistema não pode encontrar o caminho" no <code>call</code></td><td class="w">Caminho do <code>credenciais.bat</code> do sync: <code>%~dp0..\03 - Relacao_Eventos\credenciais.bat</code>.</td></tr>
+  <tr><td class="w">400 no <code>--espelhar</code> ("DELETE requires a WHERE clause")</td><td class="w">Proteção do Supabase; já corrigido na 007 (<code>where true</code>).</td></tr>
+  <tr><td class="w">Portal: mês liberado aparece "Em breve"</td><td class="w">Conferir a linha da <code>USU_TLIBHOL</code> (bloco 0). Se correta, o conector estava ocupado: o portal pede um relatório por vez (fila).</td></tr>
+  <tr><td class="w">Portal: acentos quebrados em texto novo</td><td class="w">O servidor entrega a página em ISO-8859-1: usar entidades HTML (<code>&amp;atilde;</code>…).</td></tr>
+</tbody></table>
+<h2>Atualizar</h2>
+<ul>
+  <li><b>Painel:</b> <code>robocopy &lt;pasta&gt; C:\Sites\central\relatorios\liberacao-holerites /E</code> (não toca no <code>config.js</code>); Ctrl+F5.</li>
+  <li><b>Integrador:</b> trocar só <code>.py/.bat/.ps1</code> (o zip nunca leva <code>credenciais.bat</code>) e reiniciar a tarefa.</li>
+  <li><b>Banco:</b> migration nova na VM: <code>sudo docker exec -i supabase-db psql -U supabase_admin -d postgres -v ON_ERROR_STOP=1 &lt; ~/NNN.sql</code>, depois backup (<code>sudo /usr/local/sbin/backup-supabase.sh</code>).</li>
+  <li><b>Pré-seleção:</b> colar o arquivo do modelo, Consistir, Salvar; testar no portal com um login da empresa. Voltar atrás: <code>originais/FPFFxxx.OPE.txt</code>.</li>
+  <li><b>Empresa nova (ex.: 8):</b> incluir no <code>aHolSite</code> do site que a atende e no cadastro de empresas do painel (<code>painel.js</code>).</li>
+</ul>
+
+<h1 id="s6">6. Lições Técnicas</h1>
+<table><thead><tr><th>Situação</th><th>Aprendizado</th></tr></thead><tbody>
+  <tr><td class="w">Trava só no site/JS</td><td class="w">Insegura: o conector entrega o PDF chamado direto pela URL. A trava tem que estar na pré-seleção (Oracle).</td></tr>
+  <tr><td class="w">LSP: <code>Mensagem(Retorna, "txt" + var)</code> → "falta )"</td><td class="w">Montar o texto numa variável Alfa antes. <code>@</code> dentro de comentário fecha o comentário.</td></tr>
+  <tr><td class="w">Conector do Senior em paralelo</td><td class="w">Gera um relatório por vez por sessão; pedidos simultâneos voltam como página de erro. O portal enfileira holerites e folha ponto.</td></tr>
+  <tr><td class="w">Colaborador admitido depois do mês</td><td class="w">O layout quebra (sem cargo na data). A pré-seleção confere a <code>R046VER</code> e devolve <code>SEMHOLERITE</code>; o portal mostra "Sem holerite".</td></tr>
+  <tr><td class="w">Produção com meses fixos</td><td class="w">A virada registrou como liberado tudo que já era visível, com <code>LEAST(DatPag − 1, hoje)</code>, antes de colar a pré-seleção nova.</td></tr>
+  <tr><td class="w">Supabase: DELETE sem WHERE via API</td><td class="w">Bloqueado pelo <code>safeupdate</code>; usar <code>where true</code> dentro das funções.</td></tr>
+  <tr><td class="w">Conector MCP do Supabase com <code>delete</code>/<code>drop</code></td><td class="w">Pede confirmação e trava; esses trechos vão pelo SQL Editor (HML) ou <code>docker exec</code> (VM).</td></tr>
+  <tr><td class="w">Integrador conectando como VETORH</td><td class="w">Sem <code>LH_ORACLE_USER</code> ele usa o usuário do sync; o <code>--diagnostico</code> mostra o usuário conectado.</td></tr>
+  <tr><td class="w">"Parar o python" na TECNOLIMP12</td><td class="w">Há mais de um serviço Python (Quadro de Vagas). Parar pela tarefa no Agendador, nunca matando processo por nome.</td></tr>
+  <tr><td class="w">Log com acentos quebrados no PowerShell 5</td><td class="w"><code>Get-Content ... -Encoding UTF8</code>.</td></tr>
+  <tr><td class="w">Portal servido em ISO-8859-1</td><td class="w">Texto novo com acento em entidades HTML.</td></tr>
+</tbody></table>
+
+<h1 id="s7">7. Linha do Tempo</h1>
+<table class="peq"><thead><tr><th>Data</th><th>Entrega</th></tr></thead><tbody>
+  <tr><td>13/10/2026</td><td class="w">Plano e decisões aprovadas (padrão bloqueado, T.I. libera, exceção de escrita só na <code>USU_TLIBHOL</code>, sem ciclo fixo).</td></tr>
+  <tr><td>14/10/2026</td><td class="w"><code>USU_TLIBHOL</code> criada; bloco 6 validado no FPFF996 (testes T1–T5 com 628S7); migration 007 no HML; integrador e painel prontos; piloto ServiPlus/Servinews em produção (virada, fila no portal, "Sem holerite"); teste ponta a ponta no HML com <code>TEC_LIBHOL</code>.</td></tr>
+  <tr><td>15/10/2026</td><td class="w">Produção: migration 007 na VM, integrador como serviço na TECNOLIMP12, painel no IIS, teste de clique; pré-seleção de Pontual, Tecnolimp, Deltalimp e DRA; conferência das 6 empresas (3 meses liberados).</td></tr>
+  <tr><td>15/10/2026</td><td class="w">Ajustes: cancelar pedido (008), reverter liberação, tooltips, sem data automática, manual do SQL de contingência, portal com "📄 Ver holerite" e "Sem folha de ponto", menos consultas ao Senior.</td></tr>
+</tbody></table>
+
+<h1 id="s8">8. Glossário e pendências</h1>
+<table><thead><tr><th>Termo</th><th>Significado</th></tr></thead><tbody>
+  <tr><td>Competência</td><td class="w">Mês da folha (sempre dia 01, ex.: 01/09/2026 = setembro).</td></tr>
+  <tr><td>Pré-seleção</td><td class="w">Regra LSP que roda antes de o Senior emitir o holerite do portal; decide se emite.</td></tr>
+  <tr><td>Combo do portal</td><td class="w">Lista de meses do portal: "Próximo" (sempre Em breve), mês passado, 2 e 3 meses atrás.</td></tr>
+  <tr><td>Liberado / Agendado / Bloqueado</td><td class="w">Ver seção 4.1 (SitLib e DatIni).</td></tr>
+  <tr><td>Sem folha</td><td class="w">A folha mensal da empresa ainda não foi calculada (sem linha na <code>R044CAL</code>).</td></tr>
+  <tr><td>Sem holerite</td><td class="w">O colaborador não tem cálculo naquele mês (ex.: admitido depois).</td></tr>
+  <tr><td>Fora do painel</td><td class="w">Alteração feita direto no Sapiens (contingência ou virada), registrada na leitura seguinte.</td></tr>
+  <tr><td>Virada</td><td class="w">Registro inicial dos meses já visíveis como liberados (usuário <code>VIRADA</code>).</td></tr>
+  <tr><td>Integrador</td><td class="w">Programa Python da TECNOLIMP12 que leva os pedidos do painel ao Sapiens.</td></tr>
+  <tr><td>HML / PROD</td><td class="w">Homologação (Supabase Cloud + Vercel) / Produção (VM + IIS interno).</td></tr>
+</tbody></table>
+<h2>Pendências</h2>
+<ul>
+  <li><b>Nome do colaborador no topo do portal:</b> vazio desde que o Senior passou a entregar o holerite em PDF; falta ler o nome do texto do PDF (aguardando amostra).</li>
+  <li><b>Mensagens antigas do portal</b> com acentos quebrados ("Não foi possível…", 13º salário): corrigir com entidades HTML se desejado.</li>
+  <li><b>Portal em HTTP sem TLS</b> (risco LGPD) e ~23 s por consulta ao Senior: fora do escopo, registrado.</li>
+</ul>
+</body>
+</html>

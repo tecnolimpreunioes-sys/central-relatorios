@@ -34,7 +34,7 @@ Formulário por local e cargo para impressão e preenchimento à caneta.
 | `sync/liberacao-holerites/` | Integrador da Liberação de Holerites (fila → USU_TLIBHOL no Sapiens → espelho) — ver `LEIAME.md` |
 | `supabase/functions/central-admin-usuarios/` | Edge Function: criar usuário e redefinir senha |
 | `painel-redirect/` | Página que redireciona o endereço antigo do painel para a Central |
-| `docs/` | Documentação técnica (PDF) |
+| `docs/` | Documentação técnica (PDF): Quadro de Vagas e Liberação de Holerites |
 
 ## Ambientes
 | Ambiente | Banco | Site | Scripts Oracle |

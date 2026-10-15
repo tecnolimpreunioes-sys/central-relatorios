@@ -31,8 +31,7 @@ painel mostra "aplicado" ou "erro"        3) marca o pedido aplicado/erro       
    Definição: `sapiens/USU_TLIBHOL.md`.
    `USU_NumEmp` N4 PK, `USU_PerRef` Data PK, `USU_DatIni` Data (liberar a partir de — **sempre preenchida**),
    `USU_SitLib` N1 (1 liberado / 0 bloqueado), `USU_UsuLib` A30, `USU_DatGra` Data, `USU_ObsLib` A60.
-   A regra "vazio = DatPag − 1" (decisão 3) é resolvida **na gravação** (painel/worker/SQL), não na pré-seleção:
-   mantém o LSP com uma comparação só e sem ambiguidade de data vazia (31/12/1900 × NULL).
+   A data é sempre escolhida pela TI (decisão 3, revista em 15/10: sem data automática); a pré-seleção faz uma comparação só.
 2. **Bloco 6 da pré-seleção** (igual nos 15): `sapiens/preselecao_fase2_liberacao.txt`. Bloco 5 deixa de filtrar DatPag
    e pega o CodCal mais recente da competência (TipCal 11); bloco 6 só emite se existir linha com
    `USU_SitLib = 1 AND USU_DatIni <= hoje`. Cursor simples, campos sem prefixo de tabela.

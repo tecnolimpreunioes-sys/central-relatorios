@@ -50,7 +50,7 @@ Empresa 8: quando entrar, incluir `8` no `aHolSite` do site que a atender.
 
 ## Pendências conhecidas
 - Portal em HTTP sem TLS (risco LGPD) e ~23 s por requisição — fora do escopo, registrado.
-- Conector do Senior: tratar como **um relatório por vez por sessão**. No portal, pedidos de holerite (e do nome) passam por uma fila (`filaHolerite`); em paralelo, os meses seguintes falhavam e apareciam como "Em breve".
+- Conector do Senior: tratar como **um relatório por vez por sessão**. No portal, folha ponto e holerites passam por uma fila (`filaHolerite`); os 3 holerites são baixados uma vez ao entrar e reaproveitados (antes a busca do nome repetia as 3 consultas). Nome no topo: vazio desde que o Senior passou a entregar PDF; falta ler do texto do PDF (aguardando amostra do Console); em paralelo, os meses seguintes falhavam e apareciam como "Em breve".
 - Colaborador sem cálculo no mês (ex.: admitido depois; layout quebra em "Antes Imprimir" do Detalhe_Colaborador porque não há cargo na data): bloco 5b da pré-seleção confere a `R046VER` e faz `Mensagem(Erro, "SEMHOLERITE")`; o portal mostra "Sem holerite" (texto: "Aqui aparecem os holerites dos seus 3 últimos meses de trabalho"). Validar no piloto que a marca chega na resposta HTML.
 - Produção hoje mostra set/ago/jul **fixos** (manutenção mensal manual, sem regra de pagamento): a virada libera toda folha desses 3 meses.
 - Política de aviso prévio difere entre sites (79x/89x não bloqueiam).

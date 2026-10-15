@@ -31,7 +31,7 @@
   .campo label,.campo .rot{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);font-weight:600;}
   .campo select{font:inherit;font-size:14px;color:var(--text-primary);background:#fff;border:1px solid var(--border-strong);border-radius:8px;padding:8px 10px;}
   .campo select:focus-visible{outline:2px solid var(--focus);outline-offset:1px;}
-  .check{display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--text-secondary);cursor:pointer;}
+  .campo .check{display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-secondary);cursor:pointer;}
   .acoes{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto;}
   .btn{font:inherit;font-size:13.5px;font-weight:600;border-radius:8px;padding:9px 16px;cursor:pointer;border:1px solid var(--border-strong);background:#fff;color:var(--text-primary);display:inline-flex;align-items:center;gap:6px;}
   .btn:hover:not(:disabled){border-color:var(--brand);color:var(--brand);}
@@ -45,54 +45,73 @@
   .status{font-size:13px;color:var(--text-secondary);}
   .status.erro{color:var(--critical);}
 
-  /* relatório (prévia = papel) */
-  .folha{background:#fff;border:1px solid var(--border);border-radius:10px;padding:28px;box-shadow:0 6px 20px -14px rgba(0,42,69,.3);}
-  .cab{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;border-bottom:2px solid var(--brand);padding-bottom:8px;margin-bottom:16px;}
-  .cab h2{font-family:'Nunito',system-ui,sans-serif;font-size:18px;color:var(--brand);margin:0;}
-  .cab .ref{font-size:12px;color:var(--text-muted);text-align:right;}
-  .cab img{height:22px;}
-  table{width:100%;border-collapse:collapse;font-size:11.5px;}
-  th,td{padding:4px 8px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top;}
-  th{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);font-weight:600;border-bottom:1px solid var(--border-strong);}
+  /* relatório: folhas A4 montadas no JS (prévia = papel) */
+  .folhas{display:flex;flex-direction:column;gap:20px;overflow-x:auto;}
+  .pagina{width:210mm;min-height:297mm;margin:0 auto;padding:12mm 10mm;background:#fff;border:1px solid var(--border);box-shadow:0 6px 20px -14px rgba(0,42,69,.3);flex:none;}
+  .vazio{color:var(--text-muted);text-align:center;padding:48px 16px;font-size:14px;background:#fff;border:1px solid var(--border);border-radius:10px;width:100%;}
+  .medidor{position:absolute;left:-10000px;top:0;width:190mm;visibility:hidden;}
+
+  /* cores por empresa (texto escuro sobre tinta clara) */
+  .e-TECNOLIMP{--e:#004773;--e-050:#e6eef3;}
+  .e-SERVIPLUS{--e:#0b6e4f;--e-050:#e5f3ed;}
+  .e-PONTUAL{--e:#a3470b;--e-050:#fcefe3;}
+  .e-SEED{--e:#5b2bb5;--e-050:#efe9fb;}
+
+  .pcab{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:2px solid var(--brand);padding-bottom:6px;margin-bottom:5mm;}
+  .pcab img{height:18px;display:block;}
+  .pcab .tit{font-family:'Nunito',system-ui,sans-serif;font-weight:800;font-size:15px;color:var(--brand);}
+  .pcab .ref{font-size:11px;color:var(--text-muted);text-align:right;line-height:1.35;}
+  .pcab .ref b{color:var(--text-primary);}
+
+  table{width:100%;border-collapse:collapse;font-size:11px;}
+  th,td{padding:3px 7px;border-bottom:1px solid var(--border);text-align:left;vertical-align:top;}
+  th{font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);font-weight:600;border-bottom:1px solid var(--border-strong);}
   .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
-  .cc{font-variant-numeric:tabular-nums;color:var(--text-secondary);width:17%;}
-  .coord{width:18%;}
-  .qtd{width:8%;}
+  .cc{font-variant-numeric:tabular-nums;color:var(--text-secondary);width:18%;}
+  .coord{width:17%;}
+  .qtd{width:7%;}
   .vazio-c{color:var(--border-strong);}
 
-  .resumo{margin-bottom:24px;}
-  .resumo h3,.gestor h3{font-family:'Nunito',system-ui,sans-serif;font-size:14px;margin:0 0 6px;color:var(--brand);text-transform:uppercase;letter-spacing:.04em;}
-  .resumo td:first-child{font-weight:600;}
-  .resumo tfoot td,.subtotal td{font-weight:700;border-top:1px solid var(--border-strong);border-bottom:0;}
-  .resumo .multi{color:var(--brand);}
+  /* folha 1: resumo */
+  .r-tit{font-family:'Nunito',system-ui,sans-serif;font-size:13px;font-weight:800;color:var(--brand);text-transform:uppercase;letter-spacing:.05em;margin:0 0 3mm;}
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:3mm;margin-bottom:6mm;}
+  .kpi{border:1px solid var(--border);border-top:4px solid var(--e,var(--brand));border-radius:4px;padding:2.5mm 3mm;background:var(--e-050,#fff);}
+  .kpi .k-nome{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--e,var(--brand));}
+  .kpi .k-val{font-family:'Nunito',system-ui,sans-serif;font-size:21px;font-weight:800;line-height:1.1;margin:1mm 0 .5mm;font-variant-numeric:tabular-nums;}
+  .kpi .k-val small{font-family:'Inter',system-ui,sans-serif;font-size:10px;font-weight:500;color:var(--text-muted);}
+  .kpi .k-det{font-size:9.5px;color:var(--text-secondary);}
+  .kpi.geral{background:var(--brand);border-color:var(--brand);color:#fff;}
+  .kpi.geral .k-nome,.kpi.geral .k-det,.kpi.geral .k-val small{color:#d5e4ee;}
+  .tab-resumo td{padding:4px 7px;vertical-align:middle;}
+  .tab-resumo tbody tr:nth-child(even) td{background:#f6f8fa;}
+  .tab-resumo .ord{width:6%;color:var(--text-muted);font-variant-numeric:tabular-nums;}
+  .tab-resumo .g{font-weight:700;width:24%;}
+  .tab-resumo .post{font-weight:700;width:9%;}
+  .tab-resumo .pct,.tab-resumo .nc,.tab-resumo .fl{width:8%;color:var(--text-secondary);}
+  .tab-resumo tfoot td{font-weight:700;border-top:2px solid var(--brand);border-bottom:0;background:none;}
+  .pill{display:inline-block;margin:1px 4px 1px 0;padding:1px 6px;border-radius:3px;font-size:10px;background:var(--e-050);color:var(--e);border-left:3px solid var(--e);white-space:nowrap;}
+  .pill b{color:var(--text-primary);font-weight:700;margin-left:3px;}
+  .legenda{margin-top:3mm;font-size:9.5px;color:var(--text-muted);}
 
-  .gestor{margin-top:18px;}
-  .gestor-cab{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--brand);color:#fff;padding:6px 10px;border-radius:4px;break-after:avoid;page-break-after:avoid;}
-  .gestor-cab .nome{font-family:'Nunito',system-ui,sans-serif;font-weight:800;font-size:15px;letter-spacing:.02em;}
-  .gestor-cab .tot{font-size:12px;white-space:nowrap;}
-  .gestor-cab .tot b{font-size:14px;}
-  .empresa{margin:8px 0 0 0;}
-  .empresa.curta{break-inside:avoid;page-break-inside:avoid;}
-  .empresa-cab th{font-size:12px;letter-spacing:0;font-weight:700;color:var(--brand);background:var(--brand-050);padding:4px 10px;border-left:3px solid var(--brand);border-bottom:0;}
-  .empresa-cab span{float:right;font-weight:500;text-transform:none;color:var(--text-secondary);}
-  .gestor.quebra{break-before:page;page-break-before:always;}
-  .rodape{margin-top:20px;font-size:10.5px;color:var(--text-muted);}
-  .vazio{color:var(--text-muted);text-align:center;padding:48px 16px;font-size:14px;}
+  /* blocos de gestor: nunca divididos entre folhas */
+  .bloco{margin-bottom:5mm;}
+  .gestor-cab{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--brand);color:#fff;padding:5px 9px;border-radius:3px;}
+  .gestor-cab .nome{font-family:'Nunito',system-ui,sans-serif;font-weight:800;font-size:14px;letter-spacing:.02em;}
+  .gestor-cab .tot{font-size:11px;white-space:nowrap;}
+  .gestor-cab .tot b{font-size:13px;}
+  .empresa{margin-top:2.5mm;}
+  .empresa-cab{display:flex;justify-content:space-between;gap:8px;font-size:11px;font-weight:700;color:var(--e);background:var(--e-050);padding:3px 9px;border-left:4px solid var(--e);}
+  .empresa-cab span{font-weight:500;color:var(--text-secondary);}
 
-  @media (max-width:640px){
-    .folha{padding:14px;}
-    .coord{display:none;}
-  }
   @page{size:A4 portrait;margin:12mm 10mm;}
   @media print{
     body{background:#fff;padding:0;}
     .no-print{display:none !important;}
     .wrap{max-width:none;gap:0;}
-    .folha{border:0;box-shadow:none;padding:0;border-radius:0;}
+    .folhas{display:block;overflow:visible;}
+    .pagina{width:auto;min-height:0;padding:0;border:0;box-shadow:none;break-after:page;page-break-after:always;}
+    .pagina:last-child{break-after:auto;page-break-after:auto;}
     *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    tr{break-inside:avoid;page-break-inside:avoid;}
-    thead{display:table-header-group;}
-    .coord{display:table-cell;}
   }
 </style>
 </head>
@@ -120,7 +139,7 @@
     <div class="campo">
       <span class="rot">Impressão</span>
       <label class="check"><input type="checkbox" id="fResumo" checked> Incluir resumo</label>
-      <label class="check"><input type="checkbox" id="fQuebra"> Cada gestor em nova página</label>
+      <label class="check"><input type="checkbox" id="fQuebra"> Cada gestor em folha separada</label>
     </div>
     <div class="acoes">
       <button class="btn primario" id="btnImprimir" type="button">Imprimir</button>
@@ -128,7 +147,7 @@
   </div>
   <div class="status no-print" id="status" role="status"></div>
 
-  <main class="folha" id="folha"><div class="vazio">Carregue a planilha para gerar o relatório.</div></main>
+  <main class="folhas" id="folha"><div class="vazio">Carregue a planilha para gerar o relatório.</div></main>
 </div>
 
 <script>
@@ -156,7 +175,7 @@
     return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
   }
   function limpa(s){ // tira aspas soltas dos códigos colados ("3.2.60==","3.2.61==")
-    return String(s).replace(/["']/g,'').replace(/\s*,\s*/g,', ').replace(/\s*-\s*/g,' - ').replace(/\s+/g,' ').trim();
+    return String(s).replace(/[\u0096\u0097\u2013\u2014]/g,'-').replace(/[\u0000-\u001f\u0080-\u009f]/g,' ').replace(/["'\u201c\u201d\u2018\u2019]/g,'').replace(/\s*,\s*/g,', ').replace(/\s*-\s*/g,' - ').replace(/\s+/g,' ').trim();
   }
   function fmt(n){ return Number(n || 0).toLocaleString('pt-BR'); }
 
@@ -227,61 +246,119 @@
     return { gestores:gestores, abas:abas, ref: m ? (m[1].toUpperCase() + '/' + m[2]) : '' };
   }
 
+  // Área útil da folha (A4 menos as margens do @page), em px CSS.
+  var MM = 96 / 25.4, AREA_H = 273 * MM, FOLGA = 3 * MM;
+  var seq = 0;
+
+  function plural(n, s){ return n + ' ' + s + (n === 1 ? '' : 's'); }
+  function nContratos(g){ return EMPRESAS.reduce(function(s, e){ return s + (g.empresas[e.id] ? g.empresas[e.id].linhas.length : 0); }, 0); }
+
+  function cabecalho(folha, total){
+    return '<div class="pcab"><div><img src="../../assets/tecnolimplogo.png" alt="Tecnolimp"><div class="tit">Contratos por Gestor</div></div>' +
+      '<div class="ref">' + (dados.ref ? 'Referência <b>' + esc(dados.ref) + '</b> · ' : '') + 'gerado em ' + new Date().toLocaleDateString('pt-BR') +
+      '<br>Folha <b>' + folha + '</b> de ' + total + '</div></div>';
+  }
+
+  function blocoGestor(g){
+    var h = ['<div class="gestor-cab"><span class="nome">' + esc(g.nome) + '</span><span class="tot">' +
+      plural(nContratos(g), 'contrato') + ' · <b>' + fmt(g.total) + '</b> postos</span></div>'];
+    EMPRESAS.forEach(function(e){
+      var b = g.empresas[e.id];
+      if (!b) return;
+      h.push('<div class="empresa e-' + e.id + '"><div class="empresa-cab">' + e.nome.toUpperCase() +
+        '<span>' + plural(b.linhas.length, 'contrato') + ' · ' + fmt(b.total) + ' postos</span></div>' +
+        '<table><thead><tr><th class="cc">C. Custo</th><th>Contrato</th><th class="coord">Coordenador</th><th class="num qtd">Qtd</th></tr></thead><tbody>');
+      b.linhas.forEach(function(l){
+        h.push('<tr><td class="cc">' + esc(l.cc) + '</td><td>' + esc(l.contrato) + '</td><td class="coord">' +
+          (l.coord ? esc(l.coord) : '<span class="vazio-c">—</span>') + '</td><td class="num">' + fmt(l.qtd) + '</td></tr>');
+      });
+      h.push('</tbody></table></div>');
+    });
+    return h.join('');
+  }
+
+  function blocoResumo(lista, folhaDe){
+    var tot = {}, geral = 0, h = [];
+    EMPRESAS.forEach(function(e){ tot[e.id] = { postos:0, contratos:0, gestores:0 }; });
+    lista.forEach(function(g){
+      geral += g.total;
+      EMPRESAS.forEach(function(e){
+        var b = g.empresas[e.id];
+        if (!b) return;
+        tot[e.id].postos += b.total; tot[e.id].contratos += b.linhas.length; tot[e.id].gestores++;
+      });
+    });
+    var contratos = lista.reduce(function(s, g){ return s + nContratos(g); }, 0);
+    h.push('<div class="r-tit">Resumo geral</div><div class="kpis">');
+    EMPRESAS.forEach(function(e){
+      var t = tot[e.id];
+      h.push('<div class="kpi e-' + e.id + '"><div class="k-nome">' + e.nome + '</div><div class="k-val">' + fmt(t.postos) +
+        ' <small>postos</small></div><div class="k-det">' + plural(t.contratos, 'contrato') + ' · ' + plural(t.gestores, 'gestor') + '</div></div>');
+    });
+    h.push('<div class="kpi geral"><div class="k-nome">Total geral</div><div class="k-val">' + fmt(geral) +
+      ' <small>postos</small></div><div class="k-det">' + plural(contratos, 'contrato') + ' · ' + plural(lista.length, 'gestor') + '</div></div></div>');
+
+    h.push('<div class="r-tit">Gestores</div><table class="tab-resumo"><thead><tr><th class="ord">#</th><th class="g">Gestor</th>' +
+      '<th>Empresas (postos)</th><th class="num nc">Contratos</th><th class="num post">Postos</th><th class="num pct">% total</th><th class="num fl">Folha</th></tr></thead><tbody>');
+    lista.forEach(function(g, i){
+      var pills = EMPRESAS.filter(function(e){ return g.empresas[e.id]; }).map(function(e){
+        return '<span class="pill e-' + e.id + '">' + e.nome + '<b>' + fmt(g.empresas[e.id].total) + '</b></span>';
+      }).join('');
+      h.push('<tr><td class="ord">' + (i + 1) + '</td><td class="g">' + esc(g.nome) + '</td><td>' + pills + '</td>' +
+        '<td class="num nc">' + nContratos(g) + '</td><td class="num post">' + fmt(g.total) + '</td>' +
+        '<td class="num pct">' + (geral ? (g.total / geral * 100).toLocaleString('pt-BR', { minimumFractionDigits:1, maximumFractionDigits:1 }) : '0') + '%</td>' +
+        '<td class="num fl">' + (folhaDe[g.nome] || '') + '</td></tr>');
+    });
+    h.push('</tbody><tfoot><tr><td></td><td>Total</td><td></td><td class="num">' + contratos + '</td><td class="num">' + fmt(geral) +
+      '</td><td class="num">100%</td><td></td></tr></tfoot></table>' +
+      '<div class="legenda">Gestores em ordem alfabética. "Folha" indica onde está o detalhe de cada gestor. Telefone, e-mail, IMR e supervisor não constam deste relatório. Fonte: abas ' +
+      esc(dados.abas.join(', ')) + '.</div>');
+    return h.join('');
+  }
+
+  // Mede o bloco na largura útil da folha; se passar de uma folha, reduz (zoom) para caber inteiro.
+  function medir(med, html){
+    med.innerHTML = '<div class="bloco">' + html + '</div>';
+    var el = med.firstChild, alt = el.getBoundingClientRect().height, zoom = 1;
+    if (alt > med._util){ zoom = Math.floor(med._util / alt * 1000) / 1000; alt = alt * zoom; }
+    return { html:html, alt:alt + 5 * MM, zoom:zoom };
+  }
+
   function render(){
     if (!dados) return;
-    var filtro = $('fGestor').value, quebra = $('fQuebra').checked, resumo = $('fResumo').checked && !filtro;
-    var lista = dados.gestores.filter(function(g){ return !filtro || g.nome === filtro; });
-    var h = [];
-    h.push('<div class="cab"><div><img src="../../assets/tecnolimplogo.png" alt="Tecnolimp"><h2>Contratos por Gestor</h2></div>' +
-      '<div class="ref">' + (dados.ref ? 'Referência: <b>' + esc(dados.ref) + '</b><br>' : '') +
-      'Gerado em ' + new Date().toLocaleDateString('pt-BR') + '</div></div>');
+    var minha = ++seq;
+    document.fonts.ready.then(function(){
+      if (minha !== seq) return;
+      var filtro = $('fGestor').value, umPorFolha = $('fQuebra').checked, resumo = $('fResumo').checked && !filtro;
+      var lista = dados.gestores.filter(function(g){ return !filtro || g.nome === filtro; });
+      var med = document.createElement('div');
+      med.className = 'medidor';
+      document.body.appendChild(med);
+      med.innerHTML = cabecalho(99, 99);
+      med._util = AREA_H - med.firstChild.getBoundingClientRect().height - 5 * MM - FOLGA;
 
-    if (resumo){
-      var tot = {}, geral = 0;
-      h.push('<section class="resumo"><h3>Resumo de postos por gestor e empresa</h3><table><thead><tr><th>Gestor</th>');
-      EMPRESAS.forEach(function(e){ tot[e.id] = 0; h.push('<th class="num">' + e.nome + '</th>'); });
-      h.push('<th class="num">Total</th></tr></thead><tbody>');
+      // empacota os gestores em folhas, na ordem alfabética, sem dividir nenhum
+      var folhas = [], atual = null, folhaDe = {}, base = resumo ? 1 : 0;
       lista.forEach(function(g){
-        var n = Object.keys(g.empresas).length;
-        h.push('<tr><td' + (n > 1 ? ' class="multi" title="Atua em ' + n + ' empresas"' : '') + '>' + esc(g.nome) + '</td>');
-        EMPRESAS.forEach(function(e){
-          var v = g.empresas[e.id];
-          if (v) tot[e.id] += v.total;
-          h.push('<td class="num">' + (v ? fmt(v.total) : '<span class="vazio-c">—</span>') + '</td>');
-        });
-        geral += g.total;
-        h.push('<td class="num"><b>' + fmt(g.total) + '</b></td></tr>');
+        var b = medir(med, blocoGestor(g));
+        if (!atual || umPorFolha || atual.usado + b.alt > med._util + 5 * MM){
+          atual = { blocos:[], usado:0 }; folhas.push(atual);
+        }
+        atual.blocos.push(b); atual.usado += b.alt;
+        folhaDe[g.nome] = folhas.length + base;
       });
-      h.push('</tbody><tfoot><tr><td>Total</td>');
-      EMPRESAS.forEach(function(e){ h.push('<td class="num">' + fmt(tot[e.id]) + '</td>'); });
-      h.push('<td class="num">' + fmt(geral) + '</td></tr></tfoot></table></section>');
-    }
+      var paginas = folhas.map(function(f){ return f.blocos; });
+      if (resumo) paginas.unshift([medir(med, blocoResumo(lista, folhaDe))]);
+      med.remove();
 
-    lista.forEach(function(g, i){
-      var qtdContratos = 0;
-      EMPRESAS.forEach(function(e){ if (g.empresas[e.id]) qtdContratos += g.empresas[e.id].linhas.length; });
-      h.push('<section class="gestor' + (quebra && (i > 0 || resumo) ? ' quebra' : '') + '">' +
-        '<div class="gestor-cab"><span class="nome">' + esc(g.nome) + '</span>' +
-        '<span class="tot">' + qtdContratos + ' contrato' + (qtdContratos > 1 ? 's' : '') + ' · <b>' + fmt(g.total) + '</b> postos</span></div>');
-      EMPRESAS.forEach(function(e){
-        var bloco = g.empresas[e.id];
-        if (!bloco) return;
-        // título da empresa no thead: repete no topo da página quando a tabela quebra
-        h.push('<div class="empresa' + (bloco.linhas.length <= 10 ? ' curta' : '') + '"><table><thead>' +
-          '<tr class="empresa-cab"><th colspan="4">' + e.nome.toUpperCase() + ' · ' + esc(g.nome) +
-          '<span>' + bloco.linhas.length + ' contrato' + (bloco.linhas.length > 1 ? 's' : '') + ' · ' + fmt(bloco.total) + ' postos</span></th></tr>' +
-          '<tr><th class="cc">C. Custo</th><th>Contrato</th><th class="coord">Coordenador</th><th class="num qtd">Qtd</th></tr></thead><tbody>');
-        bloco.linhas.forEach(function(l){
-          h.push('<tr><td class="cc">' + esc(l.cc) + '</td><td>' + esc(l.contrato) + '</td><td class="coord">' +
-            (l.coord ? esc(l.coord) : '<span class="vazio-c">—</span>') + '</td><td class="num">' + fmt(l.qtd) + '</td></tr>');
-        });
-        h.push('</tbody></table></div>');
-      });
-      h.push('</section>');
+      var total = paginas.length;
+      $('folha').innerHTML = total ? paginas.map(function(blocos, i){
+        return '<section class="pagina">' + cabecalho(i + 1, total) + blocos.map(function(b){
+          return '<div class="bloco"' + (b.zoom < 1 ? ' style="zoom:' + b.zoom + '"' : '') + '>' + b.html + '</div>';
+        }).join('') + '</section>';
+      }).join('') : '<div class="vazio">Nenhum contrato encontrado.</div>';
+      $('status').textContent = dados.gestores.length + ' gestores · ' + plural(total, 'folha') + ' para impressão.';
     });
-    if (!lista.length) h.push('<div class="vazio">Nenhum contrato encontrado.</div>');
-    h.push('<div class="rodape">Fonte: abas ' + esc(dados.abas.join(', ')) + '.</div>');
-    $('folha').innerHTML = h.join('');
   }
 
   function carregar(file){
@@ -299,7 +376,6 @@
       sel.innerHTML = '<option value="">Todos</option>' + dados.gestores.map(function(g){
         return '<option>' + esc(g.nome) + '</option>'; }).join('');
       $('controles').hidden = false;
-      st.textContent = dados.gestores.length + ' gestores · ' + dados.abas.length + ' abas lidas.';
       render();
     }).catch(function(err){
       st.className = 'status erro no-print';

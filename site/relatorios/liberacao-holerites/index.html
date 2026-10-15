@@ -71,7 +71,7 @@
   <section id="tabComo" class="hidden">
     <div class="banner info"><span>ℹ</span><div>Todo holerite nasce <b>bloqueado</b>. Ele só aparece no portal RH 24h quando a TI libera aqui, a pedido do RH. A trava fica no Sapiens (pré-seleção dos 15 modelos), então não dá para contornar pela URL do portal.</div></div>
     <div class="how">
-      <div class="card"><h4>1. RH pede</h4><p>“Pode soltar setembro dia 04.” A TI abre a célula e escolhe <b>Agendar</b> (ou Liberar agora). <b>No padrão</b> = pagamento − 1 dia, por empresa (na célula ou em “Todas ▾”).</p></div>
+      <div class="card"><h4>1. RH pede</h4><p>“Pode soltar setembro dia 04.” A TI abre a célula e escolhe <b>Agendar</b> na data pedida (ou Liberar agora). Para várias empresas de uma vez: “Todas ▾”. Não há data automática: só sai quando a TI libera.</p></div>
       <div class="card"><h4>2. Painel envia</h4><p>O clique vira um pedido. O integrador na TECNOLIMP12 grava na tabela <code>USU_TLIBHOL</code> do Sapiens e relê as folhas. Nada fica rodando em ciclo.</p></div>
       <div class="card"><h4>3. Portal obedece</h4><p>O agendamento não depende de nenhum processo: a data fica no Sapiens e o próprio holerite confere no dia. O colaborador nunca vê data: até sair, aparece só <b>🔒 Em breve</b>.</p></div>
     </div>
@@ -81,7 +81,7 @@
       <ul style="margin:0;padding-left:18px;color:var(--color-muted);font-size:13px;line-height:1.6">
         <li><b>Pedido ainda carregando:</b> “Cancelar pedido” na caixa de andamento. Só funciona antes de o integrador começar a gravar.</li>
         <li><b>Já liberado ou agendado:</b> abra a célula e use <b>↩ Reverter liberação</b> (ou “↩ Reverter” no Histórico). Volta a “🔒 Em breve” na hora.</li>
-        <li><b>Bloqueou sem querer:</b> abra a célula e libere de novo (agora, no padrão ou em outra data).</li>
+        <li><b>Bloqueou sem querer:</b> abra a célula e libere de novo (agora ou agendado).</li>
         <li><b>Painel ou integrador fora do ar:</b> SQL de contingência (manual da TI) e depois “Atualizar do Sapiens”.</li>
       </ul></div>
   </section>

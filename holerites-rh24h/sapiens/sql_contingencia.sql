@@ -31,13 +31,10 @@ SELECT c.NumEmp, c.PerRef, MAX(c.CodCal) CodCal, MAX(c.DatPag) DatPag,
 --    DatIni = a partir de quando aparece no portal:
 --      hoje            -> TRUNC(SYSDATE)
 --      data marcada    -> DATE '2026-11-04'
---      no padrao       -> deixe NULL (pagamento - 1 dia)
 -- ---------------------------------------------------------------------
 MERGE INTO VETORH.USU_TLIBHOL l
 USING (SELECT x.NumEmp, x.PerRef,
-              NVL(x.DatIni, (SELECT MAX(DatPag) - 1 FROM VETORH.R044CAL
-                              WHERE NumEmp = x.NumEmp AND TipCal = 11 AND PerRef = x.PerRef)) DatIni,
-              x.Usu, x.Obs
+              x.DatIni, x.Usu, x.Obs
          FROM (SELECT 3                       NumEmp,  -- <-- TROCAR empresa
                       DATE '2026-09-01'       PerRef,  -- <-- TROCAR competencia (sempre dia 01)
                       TRUNC(SYSDATE)          DatIni,  -- <-- TROCAR (ver acima)
@@ -52,7 +49,7 @@ USING (SELECT x.NumEmp, x.PerRef,
       (USU_NumEmp, USU_PerRef, USU_DatIni, USU_SitLib, USU_UsuLib, USU_DatGra, USU_ObsLib)
       VALUES (s.NumEmp, s.PerRef, TRUNC(s.DatIni), 1, s.Usu, TRUNC(SYSDATE), SUBSTR(s.Obs, 1, 60));
 -- Esperado: 1 linha. Confira com o bloco 0 antes do COMMIT (bloco 3).
--- Se USU_DatIni ficou vazio, a competencia nao tem folha calculada: rode ROLLBACK;
+-- Antes, confira no bloco 0 se a competencia tem folha calculada (sem folha nao ha o que liberar).
 
 -- ---------------------------------------------------------------------
 -- 2. BLOQUEAR / REVERTER LIBERACAO (volta a "Em breve" no portal)

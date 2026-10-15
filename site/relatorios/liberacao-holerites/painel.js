@@ -202,7 +202,6 @@
     cur = { emp: +emp, per: per };
     var key = k(emp, per), f = state.folha[key], l = state.lib[key], s = status(emp, per);
     var e = EMPRESAS.find(function (x) { return x.emp === +emp; }), c = COMPS.find(function (x) { return x.per === per; });
-    var padrao = addDias(f.datpag, -1);
     var liberado = s.cls === "ok" || s.cls === "sched";
     $("dTitle").textContent = e.nome + " · " + c.nome;
     $("dSub").innerHTML = '<span class="chip ' + s.cls + '">' + s.txt + "</span> " + esc(s.det);
@@ -217,10 +216,8 @@
       "<dt>Último registro</dt><dd>" + (l ? esc(l.usu) + " em " + br(l.gra) : "—") + "</dd></dl>" +
       '<div class="sec">O que fazer</div>' +
       '<label class="opt"><input type="radio" name="acao" value="agora" ' + (s.cls !== "ok" ? "checked" : "") + "><span><b>Liberar agora</b><small>Aparece no portal assim que o Sapiens receber (segundos).</small></span></label>" +
-      '<label class="opt"><input type="radio" name="acao" value="padrao"><span><b>No padrão</b><small>Pagamento − 1 dia: a partir de ' + br(padrao) +
-        (padrao <= HOJE ? " (já passou: libera na hora)" : "") + ".</small></span></label>" +
-      '<label class="opt"><input type="radio" name="acao" value="agendar" ' + (s.cls === "sched" ? "checked" : "") + "><span><b>Agendar em outra data</b><small>Ex.: “RH pediu para soltar dia 04”.</small><br>" +
-      '<input type="date" id="dData" value="' + (l && l.sit && l.ini > HOJE ? l.ini : (padrao > HOJE ? padrao : addDias(HOJE, 1))) + '" min="' + addDias(HOJE, 1) + '"></span></label>' +
+      '<label class="opt"><input type="radio" name="acao" value="agendar" ' + (s.cls === "sched" ? "checked" : "") + "><span><b>Agendar</b><small>Na data que o RH pedir. Ex.: “pode soltar dia 04”.</small><br>" +
+      '<input type="date" id="dData" value="' + (l && l.sit && l.ini > HOJE ? l.ini : addDias(HOJE, 1)) + '" min="' + addDias(HOJE, 1) + '"></span></label>' +
       '<label class="opt' + (liberado ? " rev" : "") + '"><input type="radio" name="acao" value="bloquear" ' + (s.cls === "ok" ? "checked" : "") + "><span><b>" +
         (liberado ? "↩ Reverter liberação" : "Bloquear") + "</b><small>" +
         (liberado ? "Desfaz a liberação: volta a “🔒 Em breve” no portal na próxima consulta. Fica no histórico." : "Mantém “🔒 Em breve” e registra o motivo. Use em recálculo ou erro.") +
@@ -265,8 +262,7 @@
     if (!alvos.length) return toast("Nenhuma empresa com folha calculada em " + c.nome + ".", "err");
     modal("Todas as empresas · " + c.nome,
       '<p class="hint" style="margin-top:0">Aplica a mesma ação às ' + alvos.length + " empresas com folha calculada em " + c.nome + " (empresa sem folha é ignorada).</p>" +
-      '<label class="opt"><input type="radio" name="bacao" value="padrao" checked><span><b>No padrão</b><small>Pagamento − 1 dia, por empresa: cada uma libera 1 dia antes do próprio pagamento.</small></span></label>' +
-      '<label class="opt"><input type="radio" name="bacao" value="agendar"><span><b>Agendar na mesma data</b><small>Ex.: “solta dia 04”.</small><br><input type="date" id="bData" min="' + addDias(HOJE, 1) + '" value="' + addDias(HOJE, 1) + '"></span></label>' +
+      '<label class="opt"><input type="radio" name="bacao" value="agendar" checked><span><b>Agendar na mesma data</b><small>Ex.: “solta dia 04”.</small><br><input type="date" id="bData" min="' + addDias(HOJE, 1) + '" value="' + addDias(HOJE, 1) + '"></span></label>' +
       '<label class="opt"><input type="radio" name="bacao" value="agora"><span><b>Liberar todas agora</b></span></label>' +
       '<label class="opt"><input type="radio" name="bacao" value="bloquear"><span><b>Bloquear / reverter todas</b><small>Todas voltam a “🔒 Em breve” no portal.</small></span></label>' +
       '<label class="f" for="bObs">Observação</label><input class="t" id="bObs" maxlength="60" placeholder="Quem pediu / motivo">',
@@ -289,16 +285,13 @@
   function descreve(acao, ini) {
     if (acao === "agora") return "Liberar agora";
     if (acao === "bloquear") return "Bloquear / reverter liberação";
-    if (acao === "padrao") return "No padrão (pagamento − 1 dia)";
     if (acao === "atualizar") return "Atualizar do Sapiens";
     return "Agendar para " + br(ini);
   }
   function confirmar(acao, ini, obs, alvos, ok, aviso) {
     var lista = alvos.map(function (a) {
       var f = state.folha[k(a.emp, a.per)];
-      var dp = addDias(f.datpag, -1);
-      var d = acao === "padrao" ? " → a partir de " + br(dp) + (dp <= HOJE ? " (já passou: libera na hora)" : "") : "";
-      return "<li>" + esc(nomeEmp(a.emp)) + " · " + compNome(a.per) + d + "</li>";
+      return "<li>" + esc(nomeEmp(a.emp)) + " · " + compNome(a.per) + "</li>";
     }).join("");
     modal("Confirmar", '<p style="margin-top:0"><b>' + descreve(acao, ini) + '</b></p><ul class="summary">' + lista + "</ul>" +
       (aviso ? '<p class="hint" style="color:var(--lock)">⚠ ' + esc(aviso) + "</p>" : "") +
@@ -307,7 +300,7 @@
       [["Voltar", "btn", closeModal], ["Confirmar", acao === "bloquear" ? "btn danger" : "btn primary", function () { closeModal(); ok(); }]]);
   }
 
-  var ACAO_RPC = { agora: "liberar", agendar: "agendar", padrao: "agendar_padrao", bloquear: "bloquear", atualizar: "atualizar" };
+  var ACAO_RPC = { agora: "liberar", agendar: "agendar", bloquear: "bloquear", atualizar: "atualizar" };
 
   function enviar(acao, ini, obs, alvos) {
     var atualizar = acao === "atualizar";

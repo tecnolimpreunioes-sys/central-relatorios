@@ -30,7 +30,7 @@ Nunca apaga linha e não mexe em nenhuma outra tabela do Senior. Cada mudança g
    |---|---|---|
    | Empresa | `3` | Tecnolimp 1 · Pontual 3 · ServiPlus 4 · DRA 5 · Deltalimp 6 · Servinews 7 |
    | Competência | `DATE '2026-09-01'` | sempre dia 01 do mês da folha |
-   | A partir de (bloco 1) | `TRUNC(SYSDATE)` = hoje · `DATE '2026-11-04'` = data marcada · `NULL` = no padrão (pagamento − 1 dia) | |
+   | A partir de (bloco 1) | `TRUNC(SYSDATE)` = hoje · `DATE '2026-11-04'` = data marcada | sempre uma data escolhida pela TI |
    | Usuário | `'ygor.adm'` | seu usuário de rede |
    | Motivo | `'Contingencia: RH (Dayane) pediu'` | até 60 caracteres |
 
@@ -48,6 +48,6 @@ Nunca apaga linha e não mexe em nenhuma outra tabela do Senior. Cada mudança g
 
 ## Cuidados
 - Rode **um bloco por vez**; nunca o arquivo inteiro.
-- Competência sem folha calculada: o bloco 1 grava a data vazia → `ROLLBACK;` (não há holerite para liberar).
+- Confira no bloco 0 se a competência tem folha calculada; sem folha não há holerite para liberar.
 - O colaborador vê a mudança na próxima vez que abrir o holerite. Ninguém vê data de liberação, só "🔒 Em breve".
 - Não use para a virada nem para trocar a pré-seleção dos modelos: isso fica em `sapiens/producao/`.

@@ -6,7 +6,6 @@ Roda na **TECNOLIMP12**. Ouve a fila `central.lh_pedidos` no Supabase e só toca
 |---|---|
 | Liberar agora | `SitLib 1`, `DatIni` = hoje |
 | Agendar | `SitLib 1`, `DatIni` = data escolhida |
-| Todas no padrão | `SitLib 1`, `DatIni` = pagamento − 1 (por empresa) |
 | Bloquear | `SitLib 0` (nunca apaga; sem linha = já bloqueado) |
 | Atualizar do Sapiens | nada; só relê |
 

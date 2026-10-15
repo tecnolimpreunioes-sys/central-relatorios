@@ -73,7 +73,7 @@ painel mostra "aplicado" ou "erro"        3) marca o pedido aplicado/erro       
 ## Decisões (aprovadas 13/10/2026)
 1. Escrita no Oracle: **A** — exceção para gravar **só** na `USU_TLIBHOL` (usuário Oracle dedicado, grant só nessa tabela). Registrar a exceção formalmente.
 2. Liberação por empresa + mês, todos os colaboradores juntos.
-3. "A partir de" vazio = 1 dia antes do pagamento (resolvido na gravação).
+3. "A partir de" sempre informado pela TI (não há data automática; decisão de 15/10).
 4. Recálculo após liberado continua visível com o cálculo mais recente.
 5. Painel acessível **só pela TI**.
 6. **Sem ciclo fixo**: o sync roda só quando alguém clica no painel (worker sob demanda). Urgência / worker fora: SQL de contingência.

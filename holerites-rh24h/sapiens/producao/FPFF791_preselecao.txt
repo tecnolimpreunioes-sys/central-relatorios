@@ -174,7 +174,7 @@ Se (nHolOk = 1)
 @--- 6. Liberacao manual pela TI (USU_TLIBHOL) ---@
 @ Padrao bloqueado: so emite se houver linha da empresa + competencia  @
 @ com SitLib = 1 e DatIni ja alcancada. DatIni e sempre gravada pelo    @
-@ painel ou SQL da TI (vazio no painel = DatPag menos 1 dia).           @
+@ painel ou SQL da TI: sempre a data escolhida pela TI.                 @
 Se (nHolOk = 1)
 {
   Cur_HolLib.SQL "SELECT USU_NumEmp FROM USU_TLIBHOL \

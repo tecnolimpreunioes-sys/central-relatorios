@@ -59,6 +59,6 @@ Empresa 8: quando entrar, incluir `8` no `aHolSite` do site que a atender.
 ## Próximo passo
 HML validado ponta a ponta em 14/10 (painel → fila → integrador com `TEC_LIBHOL` → `USU_TLIBHOL`, agendar e bloquear). Virada das 6 empresas feita.
 Produção: seguir `docs/roteiro-producao.md` (migration na VM → integrador PROD → painel no IIS → serviço → pré-seleção de Pontual/Tecnolimp/Deltalimp/DRA → teste final).
-Ajustes 15/10 (pedido do Ygor): "No padrão" (pagamento − 1 dia) na célula e no lote; tooltips (`data-tip`, inclusive "Fora do painel" e "Sem folha"); "Cancelar pedido" na caixa de andamento (migration `008`, `lh_cancelar`, só pedido pendente); "↩ Reverter liberação" na gaveta e no Histórico (= bloquear com motivo); portal com selo "📄 Ver holerite" no mês liberado.
+Ajustes 15/10 (pedido do Ygor): **sem data automática** — não existe regra D-1/"no padrão" (removida do painel, SQL e manual; `agendar_padrao` segue aceito no banco/integrador só por compatibilidade, sem botão); tooltips (`data-tip`, inclusive "Fora do painel" e "Sem folha"); "Cancelar pedido" na caixa de andamento (migration `008`, `lh_cancelar`, só pedido pendente); "↩ Reverter liberação" na gaveta e no Histórico (= bloquear com motivo); portal com selo "📄 Ver holerite" no mês liberado.
 **Encerramento:** a documentação final (PDF) precisa citar o **manual do SQL de contingência** (`docs/manual-sql-contingencia.md`) e o cancelar/reverter do painel.
 Sync **sem ciclo fixo** (decisão 6): worker sob demanda, só quando a TI clica no painel.

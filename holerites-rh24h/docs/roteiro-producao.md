@@ -104,6 +104,6 @@ Colar a pré-seleção de `4-sapiens/` em cada modelo (substituir a pré-seleç�
 No painel PROD, uma empresa, competência "Próxima": **Agendar** para daqui a 7 dias → conferir a linha na `USU_TLIBHOL` → **Bloquear** (volta `SitLib 0`). Histórico mostra as duas ações com o seu usuário.
 
 ## Operação no dia a dia
-- RH pede → TI agenda (ou "Todas no padrão": cada empresa libera 1 dia antes do pagamento).
+- RH pede → TI libera ou agenda na data pedida (célula ou "Todas ▾"). Não existe data automática.
 - Aviso "integrador não respondeu" → Agendador › *Tecnolimp - Liberacao de Holerites (integrador)* › Executar. Urgência sem painel: `sql_contingencia.sql` (ver `manual-sql-contingencia.md`) e depois "Atualizar do Sapiens".
 - Atualizar o integrador: trocar só `.py/.bat/.ps1` e reiniciar a tarefa.

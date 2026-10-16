@@ -102,6 +102,30 @@
   .tab-resumo tr.sem td{color:var(--text-muted);font-style:italic;}
   .tab-resumo .post{font-weight:700;width:9%;}
   .tab-resumo .pct{width:9%;color:var(--text-secondary);}
+  .tab-resumo .aj{width:10%;color:var(--text-secondary);}
+  .tab-resumo .pp{width:10%;font-weight:700;color:var(--brand);}
+  .tab-resumo.equipe .g{width:20%;}
+  .tab-resumo.equipe .ord{width:4%;}
+  .tab-resumo.equipe .post,.tab-resumo.equipe .pct{width:8%;}
+  .tab-resumo.equipe .aj,.tab-resumo.equipe .pp{width:9%;}
+  .tab-resumo.equipe th{font-size:10.5px;padding:5px 6px;}
+  .tab-resumo.equipe td{padding:4px 6px;}
+
+  /* janela de ajudantes */
+  dialog.dlg{border:0;border-radius:12px;padding:0;width:min(560px,calc(100% - 32px));box-shadow:0 20px 50px -12px rgba(0,42,69,.45);color:var(--text-primary);font-family:'Inter',system-ui,sans-serif;}
+  dialog.dlg::backdrop{background:rgba(22,28,45,.45);}
+  .dlg-cab{padding:18px 20px 10px;}
+  .dlg-cab h2{font-family:'Nunito',system-ui,sans-serif;font-size:18px;margin:0 0 6px;color:var(--brand);}
+  .dlg-cab p{margin:0;font-size:13.5px;color:var(--text-secondary);line-height:1.45;}
+  .dlg-cab .formula{display:inline-block;margin-top:8px;font-size:12.5px;background:var(--brand-050);color:var(--brand-600);padding:4px 8px;border-radius:6px;font-weight:600;}
+  .dlg-corpo{max-height:min(52vh,460px);overflow:auto;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+  .dlg-corpo table{font-size:13px;}
+  .dlg-corpo th{position:sticky;top:0;background:#fff;}
+  .dlg-corpo td{vertical-align:middle;padding:5px 12px;}
+  .dlg-corpo input{width:72px;font:inherit;font-size:14px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;text-align:right;}
+  .dlg-corpo input:focus-visible{outline:2px solid var(--focus);outline-offset:1px;}
+  .dlg-corpo .orig{font-size:11px;color:var(--text-muted);}
+  .dlg-rod{display:flex;justify-content:flex-end;gap:8px;padding:12px 20px;flex-wrap:wrap;}
   .tab-resumo tfoot td{font-weight:700;border-top:2px solid var(--brand);border-bottom:0;background:none;}
   .pill{display:inline-block;margin:1px 5px 1px 0;padding:2px 7px;border-radius:3px;font-size:12.5px;background:var(--e-050);color:var(--e);border-left:3px solid var(--e);white-space:nowrap;}
   .pill b{color:var(--text-primary);font-weight:700;margin-left:3px;}
@@ -164,10 +188,26 @@
       <label class="check"><input type="checkbox" id="fQuebra"> Cada gestor em folha separada</label>
     </div>
     <div class="acoes">
+      <button class="btn" id="btnAjud" type="button">Ajudantes…</button>
       <button class="btn primario" id="btnImprimir" type="button">Imprimir</button>
     </div>
   </div>
   <div class="status no-print" id="status" role="status"></div>
+
+  <dialog class="dlg no-print" id="dlgAjud" aria-labelledby="dlgAjudTit">
+    <form method="dialog">
+      <div class="dlg-cab">
+        <h2 id="dlgAjudTit">Ajudantes por gestor</h2>
+        <p id="dlgAjudMsg"></p>
+        <span class="formula">Postos por pessoa = postos ÷ (ajudantes + 1)</span>
+      </div>
+      <div class="dlg-corpo"><table><thead><tr><th>Gestor</th><th class="num">Postos</th><th class="num">Ajudantes</th><th class="num">Por pessoa</th></tr></thead><tbody id="dlgAjudLista"></tbody></table></div>
+      <div class="dlg-rod">
+        <button class="btn" value="pular" type="submit">Seguir sem ajudantes</button>
+        <button class="btn primario" value="aplicar" type="submit">Aplicar</button>
+      </div>
+    </form>
+  </dialog>
 
   <main class="folhas" id="folha"><div class="vazio">Carregue a planilha para gerar o relatório.</div></main>
 </div>
@@ -248,6 +288,34 @@
     return null;
   }
 
+  // Ajudantes por gestor, se a planilha tiver a coluna: qualquer aba visível cujo cabeçalho
+  // tenha GESTOR e uma coluna com "AJUDANTE" (nas abas das empresas ou numa aba própria).
+  // O mesmo gestor em várias abas: vale o maior número informado.
+  function lerAjudantes(wb){
+    var aj = {};
+    wb.eachSheet(function(ws){
+      if (ws.state === 'hidden' || ws.state === 'veryHidden') return;
+      for (var r = 1; r <= Math.min(ws.rowCount, 15); r++){
+        var cG = 0, cA = 0;
+        ws.getRow(r).eachCell({ includeEmpty:false }, function(cell, c){
+          var t = norm(valor(cell));
+          if (t === 'GESTOR') cG = c; else if (t.indexOf('AJUDANTE') >= 0) cA = c;
+        });
+        if (!cG || !cA) continue;
+        var atual = '';
+        for (var i = r + 1; i <= ws.rowCount; i++){
+          var row = ws.getRow(i), g = norm(valor(row.getCell(cG)));
+          if (g) atual = ALIAS_GESTOR[g] || g;
+          var v = valor(row.getCell(cA));
+          if (!atual || v === '' || v == null || isNaN(Number(v))) continue;
+          aj[atual] = Math.max(aj[atual] || 0, Math.max(0, Math.round(Number(v))));
+        }
+        break;
+      }
+    });
+    return aj;
+  }
+
   function ler(wb, nomeArquivo){
     var porGestor = {}, abas = [];
     wb.eachSheet(function(ws){
@@ -276,7 +344,8 @@
     var gestores = Object.keys(porGestor).sort(function(a,b){ return a.localeCompare(b,'pt-BR'); })
       .map(function(k){ return porGestor[k]; });
     var m = /([A-ZÇ]+)[-_ ]+(\d{4})/i.exec(nomeArquivo.replace(/\.xlsx$/i,''));
-    return { gestores:gestores, abas:abas, ref: m ? (m[1].toUpperCase() + '/' + m[2]) : '' };
+    return { gestores:gestores, abas:abas, ref: m ? (m[1].toUpperCase() + '/' + m[2]) : '',
+             ajudPlanilha: lerAjudantes(wb), ajud: {} };
   }
 
   // Área útil da folha (A4 menos as margens do @page), em px CSS.
@@ -294,7 +363,9 @@
 
   function blocoGestor(g){
     var h = ['<div class="gestor-cab"><span class="nome">' + esc(g.nome) + '</span><span class="tot">' +
-      plural(nContratos(g), 'contrato') + ' · <b>' + fmt(g.total) + '</b> postos</span></div>'];
+      plural(nContratos(g), 'contrato') + ' · <b>' + fmt(g.total) + '</b> postos' +
+      (ajudantes(g) ? ' · ' + plural(ajudantes(g), 'ajudante') + ' · <b>' + fmt(Math.round(porPessoa(g))) + '</b> por pessoa' : '') +
+      '</span></div>'];
     EMPRESAS.forEach(function(e){
       var b = g.empresas[e.id];
       if (!b) return;
@@ -328,23 +399,31 @@
     return Object.keys(grupos).map(function(k){ return grupos[k]; });
   }
 
-  // Folha de resumo: do maior para o menor % do total; "sem ..." sempre por último.
+  // Folha de resumo: do maior para o menor % do total ("sem ..." sempre por último).
+  // Com equipe (grupos com `ajud`): colunas Ajudantes e Por pessoa, e a ordem passa a ser por pessoa.
   function blocoResumo(titulo, coluna, semNome, grupos, nota){
     var geral = grupos.reduce(function(s, g){ return s + g.total; }, 0), h = [];
-    h.push('<div class="r-tit">' + titulo + '</div><table class="tab-resumo"><thead><tr><th class="ord">#</th><th class="g">' + coluna + '</th>' +
-      '<th>Empresas (postos)</th><th class="num post">Postos</th><th class="num pct">% total</th></tr></thead><tbody>');
+    var equipe = grupos.some(function(g){ return g.ajud !== undefined; });
+    var chave = function(g){ return equipe ? g.total / ((g.ajud || 0) + 1) : g.total; };
+    h.push('<div class="r-tit">' + titulo + '</div><table class="tab-resumo' + (equipe ? ' equipe' : '') + '"><thead><tr><th class="ord">#</th><th class="g">' + coluna + '</th>' +
+      '<th>Empresas (postos)</th><th class="num post">Postos</th>' +
+      (equipe ? '<th class="num aj">Ajudantes</th><th class="num pp">Por pessoa</th>' : '') +
+      '<th class="num pct">% total</th></tr></thead><tbody>');
     grupos.slice().sort(function(a, b){
-      return (!a.nome) - (!b.nome) || b.total - a.total || a.nome.localeCompare(b.nome, 'pt-BR');
+      return (!a.nome) - (!b.nome) || chave(b) - chave(a) || b.total - a.total || a.nome.localeCompare(b.nome, 'pt-BR');
     }).forEach(function(g, i){
       var pills = EMPRESAS.filter(function(e){ return g.empresas[e.id]; }).map(function(e){
         return '<span class="pill e-' + e.id + '">' + e.nome + '<b>' + fmt(g.empresas[e.id]) + '</b></span>';
       }).join('');
       h.push('<tr' + (g.nome ? '' : ' class="sem"') + '><td class="ord">' + (g.nome ? i + 1 : '') + '</td><td class="g">' + esc(g.nome || semNome) + '</td><td>' + pills + '</td>' +
         '<td class="num post">' + fmt(g.total) + '</td>' +
+        (equipe ? '<td class="num aj">' + (g.ajud || 0) + '</td><td class="num pp">' + fmt(Math.round(chave(g))) + '</td>' : '') +
         '<td class="num pct">' + (geral ? (g.total / geral * 100).toLocaleString('pt-BR', { minimumFractionDigits:1, maximumFractionDigits:1 }) : '0') + '%</td></tr>');
     });
-    h.push('</tbody><tfoot><tr><td></td><td>Total</td><td></td><td class="num">' + fmt(geral) +
-      '</td><td class="num">100%</td></tr></tfoot></table>' +
+    var totAj = grupos.reduce(function(s, g){ return s + (g.ajud || 0); }, 0);
+    h.push('</tbody><tfoot><tr><td></td><td>Total</td><td></td><td class="num">' + fmt(geral) + '</td>' +
+      (equipe ? '<td class="num">' + totAj + '</td><td class="num">' + fmt(Math.round(geral / (grupos.length + totAj || 1))) + '</td>' : '') +
+      '<td class="num">100%</td></tr></tfoot></table>' +
       '<div class="legenda">' + nota + ' Telefone, e-mail e IMR não constam deste relatório. Fonte: abas ' +
       esc(dados.abas.join(', ')) + '.</div>');
     return h.join('');
@@ -392,8 +471,8 @@
         resumos.push(blocoResumo('Resumo por gestor', 'Gestor', '', lista.map(function(g){
           var emp = {};
           EMPRESAS.forEach(function(e){ if (g.empresas[e.id]) emp[e.id] = g.empresas[e.id].total; });
-          return { nome:g.nome, total:g.total, empresas:emp };
-        }), 'Gestores do maior para o menor % do total; as folhas de detalhe seguem a ordem alfabética.'));
+          return { nome:g.nome, total:g.total, empresas:emp, ajud:ajudantes(g) };
+        }), 'Gestores do maior para o menor número de postos por pessoa: postos ÷ (ajudantes + 1). Total "por pessoa" = postos ÷ (gestores + ajudantes). As folhas de detalhe seguem a ordem alfabética.'));
       if (!filtro && $('fResCoord').checked)
         resumos.push(blocoResumo('Resumo por coordenador', 'Coordenador', 'Sem coordenador', agrupar(lista, function(l){ return l.coord; }),
           'Coordenadores do maior para o menor % do total.'));
@@ -413,6 +492,58 @@
     });
   }
 
+  // ---------- ajudantes ----------
+  var CHAVE_AJUD = 'contratos-gestores:ajudantes'; // últimos valores digitados (só neste navegador)
+  function ajudantes(g){ return dados && dados.ajud[g.nome] || 0; }
+  function porPessoa(g){ return g.total / (ajudantes(g) + 1); }
+  function ajudSalvos(){ try { return JSON.parse(localStorage.getItem(CHAVE_AJUD)) || {}; } catch (e) { return {}; } }
+  function salvarAjud(mapa){ try { localStorage.setItem(CHAVE_AJUD, JSON.stringify(mapa)); } catch (e) {} }
+
+  function abrirAjudantes(){
+    var plan = dados.ajudPlanilha, salvos = ajudSalvos();
+    var faltam = dados.gestores.filter(function(g){ return plan[g.nome] === undefined; }).length;
+    $('dlgAjudMsg').textContent = faltam === dados.gestores.length
+      ? 'A planilha não tem a coluna AJUDANTES. Informe quantos ajudantes cada gestor tem (0 se não tiver) para o resumo por gestor considerar a equipe.'
+      : (faltam ? faltam + ' gestor(es) sem número de ajudantes na planilha. Complete abaixo (0 se não tiver).'
+                : 'Números de ajudantes lidos da planilha. Ajuste se precisar.');
+    $('dlgAjudLista').innerHTML = dados.gestores.map(function(g){
+      var daPlanilha = plan[g.nome] !== undefined;
+      var v = daPlanilha ? plan[g.nome] : (dados.ajud[g.nome] !== undefined ? dados.ajud[g.nome] : (salvos[g.nome] || 0));
+      return '<tr><td>' + esc(g.nome) + (daPlanilha ? ' <span class="orig">(planilha)</span>' : '') + '</td>' +
+        '<td class="num">' + fmt(g.total) + '</td>' +
+        '<td class="num"><input type="number" min="0" step="1" inputmode="numeric" data-g="' + esc(g.nome) + '" data-t="' + g.total + '" value="' + v + '" aria-label="Ajudantes de ' + esc(g.nome) + '"></td>' +
+        '<td class="num pp-prev">' + fmt(Math.round(g.total / (v + 1))) + '</td></tr>';
+    }).join('');
+    $('dlgAjud').showModal();
+  }
+  function lerJanela(){
+    var mapa = {};
+    $('dlgAjudLista').querySelectorAll('input').forEach(function(inp){
+      var n = Math.round(Number(inp.value));
+      mapa[inp.getAttribute('data-g')] = isFinite(n) && n > 0 ? n : 0;
+    });
+    return mapa;
+  }
+  $('dlgAjudLista').addEventListener('input', function(e){
+    var inp = e.target; if (!inp.matches('input')) return;
+    var n = Math.max(0, Math.round(Number(inp.value)) || 0);
+    inp.closest('tr').querySelector('.pp-prev').textContent = fmt(Math.round(Number(inp.getAttribute('data-t')) / (n + 1)));
+  });
+  $('dlgAjud').addEventListener('close', function(){
+    var dlg = $('dlgAjud');
+    if (dlg.returnValue === 'aplicar'){
+      dados.ajud = lerJanela();
+      var salvos = ajudSalvos();
+      Object.keys(dados.ajud).forEach(function(k){ if (dados.ajudPlanilha[k] === undefined) salvos[k] = dados.ajud[k]; });
+      salvarAjud(salvos);
+    } else if (dlg.returnValue === 'pular') {
+      dados.ajud = {};
+      Object.keys(dados.ajudPlanilha).forEach(function(k){ dados.ajud[k] = dados.ajudPlanilha[k]; });
+    }
+    dlg.returnValue = '';
+    render();
+  });
+
   function carregar(file){
     if (!file) return;
     var st = $('status');
@@ -428,7 +559,9 @@
       sel.innerHTML = '<option value="">Todos</option>' + dados.gestores.map(function(g){
         return '<option>' + esc(g.nome) + '</option>'; }).join('');
       $('controles').hidden = false;
+      Object.keys(dados.ajudPlanilha).forEach(function(k){ dados.ajud[k] = dados.ajudPlanilha[k]; });
       render();
+      if (dados.gestores.some(function(g){ return dados.ajudPlanilha[g.nome] === undefined; })) abrirAjudantes();
     }).catch(function(err){
       st.className = 'status erro no-print';
       st.textContent = 'Não foi possível ler a planilha: ' + (err && err.message || err);
@@ -442,6 +575,7 @@
   drop.addEventListener('drop', function(e){ carregar(e.dataTransfer.files[0]); });
   ['fGestor','fQuebra','fResGestor','fResCoord','fResSup','fDetalhe'].forEach(function(id){ $(id).addEventListener('change', render); });
   $('btnImprimir').addEventListener('click', function(){ window.print(); });
+  $('btnAjud').addEventListener('click', function(){ if (dados) abrirAjudantes(); });
 
   // login único da Central: permissão pelo slug (área T.I.)
   TC.protegerRelatorio('contratos-gestores').then(function(perfil){

@@ -198,9 +198,22 @@
           return new Promise(function () {});
         }
         preencherTrilha(ctx);
+        ctxRelatorio = ctx;
         return s ? exigirLogin() : null;
       });
     });
+  }
+  // Papéis (009): o que a pessoa vê dentro do relatório. Use para esconder abas/botões;
+  // a segurança de verdade fica nas policies (central.tem_papel).
+  var ctxRelatorio = null;
+  function papeis() { return (ctxRelatorio && ctxRelatorio.papeis) || []; }
+  function temPapel(p) { return papeis().indexOf(p) !== -1; }
+  // Relatório com papéis e pessoa sem nenhum: troca o conteúdo de el pelo aviso padrão. Retorna true se avisou.
+  function avisarSemPapel(el) {
+    if (!ctxRelatorio || !ctxRelatorio.usa_papeis || papeis().length) return false;
+    el.innerHTML = '<div class="empty"><strong>Sem perfil neste relatório</strong>' +
+      'Você tem acesso, mas ainda não recebeu um perfil. Fale com o administrador da Central.</div>';
+    return true;
   }
   function preencherTrilha(ctx) {
     document.querySelectorAll("a.cb-area").forEach(function (a) {
@@ -275,6 +288,9 @@
     trocarSenha: trocarSenha,
     exigirLogin: exigirLogin,
     protegerRelatorio: protegerRelatorio,
+    papeis: papeis,
+    temPapel: temPapel,
+    avisarSemPapel: avisarSemPapel,
     destinoSeguro: destinoSeguro,
     irLogin: irLogin,
     rest: rest,

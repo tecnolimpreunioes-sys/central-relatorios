@@ -7,7 +7,7 @@ Cada usuário vê só as áreas/relatórios liberados pelo administrador; a perm
 - Tela inicial por áreas, busca global (atalho `/`) e acessados recentemente
 - Login por usuário de rede (ex.: `ygor.adm`), troca de senha obrigatória no 1º acesso (senha padrão única definida pelo admin)
 - Página de área: busca, filtro por categoria, grade/lista, selo "Novo"
-- Administração: usuários, permissões (área inteira ou relatório), áreas, relatórios, senha padrão
+- Administração: usuários, permissões (área inteira ou relatório) e **papéis dentro do relatório**, áreas, relatórios, senha padrão
 
 ## Relatórios
 | Relatório | Área | Pasta | Dados |
@@ -38,7 +38,7 @@ Relatório para impressão a partir da planilha mensal de contratos por gestores
 |---|---|
 | `site/` | Frontend estático (HTML/CSS/JS, sem build). `assets/config.js` = único ponto com URL/chave do Supabase |
 | `site/assets/vendor/` | Bibliotecas servidas localmente (ExcelJS 4.4.0) |
-| `migrations/` | SQL do schema `central`: base (001), proteção do Painel de Eventos (002), carga inicial da produção (003), login por usuário de rede (004), Quadro de Vagas (005), relatórios de acesso livre (006), Contratos por Gestor (`007_contratos_gestores`), Liberação de Holerites (`007_liberacao_holerites`; `008` = cancelar pedido). As duas 007 são independentes e já estão aplicadas; a próxima é a 009. `migrations/testes/` = teste local com stub do Supabase |
+| `migrations/` | SQL do schema `central`: base (001), proteção do Painel de Eventos (002), carga inicial da produção (003), login por usuário de rede (004), Quadro de Vagas (005), relatórios de acesso livre (006), Contratos por Gestor (`007_contratos_gestores`), Liberação de Holerites (`007_liberacao_holerites`; `008` = cancelar pedido). As duas 007 são independentes e já estão aplicadas. `009_papeis_relatorio` = papéis por relatório. A próxima é a 010. `migrations/testes/` = teste local com stub do Supabase |
 | `sync/quadro-vagas/` | Worker Python da TECNOLIMP12 (fila → Oracle → resultado) e instalação no Agendador — ver `LEIAME.md` |
 | `sync/liberacao-holerites/` | Integrador da Liberação de Holerites (fila → USU_TLIBHOL no Sapiens → espelho) — ver `LEIAME.md` |
 | `supabase/functions/central-admin-usuarios/` | Edge Function: criar usuário e redefinir senha |
@@ -71,4 +71,25 @@ O `config.js` versionado aponta para o HML. O pacote de produção troca só ess
 2. Cadastrar em Administração › Relatórios (`url = relatorios/<pasta>/`) ou na própria migration.
 3. Policies dos dados com `central.pode_ver_relatorio('<slug>')`.
 4. Precisa consultar o Oracle sob demanda? Reaproveitar o padrão do Quadro de Vagas (fila + worker).
-5. Área e **Exige login** de cada relatório: Administração › Configurações (`relatorios.publico`). Sem login, a página abre para qualquer pessoa e aparece em "Acesso livre" na tela inicial; os dados do relatório só funcionam sem login se forem servidos por RPC `security definer` liberada para `anon` (ex.: `qv_solicitar`/`qv_consultar`).
+5. Relatório com **papéis** (ex.: RH, Gestor, TI): ver "Relatórios com papéis" abaixo.
+6. Área e **Exige login** de cada relatório: Administração › Configurações (`relatorios.publico`). Sem login, a página abre para qualquer pessoa e aparece em "Acesso livre" na tela inicial; os dados do relatório só funcionam sem login se forem servidos por RPC `security definer` liberada para `anon` (ex.: `qv_solicitar`/`qv_consultar`).
+
+## Relatórios com papéis (009)
+O login é o mesmo da Central em todos os relatórios. O admin controla duas coisas por usuário:
+- **Acesso:** entrar no relatório, como sempre (Área inteira ou relatório marcado).
+- **Papel:** o que a pessoa vê ou faz dentro do relatório (Administração › Usuário › Permissões, chips abaixo do relatório).
+  Sem papel, a pessoa entra mas não vê dados. Admin tem todos os papéis. Relatório com papéis nunca é de acesso livre.
+  Cada concessão ou remoção fica em `central.acessos_papel_log`.
+
+Para um relatório novo usar papéis:
+1. Na migration dele, cadastrar o catálogo:
+   ```sql
+   insert into central.relatorio_papeis(relatorio_id, papel, nome, descricao, ordem)
+   select id, v.papel, v.nome, v.descricao, v.ordem from central.relatorios,
+     (values ('rh','RH','Planeja e altera',10), ('gestor','Gestor','Vê a própria equipe',20)) v(papel,nome,descricao,ordem)
+   where slug = '<slug>' on conflict do nothing;
+   ```
+2. Policies dos dados com `central.tem_papel('<slug>','<papel>')` (no lugar de `pode_ver_relatorio`).
+3. Na página: depois de `TC.protegerRelatorio('<slug>')`, usar `TC.avisarSemPapel(el)` (mostra o aviso padrão e
+   retorna `true` se a pessoa não tem papel), `TC.temPapel('rh')` e `TC.papeis()` para mostrar ou esconder abas.
+   Isso é só interface: quem garante a segurança é o RLS.

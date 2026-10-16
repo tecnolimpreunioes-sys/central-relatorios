@@ -1,5 +1,5 @@
 -- Stub mínimo do Supabase (papéis + auth.uid/role) para testar migrations num Postgres local.
--- Uso: psql -f stub_supabase.sql; aplicar 001,004,005,006,007; psql -f 007_liberacao_holerites_teste.sql
+-- Uso: psql -f stub_supabase.sql; aplicar 001,004,005,006,007,008,009; psql -f testes/00N_*_teste.sql
 create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls;
 create schema auth;
 create table auth.users(id uuid primary key, email text);

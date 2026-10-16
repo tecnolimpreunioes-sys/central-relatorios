@@ -54,7 +54,13 @@
   .perm-rels label{display:flex;gap:10px;align-items:center;font-size:13.5px;padding:5px 0;cursor:pointer;}
   .perm-rels input{width:16px;height:16px;accent-color:var(--brand);}
   .perm-rels .vazio{font-size:12.5px;color:var(--subtle);padding:6px 0;}
-  .perm-area.inteira .perm-rels label{color:var(--muted);cursor:default;}
+  .perm-area.inteira .perm-rels [data-rel-bloco] > label{color:var(--muted);cursor:default;}
+  .perm-papeis{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:0 0 6px 26px;font-size:12px;color:var(--muted);}
+  .perm-rels .perm-papeis label{display:inline-flex;gap:6px;height:28px;padding:0 10px;border:1px solid var(--line-2);border-radius:999px;background:var(--surface);color:var(--ink-2);font-size:12.5px;cursor:pointer;}
+  .perm-rels .perm-papeis label:has(input:checked){border-color:var(--brand);background:var(--brand-050);color:var(--brand);}
+  .perm-rels .perm-papeis label:has(input:disabled){opacity:.5;cursor:default;}
+  .perm-papeis input{width:14px;height:14px;}
+  .perm-papeis .dica{flex-basis:100%;}
   .icones{display:grid;grid-template-columns:repeat(auto-fill,44px);gap:8px;}
   .icones button{width:44px;height:44px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);cursor:pointer;display:grid;place-items:center;}
   .icones button[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-050);color:var(--brand);box-shadow:0 0 0 2px rgba(0,71,115,.15);}
@@ -169,9 +175,13 @@
       TC.db("relatorios?select=*&order=ordem.asc,nome.asc"),
       TC.db("acessos_area?select=*"),
       TC.db("acessos_relatorio?select=*"),
-      TC.db("configuracoes?select=valor&chave=eq.senha_padrao")
+      TC.db("configuracoes?select=valor&chave=eq.senha_padrao"),
+      // papéis por relatório (009); sem a migration aplicada, a tela segue sem papéis
+      TC.db("relatorio_papeis?select=*&order=ordem.asc,papel.asc").catch(function(){ return null; }),
+      TC.db("acessos_papel?select=*").catch(function(){ return []; })
     ]).then(function(r){
       D.perfis = r[0]; D.areas = r[1]; D.rels = r[2]; D.aa = r[3]; D.ar = r[4];
+      D.temPapeis = r[6] !== null; D.rp = r[6] || []; D.ap = r[7];
       document.getElementById("cfg-senha").value = (r[5][0] || {}).valor || "";
       renderTudo();
     }).catch(function(e){ TC.toast("Erro ao carregar: " + e.message, "err"); });
@@ -265,25 +275,47 @@
         '<label class="switch" style="font-size:13px"><input type="checkbox" data-inteira' + (inteira ? " checked" : "") + '><span class="tr"></span>Área inteira</label></div>' +
         '<div class="perm-rels">' + (rels.map(function(r){
           var marc = inteira || minhosR.indexOf(r.id) !== -1;
-          return '<label><input type="checkbox" data-rel="' + r.id + '"' + (marc ? " checked" : "") + (inteira ? " disabled" : "") + '>' + esc(r.nome) + (r.ativo ? '' : ' <span class="tag tag-off">inativo</span>') + '</label>';
+          return '<div data-rel-bloco><label><input type="checkbox" data-rel="' + r.id + '"' + (marc ? " checked" : "") + (inteira ? " disabled" : "") + '>' + esc(r.nome) + (r.ativo ? '' : ' <span class="tag tag-off">inativo</span>') + '</label>' +
+            blocoPapeis(uid, r, marc) + '</div>';
         }).join("") || '<div class="vazio">Nenhum relatório nesta área ainda. Com “Área inteira”, a pessoa verá os relatórios que forem publicados aqui.</div>') + '</div></div>';
     }).join("") + '</div>';
   }
+  // papéis do relatório (009): só valem com o relatório liberado; sem papel a pessoa entra mas não vê dados
+  function blocoPapeis(uid, r, liberado){
+    var cat = D.rp.filter(function(x){ return x.relatorio_id === r.id; });
+    if (!cat.length) return "";
+    var meus = D.ap.filter(function(x){ return x.usuario_id === uid && x.relatorio_id === r.id; }).map(function(x){ return x.papel; });
+    return '<div class="perm-papeis">' + cat.map(function(x){
+      return '<label title="' + esc(x.descricao) + '"><input type="checkbox" data-papel="' + esc(x.papel) + '" data-prel="' + r.id + '"' +
+        (meus.indexOf(x.papel) !== -1 ? " checked" : "") + (liberado ? "" : " disabled") + '>' + esc(x.nome) + '</label>';
+    }).join("") + '<span class="dica">Sem papel, a pessoa entra no relatório mas não vê dados.</span></div>';
+  }
   function lerPermissoes(root){
-    var areas = [], rels = [];
+    var areas = [], rels = [], papeis = [];
     root.querySelectorAll("[data-area]").forEach(function(bl){
       if (bl.querySelector("[data-inteira]").checked) areas.push(bl.dataset.area);
       else bl.querySelectorAll("[data-rel]:checked").forEach(function(c){ rels.push(c.dataset.rel); });
     });
-    return { areas: areas, rels: rels };
+    root.querySelectorAll("[data-papel]:checked:not(:disabled)").forEach(function(c){ papeis.push({ relatorio_id: c.dataset.prel, papel: c.dataset.papel }); });
+    return { areas: areas, rels: rels, papeis: papeis };
   }
   function ligarPermissoes(root){
+    function papeisDoBloco(bl){
+      bl.querySelectorAll("[data-rel-bloco]").forEach(function(rb){
+        var liberado = rb.querySelector("[data-rel]").checked;
+        rb.querySelectorAll("[data-papel]").forEach(function(c){ c.disabled = !liberado; });
+      });
+    }
     root.querySelectorAll("[data-inteira]").forEach(function(sw){
       sw.addEventListener("change", function(){
         var bl = sw.closest("[data-area]");
         bl.classList.toggle("inteira", sw.checked);
         bl.querySelectorAll("[data-rel]").forEach(function(c){ c.disabled = sw.checked; if (sw.checked) c.checked = true; });
+        papeisDoBloco(bl);
       });
+    });
+    root.querySelectorAll("[data-rel]").forEach(function(c){
+      c.addEventListener("change", function(){ papeisDoBloco(c.closest("[data-area]")); });
     });
   }
   function salvarPermissoes(uid, perm){
@@ -295,6 +327,7 @@
       var ps = [];
       if (perm.areas.length) ps.push(TC.db("acessos_area", { method: "POST", prefer: "return=minimal", body: perm.areas.map(function(a){ return { usuario_id: uid, area_id: a }; }) }));
       if (perm.rels.length) ps.push(TC.db("acessos_relatorio", { method: "POST", prefer: "return=minimal", body: perm.rels.map(function(r){ return { usuario_id: uid, relatorio_id: r }; }) }));
+      if (D.temPapeis) ps.push(TC.rpc("salvar_papeis", { p_usuario: uid, p_papeis: perm.papeis }));
       return Promise.all(ps);
     });
   }
@@ -407,12 +440,16 @@
     D.ar.forEach(function(x){ if (x.relatorio_id === r.id) ids[x.usuario_id] = 1; });
     return Object.keys(ids).length;
   }
+  function papeisDoRel(r){
+    var n = D.rp.filter(function(x){ return x.relatorio_id === r.id; }).map(function(x){ return esc(x.nome); });
+    return n.length ? " · Papéis: " + n.join(", ") : "";
+  }
   function renderRels(){
     var t = (document.getElementById("r-busca").value || "").toLowerCase(), fa = document.getElementById("r-area").value;
     var l = D.rels.filter(function(r){ return (!fa || r.area_id === fa) && (!t || (r.nome + " " + r.categoria + " " + r.slug).toLowerCase().indexOf(t) !== -1); });
     document.getElementById("r-tb").innerHTML = l.map(function(r){
       var a = area(r.area_id);
-      return '<tr><td><div class="pess"><span class="mini-ico" style="--c:' + esc(a.cor) + '">' + TCIcone("documento", 18) + '</span><div><b>' + esc(r.nome) + '</b><span>' + esc(r.categoria) + '</span></div></div></td>' +
+      return '<tr><td><div class="pess"><span class="mini-ico" style="--c:' + esc(a.cor) + '">' + TCIcone("documento", 18) + '</span><div><b>' + esc(r.nome) + '</b><span>' + esc(r.categoria) + papeisDoRel(r) + '</span></div></div></td>' +
         '<td>' + esc(a.nome) + '</td><td class="hide-sm"><code>' + esc(r.url) + '</code></td><td class="hide-sm">' + usuariosDoRel(r) + ' <span class="muted">+ admins</span></td>' +
         '<td>' + (r.ativo ? '<span class="tag tag-new">Publicado</span>' : '<span class="tag tag-off">Oculto</span>') + (r.publico ? ' <span class="tag">Livre</span>' : '') + '</td>' +
         '<td class="acoes"><button class="btn btn-ghost btn-sm" data-editar-r="' + r.id + '">Editar</button></td></tr>';
